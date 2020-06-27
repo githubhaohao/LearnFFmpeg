@@ -2,6 +2,7 @@ package com.byteflow.learnffmpeg;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.opengl.GLSurfaceView;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -11,12 +12,15 @@ import android.widget.SeekBar;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import com.byteflow.learnffmpeg.media.FFMediaPlayer;
+import com.byteflow.learnffmpeg.media.MyGLSurfaceView;
 import com.byteflow.learnffmpeg.media.MySurfaceView;
+
+import javax.microedition.khronos.egl.EGLConfig;
+import javax.microedition.khronos.opengles.GL10;
 
 import static com.byteflow.learnffmpeg.media.FFMediaPlayer.MEDIA_PARAM_VIDEO_DURATION;
 import static com.byteflow.learnffmpeg.media.FFMediaPlayer.MEDIA_PARAM_VIDEO_HEIGHT;
@@ -26,15 +30,15 @@ import static com.byteflow.learnffmpeg.media.FFMediaPlayer.MSG_DECODER_INIT_ERRO
 import static com.byteflow.learnffmpeg.media.FFMediaPlayer.MSG_DECODER_READY;
 import static com.byteflow.learnffmpeg.media.FFMediaPlayer.MSG_DECODING_TIME;
 import static com.byteflow.learnffmpeg.media.FFMediaPlayer.MSG_REQUEST_RENDER;
-import static com.byteflow.learnffmpeg.media.FFMediaPlayer.VIDEO_RENDER_ANWINDOW;
+import static com.byteflow.learnffmpeg.media.FFMediaPlayer.VIDEO_RENDER_OPENGL;
 
-public class MediaPlayerActivity extends AppCompatActivity implements SurfaceHolder.Callback, FFMediaPlayer.EventCallback{
+public class GLMediaPlayerActivity extends AppCompatActivity implements GLSurfaceView.Renderer, FFMediaPlayer.EventCallback{
     private static final String TAG = "MediaPlayerActivity";
     private static final String[] REQUEST_PERMISSIONS = {
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
     };
     private static final int PERMISSION_REQUEST_CODE = 1;
-    private MySurfaceView mSurfaceView = null;
+    private MyGLSurfaceView mGLSurfaceView = null;
     private FFMediaPlayer mMediaPlayer = null;
     private SeekBar mSeekBar = null;
     private boolean mIsTouch = false;
@@ -42,9 +46,11 @@ public class MediaPlayerActivity extends AppCompatActivity implements SurfaceHol
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_media_player);
-        mSurfaceView = findViewById(R.id.surface_view);
-        mSurfaceView.getHolder().addCallback(this);
+        setContentView(R.layout.activity_gl_media_player);
+        mGLSurfaceView = findViewById(R.id.surface_view);
+        mGLSurfaceView.setEGLContextClientVersion(3);
+        mGLSurfaceView.setRenderer(this);
+        mGLSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
 
         mSeekBar = findViewById(R.id.seek_bar);
         mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -68,6 +74,10 @@ public class MediaPlayerActivity extends AppCompatActivity implements SurfaceHol
 
             }
         });
+
+        mMediaPlayer = new FFMediaPlayer();
+        mMediaPlayer.addEventCallback(this);
+        mMediaPlayer.init(mPath, VIDEO_RENDER_OPENGL, null);
     }
 
     @Override
@@ -101,26 +111,24 @@ public class MediaPlayerActivity extends AppCompatActivity implements SurfaceHol
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        if(mMediaPlayer != null)
+            mMediaPlayer.unInit();
     }
 
     @Override
-    public void surfaceCreated(SurfaceHolder surfaceHolder) {
-        Log.d(TAG, "surfaceCreated() called with: surfaceHolder = [" + surfaceHolder + "]");
-        mMediaPlayer = new FFMediaPlayer();
-        mMediaPlayer.addEventCallback(this);
-        mMediaPlayer.init(mPath, VIDEO_RENDER_ANWINDOW, surfaceHolder.getSurface());
+    public void onSurfaceCreated(GL10 gl10, EGLConfig eglConfig) {
+        FFMediaPlayer.native_OnSurfaceCreated();
     }
 
     @Override
-    public void surfaceChanged(SurfaceHolder surfaceHolder, int format, int w, int h) {
-        Log.d(TAG, "surfaceChanged() called with: surfaceHolder = [" + surfaceHolder + "], format = [" + format + "], w = [" + w + "], h = [" + h + "]");
-        mMediaPlayer.play();
+    public void onSurfaceChanged(GL10 gl10, int w, int h) {
+        Log.d(TAG, "onSurfaceChanged() called with: gl10 = [" + gl10 + "], w = [" + w + "], h = [" + h + "]");
+        FFMediaPlayer.native_OnSurfaceChanged(w, h);
     }
 
     @Override
-    public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
-        Log.d(TAG, "surfaceDestroyed() called with: surfaceHolder = [" + surfaceHolder + "]");
-        mMediaPlayer.unInit();
+    public void onDrawFrame(GL10 gl10) {
+        FFMediaPlayer.native_OnDrawFrame();
     }
 
     @Override
@@ -138,6 +146,7 @@ public class MediaPlayerActivity extends AppCompatActivity implements SurfaceHol
                     case MSG_DECODER_DONE:
                         break;
                     case MSG_REQUEST_RENDER:
+                        mGLSurfaceView.requestRender();
                         break;
                     case MSG_DECODING_TIME:
                         if(!mIsTouch)
@@ -155,7 +164,7 @@ public class MediaPlayerActivity extends AppCompatActivity implements SurfaceHol
         int videoWidth = (int) mMediaPlayer.getMediaParams(MEDIA_PARAM_VIDEO_WIDTH);
         int videoHeight = (int) mMediaPlayer.getMediaParams(MEDIA_PARAM_VIDEO_HEIGHT);
         if(videoHeight * videoWidth != 0)
-            mSurfaceView.setAspectRatio(videoWidth, videoHeight);
+            mGLSurfaceView.setAspectRatio(videoWidth, videoHeight);
 
         int duration = (int) mMediaPlayer.getMediaParams(MEDIA_PARAM_VIDEO_DURATION);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

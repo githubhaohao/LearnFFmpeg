@@ -4,6 +4,7 @@
 #include <cstdio>
 #include <cstring>
 #include <FFMediaPlayer.h>
+#include <render/video/OpenGLRender.h>
 #include "util/LogUtil.h"
 #include "jni.h"
 
@@ -55,11 +56,11 @@ JNIEXPORT jstring JNICALL Java_com_byteflow_learnffmpeg_media_FFMediaPlayer_nati
  * Signature: (JLjava/lang/String;Ljava/lang/Object;)J
  */
 JNIEXPORT jlong JNICALL Java_com_byteflow_learnffmpeg_media_FFMediaPlayer_native_1Init
-        (JNIEnv *env, jobject obj, jstring jurl, jobject surface)
+        (JNIEnv *env, jobject obj, jstring jurl, jint renderType, jobject surface)
 {
     const char* url = env->GetStringUTFChars(jurl, nullptr);
     FFMediaPlayer *player = new FFMediaPlayer();
-    player->Init(env, obj, const_cast<char *>(url), surface);
+    player->Init(env, obj, const_cast<char *>(url), renderType, surface);
     env->ReleaseStringUTFChars(jurl, url);
     return reinterpret_cast<jlong>(player);
 }
@@ -146,6 +147,24 @@ JNIEXPORT void JNICALL Java_com_byteflow_learnffmpeg_media_FFMediaPlayer_native_
         FFMediaPlayer *ffMediaPlayer = reinterpret_cast<FFMediaPlayer *>(player_handle);
         ffMediaPlayer->UnInit();
     }
+}
+
+JNIEXPORT void JNICALL
+Java_com_byteflow_learnffmpeg_media_FFMediaPlayer_native_1OnSurfaceCreated(JNIEnv *env,
+                                                                           jclass clazz) {
+    OpenGLRender::GetInstance()->OnSurfaceCreated();
+}
+
+JNIEXPORT void JNICALL
+Java_com_byteflow_learnffmpeg_media_FFMediaPlayer_native_1OnSurfaceChanged(JNIEnv *env,
+                                                                           jclass clazz, jint width,
+                                                                           jint height) {
+    OpenGLRender::GetInstance()->OnSurfaceChanged(width, height);
+}
+
+JNIEXPORT void JNICALL
+Java_com_byteflow_learnffmpeg_media_FFMediaPlayer_native_1OnDrawFrame(JNIEnv *env, jclass clazz) {
+    OpenGLRender::GetInstance()->OnDrawFrame();
 }
 
 #ifdef __cplusplus

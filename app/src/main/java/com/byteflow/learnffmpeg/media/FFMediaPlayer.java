@@ -18,6 +18,9 @@ public class FFMediaPlayer {
     public static final int MEDIA_PARAM_VIDEO_HEIGHT    = 0x0002;
     public static final int MEDIA_PARAM_VIDEO_DURATION  = 0x0003;
 
+    public static final int VIDEO_RENDER_OPENGL         = 0;
+    public static final int VIDEO_RENDER_ANWINDOW       = 1;
+
     private long mNativePlayerHandle = 0;
 
     private EventCallback mEventCallback = null;
@@ -26,8 +29,8 @@ public class FFMediaPlayer {
         return native_GetFFmpegVersion();
     }
 
-    public void init(String url, Surface surface) {
-        mNativePlayerHandle = native_Init(url, surface);
+    public void init(String url, int videoRenderType, Surface surface) {
+        mNativePlayerHandle = native_Init(url, videoRenderType, surface);
     }
 
     public void play() {
@@ -66,7 +69,7 @@ public class FFMediaPlayer {
 
     private static native String native_GetFFmpegVersion();
 
-    private native long native_Init(String url, Object surface);
+    private native long native_Init(String url, int renderType, Object surface);
 
     private native void native_Play(long playerHandle);
 
@@ -79,6 +82,12 @@ public class FFMediaPlayer {
     private native void native_UnInit(long playerHandle);
 
     private native long native_GetMediaParams(long playerHandle, int paramType);
+
+    //for openGL render
+    public static native void native_OnSurfaceCreated();
+    public static native void native_OnSurfaceChanged(int width, int height);
+    public static native void native_OnDrawFrame();
+
 
     public interface EventCallback {
         void onPlayerEvent(int msgType, float msgValue);

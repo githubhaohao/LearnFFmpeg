@@ -231,7 +231,7 @@ void OpenSLRender::StartRender() {
 
     while (m_AudioFrameQueue.empty() && !m_Exit) {
         std::unique_lock<std::mutex> lock(m_Mutex);
-        m_Cond.wait(lock);
+        m_Cond.wait_for(lock, std::chrono::milliseconds(10));
         lock.unlock();
     }
 
@@ -244,7 +244,7 @@ void OpenSLRender::HandleAudioFrameQueue() {
 
     while (m_AudioFrameQueue.empty() && !m_Exit) {
         std::unique_lock<std::mutex> lock(m_Mutex);
-        m_Cond.wait(lock);
+        m_Cond.wait_for(lock, std::chrono::milliseconds(10));
         lock.unlock();
     }
 

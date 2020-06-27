@@ -4,13 +4,18 @@
 
 #include <render/video/NativeRender.h>
 #include <render/audio/OpenSLRender.h>
+#include <render/video/OpenGLRender.h>
 #include "FFMediaPlayer.h"
 
-void FFMediaPlayer::Init(JNIEnv *jniEnv, jobject obj, char *url, jobject surface) {
+void FFMediaPlayer::Init(JNIEnv *jniEnv, jobject obj, char *url, int videoRenderType, jobject surface) {
     jniEnv->GetJavaVM(&m_JavaVM);
     m_JavaObj = jniEnv->NewGlobalRef(obj);
 
-    m_VideoRender = new NativeRender(jniEnv, surface);
+    if(videoRenderType == VIDEO_RENDER_OPENGL) {
+        m_VideoRender = OpenGLRender::GetInstance();
+    } else if (videoRenderType == VIDEO_RENDER_ANWINDOW) {
+        m_VideoRender = new NativeRender(jniEnv, surface);
+    }
 
     m_VideoDecoder = new VideoDecoder(url);
     m_VideoDecoder->SetVideoRender(m_VideoRender);
@@ -45,6 +50,13 @@ void FFMediaPlayer::UnInit() {
         delete m_AudioRender;
         m_AudioRender = nullptr;
     }
+
+    OpenGLRender::ReleaseInstance();
+
+    bool isAttach = false;
+    GetJNIEnv(&isAttach)->DeleteGlobalRef(m_JavaObj);
+    if(isAttach)
+        GetJavaVM()->DetachCurrentThread();
 
 }
 

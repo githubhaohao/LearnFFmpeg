@@ -16,12 +16,15 @@
 #define MEDIA_PARAM_VIDEO_HEIGHT        0x0002
 #define MEDIA_PARAM_VIDEO_DURATION      0x0003
 
+#define VIDEO_RENDER_OPENGL             0
+#define VIDEO_RENDER_ANWINDOW           1
+
 class FFMediaPlayer {
 public:
     FFMediaPlayer(){};
     ~FFMediaPlayer(){};
 
-    void Init(JNIEnv *jniEnv, jobject obj, char *url, jobject surface);
+    void Init(JNIEnv *jniEnv, jobject obj, char *url, int renderType, jobject surface);
     void UnInit();
 
     void Play();

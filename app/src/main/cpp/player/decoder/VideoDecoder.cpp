@@ -72,4 +72,6 @@ void VideoDecoder::OnFrameAvailable(AVFrame *frame) {
         m_VideoRender->RenderVideoFrame(&image);
     }
 
+    if(m_MsgContext && m_MsgCallback)
+        m_MsgCallback(m_MsgContext, MSG_REQUEST_RENDER, 0);
 }
