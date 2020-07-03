@@ -7,7 +7,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
-import android.view.SurfaceHolder;
 import android.widget.SeekBar;
 import android.widget.Toast;
 
@@ -17,7 +16,7 @@ import androidx.core.app.ActivityCompat;
 
 import com.byteflow.learnffmpeg.media.FFMediaPlayer;
 import com.byteflow.learnffmpeg.media.MyGLSurfaceView;
-import com.byteflow.learnffmpeg.media.MySurfaceView;
+import com.byteflow.learnffmpeg.util.CommonUtils;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -42,7 +41,7 @@ public class GLMediaPlayerActivity extends AppCompatActivity implements GLSurfac
     private FFMediaPlayer mMediaPlayer = null;
     private SeekBar mSeekBar = null;
     private boolean mIsTouch = false;
-    private String mPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/mvtest.mp4";
+    private String mVideoPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/byteflow/one_piece.mp4";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -74,20 +73,23 @@ public class GLMediaPlayerActivity extends AppCompatActivity implements GLSurfac
 
             }
         });
-
+        CommonUtils.copyAssetsDirToSDCard(this, "byteflow", "/sdcard");
         mMediaPlayer = new FFMediaPlayer();
         mMediaPlayer.addEventCallback(this);
-        mMediaPlayer.init(mPath, VIDEO_RENDER_OPENGL, null);
+        mMediaPlayer.init(mVideoPath, VIDEO_RENDER_OPENGL, null);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        CommonUtils.copyAssetsDirToSDCard(this, "byteflow", "/sdcard");
         if (!hasPermissionsGranted(REQUEST_PERMISSIONS)) {
             ActivityCompat.requestPermissions(this, REQUEST_PERMISSIONS, PERMISSION_REQUEST_CODE);
+        } else {
+            if(mMediaPlayer != null)
+                mMediaPlayer.play();
         }
-        if(mMediaPlayer != null)
-            mMediaPlayer.play();
+
     }
 
     @Override
@@ -95,6 +97,9 @@ public class GLMediaPlayerActivity extends AppCompatActivity implements GLSurfac
         if (requestCode == PERMISSION_REQUEST_CODE) {
             if (!hasPermissionsGranted(REQUEST_PERMISSIONS)) {
                 Toast.makeText(this, "We need the permission: WRITE_EXTERNAL_STORAGE", Toast.LENGTH_SHORT).show();
+            } else {
+                if(mMediaPlayer != null)
+                    mMediaPlayer.play();
             }
         } else {
             super.onRequestPermissionsResult(requestCode, permissions, grantResults);
