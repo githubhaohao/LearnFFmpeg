@@ -48,9 +48,14 @@ void OpenSLRender::RenderAudioFrame(uint8_t *pData, int dataSize) {
     if(m_AudioPlayerPlay) {
         if (pData != nullptr && dataSize > 0) {
 
-            AudioFrame *audioFrame = new AudioFrame(pData, dataSize);
+            //temp resolution, when queue size is too big.
+            while(GetAudioFrameQueueSize() >= MAX_QUEUE_BUFFER_SIZE && !m_Exit)
+            {
+                std::this_thread::sleep_for(std::chrono::milliseconds(15));
+            }
 
             std::unique_lock<std::mutex> lock(m_Mutex);
+            AudioFrame *audioFrame = new AudioFrame(pData, dataSize);
             m_AudioFrameQueue.push(audioFrame);
             m_Cond.notify_all();
             lock.unlock();
@@ -229,9 +234,10 @@ int OpenSLRender::CreateAudioPlayer() {
 
 void OpenSLRender::StartRender() {
 
-    while (m_AudioFrameQueue.empty() && !m_Exit) {
+    while (GetAudioFrameQueueSize() && !m_Exit) {
         std::unique_lock<std::mutex> lock(m_Mutex);
         m_Cond.wait_for(lock, std::chrono::milliseconds(10));
+        //m_Cond.wait(lock);
         lock.unlock();
     }
 
@@ -240,12 +246,12 @@ void OpenSLRender::StartRender() {
 }
 
 void OpenSLRender::HandleAudioFrameQueue() {
+    LOGCATE("OpenSLRender::HandleAudioFrameQueue QueueSize=%d", m_AudioFrameQueue.size());
     if (m_AudioPlayerPlay == nullptr) return;
 
-    while (m_AudioFrameQueue.empty() && !m_Exit) {
+    while (GetAudioFrameQueueSize() && !m_Exit) {
         std::unique_lock<std::mutex> lock(m_Mutex);
         m_Cond.wait_for(lock, std::chrono::milliseconds(10));
-        lock.unlock();
     }
 
     std::unique_lock<std::mutex> lock(m_Mutex);
@@ -259,6 +265,7 @@ void OpenSLRender::HandleAudioFrameQueue() {
             lock.unlock();
             delete audioFrame;
         }
+
     }
 }
 
@@ -269,4 +276,9 @@ void OpenSLRender::CreateSLWaitingThread(OpenSLRender *openSlRender) {
 void OpenSLRender::AudioPlayerCallback(SLAndroidSimpleBufferQueueItf bufferQueue, void *context) {
     OpenSLRender *openSlRender = static_cast<OpenSLRender *>(context);
     openSlRender->HandleAudioFrameQueue();
+}
+
+int OpenSLRender::GetAudioFrameQueueSize() {
+    std::unique_lock<std::mutex> lock(m_Mutex);
+    return m_AudioFrameQueue.empty();
 }

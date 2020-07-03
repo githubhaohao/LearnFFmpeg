@@ -11,20 +11,21 @@ void FFMediaPlayer::Init(JNIEnv *jniEnv, jobject obj, char *url, int videoRender
     jniEnv->GetJavaVM(&m_JavaVM);
     m_JavaObj = jniEnv->NewGlobalRef(obj);
 
+    m_VideoDecoder = new VideoDecoder(url);
+    m_AudioDecoder = new AudioDecoder(url);
+
+
     if(videoRenderType == VIDEO_RENDER_OPENGL) {
-        m_VideoRender = OpenGLRender::GetInstance();
+        m_VideoDecoder->SetVideoRender(OpenGLRender::GetInstance());
     } else if (videoRenderType == VIDEO_RENDER_ANWINDOW) {
         m_VideoRender = new NativeRender(jniEnv, surface);
+        m_VideoDecoder->SetVideoRender(m_VideoRender);
     }
 
-    m_VideoDecoder = new VideoDecoder(url);
-    m_VideoDecoder->SetVideoRender(m_VideoRender);
-    m_VideoDecoder->SetMessageCallback(this, PostMessage);
-
     m_AudioRender = new OpenSLRender();
-
-    m_AudioDecoder = new AudioDecoder(url);
     m_AudioDecoder->SetVideoRender(m_AudioRender);
+
+    m_VideoDecoder->SetMessageCallback(this, PostMessage);
     m_AudioDecoder->SetMessageCallback(this, PostMessage);
 
 }

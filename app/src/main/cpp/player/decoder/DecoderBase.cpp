@@ -7,7 +7,7 @@
 #include "../../util/LogUtil.h"
 
 void DecoderBase::Start() {
-    if(m_DecoderState == STATE_UNKNOWN && m_Thread == nullptr) {
+    if(m_Thread == nullptr) {
         StartDecodingThread();
     } else {
         std::unique_lock<std::mutex> lock(m_Mutex);
@@ -22,6 +22,7 @@ void DecoderBase::Pause() {
 }
 
 void DecoderBase::Stop() {
+    LOGCATE("DecoderBase::Stop");
     std::unique_lock<std::mutex> lock(m_Mutex);
     m_DecoderState = STATE_STOP;
     m_Cond.notify_all();
@@ -48,13 +49,14 @@ int DecoderBase::Init(const char *url, AVMediaType mediaType) {
 }
 
 void DecoderBase::UnInit() {
-    LOGCATE("DecoderBase::UnInit");
+    LOGCATE("DecoderBase::UnInit m_MediaType=%d", m_MediaType);
     if(m_Thread) {
         Stop();
         m_Thread->join();
         delete m_Thread;
         m_Thread = nullptr;
     }
+    LOGCATE("DecoderBase::UnInit end, m_MediaType=%d", m_MediaType);
 }
 
 int DecoderBase::InitFFDecoder() {
@@ -114,7 +116,7 @@ int DecoderBase::InitFFDecoder() {
         result = 0;
 
         m_Duration = m_AVFormatContext->duration / AV_TIME_BASE * 1000;//us to ms
-        //创建 AVPacket 存放解码前的数据
+        //创建 AVPacket 存放编码数据
         m_Packet = av_packet_alloc();
         //创建 AVFrame 存放解码后的数据
         m_Frame = av_frame_alloc();
@@ -158,7 +160,7 @@ void DecoderBase::StartDecodingThread() {
 }
 
 void DecoderBase::DecodingLoop() {
-    LOGCATE("DecoderBase::DecodingLoop start");
+    LOGCATE("DecoderBase::DecodingLoop start, m_MediaType=%d", m_MediaType);
     {
         std::unique_lock<std::mutex> lock(m_Mutex);
         m_DecoderState = STATE_DECODING;
@@ -167,10 +169,15 @@ void DecoderBase::DecodingLoop() {
 
 
     for(;;) {
-        if(m_DecoderState == STATE_PAUSE) {
+
+        while (m_DecoderState == STATE_PAUSE) {
             std::unique_lock<std::mutex> lock(m_Mutex);
-            m_Cond.wait(lock);
-        } else if(m_DecoderState == STATE_STOP) {
+            LOGCATE("DecoderBase::DecodingLoop waiting, m_MediaType=%d", m_MediaType);
+            m_Cond.wait_for(lock, std::chrono::milliseconds(10));
+            m_StartTimeStamp = GetSysCurrentTime() - m_CurTimeStamp;
+        }
+
+        if(m_DecoderState == STATE_STOP) {
             break;
         }
 
@@ -209,6 +216,7 @@ void DecoderBase::UpdateTimeStamp() {
 }
 
 void DecoderBase::AVSync() {
+    LOGCATE("DecoderBase::AVSync");
     long curSysTime = GetSysCurrentTime();
     //基于系统时钟计算从开始播放流逝的时间
     long elapsedTime = curSysTime - m_StartTimeStamp;
@@ -225,6 +233,7 @@ void DecoderBase::AVSync() {
 }
 
 int DecoderBase::DecodeOnePacket() {
+    LOGCATE("DecoderBase::DecodeOnePacket m_MediaType=%d", m_MediaType);
     if(m_SeekPosition > 0) {
         //seek to frame
         int64_t seek_target = static_cast<int64_t>(m_SeekPosition * 1000000);//微秒
@@ -259,9 +268,14 @@ int DecoderBase::DecodeOnePacket() {
                 //同步
                 AVSync();
                 //渲染
+                LOGCATE("DecoderBase::DecodeOnePacket 000 m_MediaType=%d", m_MediaType);
                 OnFrameAvailable(m_Frame);
+                LOGCATE("DecoderBase::DecodeOnePacket 0001 m_MediaType=%d", m_MediaType);
                 frameCount ++;
             }
+
+            LOGCATE("BaseDecoder::DecodeOneFrame frameCount=%d", frameCount);
+
 
             //判断一个 packet 是否解码完成
             if(frameCount > 0) {

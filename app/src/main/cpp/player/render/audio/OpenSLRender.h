@@ -13,6 +13,8 @@
 #include <thread>
 #include "AudioRender.h"
 
+#define MAX_QUEUE_BUFFER_SIZE 3
+
 class OpenSLRender : public AudioRender {
 public:
     OpenSLRender(){}
@@ -25,6 +27,7 @@ private:
     int CreateEngine();
     int CreateOutputMixer();
     int CreateAudioPlayer();
+    int GetAudioFrameQueueSize();
     void StartRender();
     void HandleAudioFrameQueue();
     static void CreateSLWaitingThread(OpenSLRender *openSlRender);
