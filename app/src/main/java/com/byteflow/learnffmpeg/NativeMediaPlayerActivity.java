@@ -17,6 +17,7 @@ import androidx.core.app.ActivityCompat;
 
 import com.byteflow.learnffmpeg.media.FFMediaPlayer;
 import com.byteflow.learnffmpeg.media.MySurfaceView;
+import com.byteflow.learnffmpeg.util.CommonUtils;
 
 import static com.byteflow.learnffmpeg.media.FFMediaPlayer.MEDIA_PARAM_VIDEO_DURATION;
 import static com.byteflow.learnffmpeg.media.FFMediaPlayer.MEDIA_PARAM_VIDEO_HEIGHT;
@@ -38,7 +39,7 @@ public class NativeMediaPlayerActivity extends AppCompatActivity implements Surf
     private FFMediaPlayer mMediaPlayer = null;
     private SeekBar mSeekBar = null;
     private boolean mIsTouch = false;
-    private String mPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/mvtest.mp4";
+    private String mVideoPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/byteflow/one_piece.mp4";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,11 +69,15 @@ public class NativeMediaPlayerActivity extends AppCompatActivity implements Surf
 
             }
         });
+
+        CommonUtils.copyAssetsDirToSDCard(this, "byteflow", "/sdcard");
+
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        CommonUtils.copyAssetsDirToSDCard(this, "byteflow", "/sdcard");
         if (!hasPermissionsGranted(REQUEST_PERMISSIONS)) {
             ActivityCompat.requestPermissions(this, REQUEST_PERMISSIONS, PERMISSION_REQUEST_CODE);
         }
@@ -108,7 +113,7 @@ public class NativeMediaPlayerActivity extends AppCompatActivity implements Surf
         Log.d(TAG, "surfaceCreated() called with: surfaceHolder = [" + surfaceHolder + "]");
         mMediaPlayer = new FFMediaPlayer();
         mMediaPlayer.addEventCallback(this);
-        mMediaPlayer.init(mPath, VIDEO_RENDER_ANWINDOW, surfaceHolder.getSurface());
+        mMediaPlayer.init(mVideoPath, VIDEO_RENDER_ANWINDOW, surfaceHolder.getSurface());
     }
 
     @Override
