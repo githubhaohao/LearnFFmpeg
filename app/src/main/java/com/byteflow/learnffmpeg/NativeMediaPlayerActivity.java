@@ -70,14 +70,12 @@ public class NativeMediaPlayerActivity extends AppCompatActivity implements Surf
             }
         });
 
-        CommonUtils.copyAssetsDirToSDCard(this, "byteflow", "/sdcard");
 
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        CommonUtils.copyAssetsDirToSDCard(this, "byteflow", "/sdcard");
         if (!hasPermissionsGranted(REQUEST_PERMISSIONS)) {
             ActivityCompat.requestPermissions(this, REQUEST_PERMISSIONS, PERMISSION_REQUEST_CODE);
         }

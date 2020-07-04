@@ -18,6 +18,8 @@ import com.byteflow.learnffmpeg.media.FFMediaPlayer;
 import com.byteflow.learnffmpeg.media.MyGLSurfaceView;
 import com.byteflow.learnffmpeg.util.CommonUtils;
 
+import java.util.logging.LogManager;
+
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
@@ -73,7 +75,6 @@ public class GLMediaPlayerActivity extends AppCompatActivity implements GLSurfac
 
             }
         });
-        CommonUtils.copyAssetsDirToSDCard(this, "byteflow", "/sdcard");
         mMediaPlayer = new FFMediaPlayer();
         mMediaPlayer.addEventCallback(this);
         mMediaPlayer.init(mVideoPath, VIDEO_RENDER_OPENGL, null);
@@ -81,8 +82,8 @@ public class GLMediaPlayerActivity extends AppCompatActivity implements GLSurfac
 
     @Override
     protected void onResume() {
+        Log.e(TAG, "onResume() called");
         super.onResume();
-        CommonUtils.copyAssetsDirToSDCard(this, "byteflow", "/sdcard");
         if (!hasPermissionsGranted(REQUEST_PERMISSIONS)) {
             ActivityCompat.requestPermissions(this, REQUEST_PERMISSIONS, PERMISSION_REQUEST_CODE);
         } else {
@@ -98,8 +99,8 @@ public class GLMediaPlayerActivity extends AppCompatActivity implements GLSurfac
             if (!hasPermissionsGranted(REQUEST_PERMISSIONS)) {
                 Toast.makeText(this, "We need the permission: WRITE_EXTERNAL_STORAGE", Toast.LENGTH_SHORT).show();
             } else {
-                if(mMediaPlayer != null)
-                    mMediaPlayer.play();
+                //if(mMediaPlayer != null)
+                    //mMediaPlayer.play();
             }
         } else {
             super.onRequestPermissionsResult(requestCode, permissions, grantResults);
