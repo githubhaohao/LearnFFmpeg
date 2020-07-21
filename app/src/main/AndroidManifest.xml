@@ -24,6 +24,8 @@
             android:screenOrientation="portrait"/>
         <activity android:name=".NativeMediaPlayerActivity"
             android:screenOrientation="portrait"/>
+        <activity android:name=".AudioVisualMediaPlayerActivity"
+            android:screenOrientation="portrait"/>
     </application>
 
 </manifest>

@@ -83,11 +83,15 @@ public class FFMediaPlayer {
 
     private native long native_GetMediaParams(long playerHandle, int paramType);
 
-    //for openGL render
+    //for video openGL render
     public static native void native_OnSurfaceCreated();
     public static native void native_OnSurfaceChanged(int width, int height);
     public static native void native_OnDrawFrame();
 
+    //for audio visual render
+    public static native void native_OnAudioVisualSurfaceCreated();
+    public static native void native_OnAudioVisualSurfaceChanged(int width, int height);
+    public static native void native_OnAudioVisualDrawFrame();
 
     public interface EventCallback {
         void onPlayerEvent(int msgType, float msgValue);

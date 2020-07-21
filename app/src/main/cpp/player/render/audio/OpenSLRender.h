@@ -12,6 +12,7 @@
 #include <string>
 #include <thread>
 #include "AudioRender.h"
+#include "AudioVisualRender.h"
 
 #define MAX_QUEUE_BUFFER_SIZE 3
 
@@ -20,6 +21,7 @@ public:
     OpenSLRender(){}
     virtual ~OpenSLRender(){}
     virtual void Init();
+    virtual void ClearAudioCache();
     virtual void RenderAudioFrame(uint8_t *pData, int dataSize);
     virtual void UnInit();
 
@@ -47,7 +49,6 @@ private:
     std::mutex   m_Mutex;
     std::condition_variable m_Cond;
     volatile bool m_Exit = false;
-
 };
 
 

@@ -34,6 +34,11 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
         return mSelectIndex;
     }
 
+    public void safeNotifyItemChanged(int index) {
+        if(index > 0)
+            notifyItemChanged(index);
+    }
+
     public void addOnItemClickListener(OnItemClickListener onItemClickListener) {
         mOnItemClickListener = onItemClickListener;
     }

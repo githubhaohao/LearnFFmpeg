@@ -32,26 +32,29 @@ public class MainActivity extends AppCompatActivity {
     };
     private static final int PERMISSION_REQUEST_CODE = 1;
     private static  final String [] EXAMPLE_LIST = {
-            "FFmpeg ANativeWindow",
-            "FFmpeg OpenGLES"
+            "FFmpeg + ANativeWindow",
+            "FFmpeg + OpenGLES",
+            "FFmpeg + OpenSLES + Audio Visual"
     };
 
     private static final int FF_ANATIVE_WINDOWS_EXAMPLE = 0;
     private static final int FF_OPENGLES_EXAMPLE = 1;
+    private static final int FF_OPENGLES_AUDIO_VISUAL_EXAMPLE = 2;
 
-    private int mSampleSelectedIndex = 0;
+    private int mSampleSelectedIndex = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        ((TextView)findViewById(R.id.text_view)).setText(FFMediaPlayer.GetFFmpegVersion());
+        ((TextView)findViewById(R.id.text_view)).setText("FFmpeg Version Info:\n" + FFMediaPlayer.GetFFmpegVersion());
 
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        mSampleSelectedIndex = -1;
         CommonUtils.copyAssetsDirToSDCard(this, "byteflow", "/sdcard");
         if (!hasPermissionsGranted(REQUEST_PERMISSIONS)) {
             ActivityCompat.requestPermissions(this, REQUEST_PERMISSIONS, PERMISSION_REQUEST_CODE);
@@ -111,8 +114,8 @@ public class MainActivity extends AppCompatActivity {
             public void onItemClick(View view, int position) {
                 int selectIndex = myPreviewSizeViewAdapter.getSelectIndex();
                 myPreviewSizeViewAdapter.setSelectIndex(position);
-                myPreviewSizeViewAdapter.notifyItemChanged(selectIndex);
-                myPreviewSizeViewAdapter.notifyItemChanged(position);
+                myPreviewSizeViewAdapter.safeNotifyItemChanged(selectIndex);
+                myPreviewSizeViewAdapter.safeNotifyItemChanged(position);
                 mSampleSelectedIndex = position;
                 switch (position) {
                     case FF_ANATIVE_WINDOWS_EXAMPLE:
@@ -120,6 +123,9 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     case FF_OPENGLES_EXAMPLE:
                         startActivity(new Intent(MainActivity.this, GLMediaPlayerActivity.class));
+                        break;
+                    case FF_OPENGLES_AUDIO_VISUAL_EXAMPLE:
+                        startActivity(new Intent(MainActivity.this, AudioVisualMediaPlayerActivity.class));
                         break;
                         default:
                             break;
