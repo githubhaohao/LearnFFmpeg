@@ -17,7 +17,7 @@
             android:background="@null"
             android:checked="true"
             android:id="@+id/preview_size_btn"
-            android:text="Select Sample"
+            android:text="Select Example"
             android:textColor="@color/colorAccent"/>
     </RadioGroup>
     <View
