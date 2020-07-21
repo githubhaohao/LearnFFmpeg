@@ -47,6 +47,7 @@ private:
     virtual void OnDecoderReady();
     virtual void OnDecoderDone();
     virtual void OnFrameAvailable(AVFrame *frame);
+    virtual void ClearCache();
 
     const AVSampleFormat DST_SAMPLT_FORMAT = AV_SAMPLE_FMT_S16;
 

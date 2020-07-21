@@ -107,6 +107,8 @@ void OpenSLRender::UnInit() {
         m_thread = nullptr;
     }
 
+    AudioVisualRender::ReleaseInstance();
+
 }
 
 int OpenSLRender::CreateEngine() {
@@ -256,17 +258,17 @@ void OpenSLRender::HandleAudioFrameQueue() {
 
     std::unique_lock<std::mutex> lock(m_Mutex);
     AudioFrame *audioFrame = m_AudioFrameQueue.front();
-    lock.unlock();
     if (nullptr != audioFrame && m_AudioPlayerPlay) {
         SLresult result = (*m_BufferQueue)->Enqueue(m_BufferQueue, audioFrame->data, (SLuint32) audioFrame->dataSize);
         if (result == SL_RESULT_SUCCESS) {
-            lock.lock();
+            AudioVisualRender::GetInstance()->UpdateAudioFrame(audioFrame);
             m_AudioFrameQueue.pop();
-            lock.unlock();
             delete audioFrame;
         }
 
     }
+    lock.unlock();
+
 }
 
 void OpenSLRender::CreateSLWaitingThread(OpenSLRender *openSlRender) {
@@ -281,4 +283,14 @@ void OpenSLRender::AudioPlayerCallback(SLAndroidSimpleBufferQueueItf bufferQueue
 int OpenSLRender::GetAudioFrameQueueSize() {
     std::unique_lock<std::mutex> lock(m_Mutex);
     return m_AudioFrameQueue.empty();
+}
+
+void OpenSLRender::ClearAudioCache() {
+    std::unique_lock<std::mutex> lock(m_Mutex);
+    for (int i = 0; i < m_AudioFrameQueue.size(); ++i) {
+        AudioFrame *audioFrame = m_AudioFrameQueue.front();
+        m_AudioFrameQueue.pop();
+        delete audioFrame;
+    }
+
 }

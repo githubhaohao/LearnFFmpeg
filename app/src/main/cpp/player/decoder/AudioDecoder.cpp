@@ -67,3 +67,9 @@ void AudioDecoder::OnDecoderDone() {
         m_SwrContext = nullptr;
     }
 }
+
+void AudioDecoder::ClearCache() {
+    if(m_AudioRender)
+        m_AudioRender->ClearAudioCache();
+
+}

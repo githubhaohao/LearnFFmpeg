@@ -247,6 +247,7 @@ int DecoderBase::DecodeOnePacket() {
             if (-1 != m_StreamIndex) {
                 avcodec_flush_buffers(m_AVCodecContext);
             }
+            ClearCache();
             m_SeekSuccess = true;
             LOGCATE("BaseDecoder::DecodeOneFrame seekFrame pos=%f", m_SeekPosition);
         }

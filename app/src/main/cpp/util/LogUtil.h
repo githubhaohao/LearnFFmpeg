@@ -15,6 +15,11 @@
 #define  LOGCATD(...)  __android_log_print(ANDROID_LOG_DEBUG,LOG_TAG,__VA_ARGS__)
 #define  LOGCATI(...)  __android_log_print(ANDROID_LOG_INFO,LOG_TAG,__VA_ARGS__)
 
+#define ByteFlowPrintE LOGCATE
+#define ByteFlowPrintV LOGCATV
+#define ByteFlowPrintD LOGCATD
+#define ByteFlowPrintI LOGCATI
+
 #define FUN_BEGIN_TIME(FUN) {\
     LOGCATE("%s:%s func start", __FILE__, FUN); \
     long long t0 = GetSysCurrentTime();

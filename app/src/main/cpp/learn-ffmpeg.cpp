@@ -5,6 +5,7 @@
 #include <cstring>
 #include <FFMediaPlayer.h>
 #include <render/video/OpenGLRender.h>
+#include <render/audio/OpenSLRender.h>
 #include "util/LogUtil.h"
 #include "jni.h"
 
@@ -167,6 +168,26 @@ Java_com_byteflow_learnffmpeg_media_FFMediaPlayer_native_1OnDrawFrame(JNIEnv *en
     OpenGLRender::GetInstance()->OnDrawFrame();
 }
 
+//可视化音频的渲染接口
+JNIEXPORT void JNICALL
+Java_com_byteflow_learnffmpeg_media_FFMediaPlayer_native_1OnAudioVisualSurfaceCreated(JNIEnv *env,
+                                                                                      jclass clazz) {
+    AudioVisualRender::GetInstance()->OnAudioVisualSurfaceCreated();
+}
+
+JNIEXPORT void JNICALL
+Java_com_byteflow_learnffmpeg_media_FFMediaPlayer_native_1OnAudioVisualSurfaceChanged(JNIEnv *env,
+                                                                                      jclass clazz,
+                                                                                      jint width,
+                                                                                      jint height) {
+    AudioVisualRender::GetInstance()->OnAudioVisualSurfaceChanged(width, height);
+}
+
+JNIEXPORT void JNICALL
+Java_com_byteflow_learnffmpeg_media_FFMediaPlayer_native_1OnAudioVisualDrawFrame(JNIEnv *env,
+                                                                                 jclass clazz) {
+    AudioVisualRender::GetInstance()->OnAudioVisualDrawFrame();
+}
 #ifdef __cplusplus
 }
 #endif

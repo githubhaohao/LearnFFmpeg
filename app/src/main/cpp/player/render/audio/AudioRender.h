@@ -34,6 +34,7 @@ public:
     virtual ~AudioRender()
     {}
     virtual void Init() = 0;
+    virtual void ClearAudioCache() = 0;
     virtual void RenderAudioFrame(uint8_t *pData, int dataSize) = 0;
     virtual void UnInit() = 0;
 
