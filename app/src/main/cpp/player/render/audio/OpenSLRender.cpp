@@ -94,11 +94,13 @@ void OpenSLRender::UnInit() {
         m_EngineEngine = nullptr;
     }
 
+    lock.lock();
     for (int i = 0; i < m_AudioFrameQueue.size(); ++i) {
         AudioFrame *audioFrame = m_AudioFrameQueue.front();
         m_AudioFrameQueue.pop();
         delete audioFrame;
     }
+    lock.unlock();
 
     if(m_thread != nullptr)
     {

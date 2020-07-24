@@ -5,14 +5,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
-    <SeekBar
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:id="@+id/seek_bar"/>
+
     <RelativeLayout
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/seek_bar"
+        android:id="@+id/surface_root"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/seek_bar"
         android:layout_width="match_parent"
         android:layout_height="0dp">
         <com.byteflow.learnffmpeg.media.MySurfaceView
@@ -21,4 +18,10 @@
             android:layout_centerInParent="true"
             android:id="@+id/surface_view"/>
     </RelativeLayout>
+    <SeekBar
+        app:layout_constraintTop_toBottomOf="@id/surface_root"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:id="@+id/seek_bar"/>
 </androidx.constraintlayout.widget.ConstraintLayout>
