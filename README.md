@@ -13,5 +13,7 @@
 - [FFmpeg 开发(04)：FFmpeg + OpenGLES 实现音频可视化播放](https://blog.csdn.net/Kennethdroid/article/details/107405505)
 
 # 联系我
+
 我的微信
+
 ![我的微信](https://github.com/githubhaohao/LearnFFmpeg/blob/master/doc/wechat_byteflow.png?raw=true)
