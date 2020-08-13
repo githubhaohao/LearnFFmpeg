@@ -71,5 +71,13 @@ void AudioDecoder::OnDecoderDone() {
 void AudioDecoder::ClearCache() {
     if(m_AudioRender)
         m_AudioRender->ClearAudioCache();
+}
 
+long AudioDecoder::GetAudioDecoderTimestampForAVSync(void *context) {
+    if(context != nullptr)
+    {
+        AudioDecoder* audioDecoder = static_cast<AudioDecoder *>(context);
+        return audioDecoder->GetCurrentPosition();
+    }
+    return 0;
 }
