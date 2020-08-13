@@ -75,3 +75,12 @@ void VideoDecoder::OnFrameAvailable(AVFrame *frame) {
     if(m_MsgContext && m_MsgCallback)
         m_MsgCallback(m_MsgContext, MSG_REQUEST_RENDER, 0);
 }
+
+long VideoDecoder::GetVideoDecoderTimestampForAVSync(void *context) {
+    if(context != nullptr)
+    {
+        VideoDecoder* videoDecoder = static_cast<VideoDecoder *>(context);
+        return videoDecoder->GetCurrentPosition();
+    }
+    return 0;
+}
