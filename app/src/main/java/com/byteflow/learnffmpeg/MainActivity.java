@@ -34,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
     private static  final String [] EXAMPLE_LIST = {
             "FFmpeg + ANativeWindow",
             "FFmpeg + OpenGLES",
-            "FFmpeg + OpenSLES + Audio Visual"
+            "FFmpeg + OpenSLES + Visual Audio"
     };
 
     private static final int FF_ANATIVE_WINDOWS_EXAMPLE = 0;
