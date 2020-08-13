@@ -14,7 +14,6 @@ void FFMediaPlayer::Init(JNIEnv *jniEnv, jobject obj, char *url, int videoRender
     m_VideoDecoder = new VideoDecoder(url);
     m_AudioDecoder = new AudioDecoder(url);
 
-
     if(videoRenderType == VIDEO_RENDER_OPENGL) {
         m_VideoDecoder->SetVideoRender(OpenGLRender::GetInstance());
     } else if (videoRenderType == VIDEO_RENDER_ANWINDOW) {
@@ -27,6 +26,9 @@ void FFMediaPlayer::Init(JNIEnv *jniEnv, jobject obj, char *url, int videoRender
 
     m_VideoDecoder->SetMessageCallback(this, PostMessage);
     m_AudioDecoder->SetMessageCallback(this, PostMessage);
+
+    //AVSync
+    m_VideoDecoder->SetAVSyncCallback(m_AudioDecoder, AudioDecoder::GetAudioDecoderTimestampForAVSync);
 
 }
 
