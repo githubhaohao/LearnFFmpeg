@@ -58,6 +58,12 @@ public:
         m_MsgCallback = callback;
     }
 
+    virtual void SetAVSyncCallback(void* context, AVSyncCallback callback)
+    {
+        m_AVDecoderContext = context;
+        m_AudioSyncCallback = callback;
+    }
+
 protected:
     void * m_MsgContext = nullptr;
     MessageCallback m_MsgCallback = nullptr;
@@ -113,6 +119,8 @@ private:
     volatile bool       m_SeekSuccess = false;
     //解码器状态
     volatile int  m_DecoderState = STATE_UNKNOWN;
+    void* m_AVDecoderContext = nullptr;
+    AVSyncCallback m_AudioSyncCallback = nullptr;//用作音视频同步
 };
 
 

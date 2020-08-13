@@ -37,8 +37,9 @@ void DecoderBase::SeekToPosition(float position) {
 }
 
 float DecoderBase::GetCurrentPosition() {
-    //单位 ms to s
-    return m_CurTimeStamp * 1.0f / 1000;
+    std::unique_lock<std::mutex> lock(m_Mutex);//读写保护
+    //单位 ms
+    return m_CurTimeStamp;
 }
 
 int DecoderBase::Init(const char *url, AVMediaType mediaType) {
@@ -167,7 +168,6 @@ void DecoderBase::DecodingLoop() {
         lock.unlock();
     }
 
-
     for(;;) {
 
         while (m_DecoderState == STATE_PAUSE) {
@@ -197,6 +197,7 @@ void DecoderBase::DecodingLoop() {
 
 void DecoderBase::UpdateTimeStamp() {
     LOGCATE("DecoderBase::UpdateTimeStamp");
+    std::unique_lock<std::mutex> lock(m_Mutex);
     if(m_Frame->pkt_dts != AV_NOPTS_VALUE) {
         m_CurTimeStamp = m_Frame->pkt_dts;
     } else if (m_Frame->pts != AV_NOPTS_VALUE) {
@@ -223,6 +224,12 @@ void DecoderBase::AVSync() {
 
     if(m_MsgContext && m_MsgCallback && m_MediaType == AVMEDIA_TYPE_VIDEO)
         m_MsgCallback(m_MsgContext, MSG_DECODING_TIME, m_CurTimeStamp * 1.0f / 1000);
+
+    if(m_AudioSyncCallback != nullptr) {
+        //视频向音频同步，或者音频向视频同步
+        elapsedTime = m_AudioSyncCallback(m_AVDecoderContext);
+        LOGCATE("DecoderBase::AVSync m_CurTimeStamp=%ld, elapsedTime=%ld", m_CurTimeStamp, elapsedTime);
+    }
 
     if(m_CurTimeStamp > elapsedTime) {
         //休眠时间
@@ -274,16 +281,12 @@ int DecoderBase::DecodeOnePacket() {
                 LOGCATE("DecoderBase::DecodeOnePacket 0001 m_MediaType=%d", m_MediaType);
                 frameCount ++;
             }
-
             LOGCATE("BaseDecoder::DecodeOneFrame frameCount=%d", frameCount);
-
-
             //判断一个 packet 是否解码完成
             if(frameCount > 0) {
                 result = 0;
                 goto __EXIT;
             }
-
         }
         av_packet_unref(m_Packet);
         result = av_read_frame(m_AVFormatContext, m_Packet);
