@@ -6,6 +6,7 @@
 #define LEARNFFMPEG_DECODER_H
 
 typedef void (*MessageCallback)(void*, int, float);
+typedef long (*AVSyncCallback)(void*);
 
 class Decoder {
 public:
