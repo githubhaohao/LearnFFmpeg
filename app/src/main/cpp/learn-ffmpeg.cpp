@@ -168,6 +168,21 @@ Java_com_byteflow_learnffmpeg_media_FFMediaPlayer_native_1OnDrawFrame(JNIEnv *en
     OpenGLRender::GetInstance()->OnDrawFrame();
 }
 
+JNIEXPORT void JNICALL
+Java_com_byteflow_learnffmpeg_media_FFMediaPlayer_native_1SetGesture(JNIEnv *env, jclass clazz,
+                                                                     jfloat x_rotate_angle,
+                                                                     jfloat y_rotate_angle,
+                                                                     jfloat scale) {
+    OpenGLRender::GetInstance()->UpdateMVPMatrix(x_rotate_angle, y_rotate_angle, scale, scale);
+}
+
+JNIEXPORT void JNICALL
+Java_com_byteflow_learnffmpeg_media_FFMediaPlayer_native_1SetTouchLoc(JNIEnv *env, jclass clazz,
+                                                                      jfloat touch_x,
+                                                                      jfloat touch_y) {
+    OpenGLRender::GetInstance()->SetTouchLoc(touch_x, touch_y);
+}
+
 //可视化音频的渲染接口
 JNIEXPORT void JNICALL
 Java_com_byteflow_learnffmpeg_media_FFMediaPlayer_native_1OnAudioVisualSurfaceCreated(JNIEnv *env,
@@ -188,6 +203,7 @@ Java_com_byteflow_learnffmpeg_media_FFMediaPlayer_native_1OnAudioVisualDrawFrame
                                                                                  jclass clazz) {
     AudioVisualRender::GetInstance()->OnAudioVisualDrawFrame();
 }
+
 #ifdef __cplusplus
 }
 #endif

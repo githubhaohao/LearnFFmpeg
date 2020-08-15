@@ -238,7 +238,7 @@ int OpenSLRender::CreateAudioPlayer() {
 
 void OpenSLRender::StartRender() {
 
-    while (GetAudioFrameQueueSize() && !m_Exit) {
+    while (GetAudioFrameQueueSize() < MAX_QUEUE_BUFFER_SIZE && !m_Exit) {
         std::unique_lock<std::mutex> lock(m_Mutex);
         m_Cond.wait_for(lock, std::chrono::milliseconds(10));
         //m_Cond.wait(lock);
@@ -253,7 +253,7 @@ void OpenSLRender::HandleAudioFrameQueue() {
     LOGCATE("OpenSLRender::HandleAudioFrameQueue QueueSize=%d", m_AudioFrameQueue.size());
     if (m_AudioPlayerPlay == nullptr) return;
 
-    while (GetAudioFrameQueueSize() && !m_Exit) {
+    while (GetAudioFrameQueueSize() < MAX_QUEUE_BUFFER_SIZE && !m_Exit) {
         std::unique_lock<std::mutex> lock(m_Mutex);
         m_Cond.wait_for(lock, std::chrono::milliseconds(10));
     }
@@ -284,7 +284,7 @@ void OpenSLRender::AudioPlayerCallback(SLAndroidSimpleBufferQueueItf bufferQueue
 
 int OpenSLRender::GetAudioFrameQueueSize() {
     std::unique_lock<std::mutex> lock(m_Mutex);
-    return m_AudioFrameQueue.empty();
+    return m_AudioFrameQueue.size();
 }
 
 void OpenSLRender::ClearAudioCache() {

@@ -10,6 +10,9 @@
 #include <GLES3/gl3.h>
 #include <detail/type_mat.hpp>
 #include <detail/type_mat4x4.hpp>
+#include <vec2.hpp>
+
+using namespace glm;
 
 #define MATH_PI 3.1415926535897932384626433832802
 
@@ -28,6 +31,11 @@ public:
 
     void UpdateMVPMatrix(int angleX, int angleY, float scaleX, float scaleY);
 
+    void SetTouchLoc(float touchX, float touchY) {
+        m_TouchXY.x = touchX / m_ScreenSize.x;
+        m_TouchXY.y = touchY / m_ScreenSize.y;
+    }
+
 private:
     OpenGLRender();
     virtual ~OpenGLRender();
@@ -40,6 +48,10 @@ private:
     GLuint m_VboIds[3];
     NativeImage m_RenderImage;
     glm::mat4 m_MVPMatrix;
+
+    int m_FrameIndex;
+    vec2 m_TouchXY;
+    vec2 m_ScreenSize;
 };
 
 
