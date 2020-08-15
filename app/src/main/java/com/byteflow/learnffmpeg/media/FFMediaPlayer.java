@@ -93,6 +93,10 @@ public class FFMediaPlayer {
     public static native void native_OnAudioVisualSurfaceChanged(int width, int height);
     public static native void native_OnAudioVisualDrawFrame();
 
+    //update MVP matrix
+    public static native void native_SetGesture(float xRotateAngle, float yRotateAngle, float scale);
+    public static native void native_SetTouchLoc(float touchX, float touchY);
+
     public interface EventCallback {
         void onPlayerEvent(int msgType, float msgValue);
     }

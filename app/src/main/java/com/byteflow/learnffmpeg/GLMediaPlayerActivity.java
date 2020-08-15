@@ -33,7 +33,7 @@ import static com.byteflow.learnffmpeg.media.FFMediaPlayer.MSG_DECODING_TIME;
 import static com.byteflow.learnffmpeg.media.FFMediaPlayer.MSG_REQUEST_RENDER;
 import static com.byteflow.learnffmpeg.media.FFMediaPlayer.VIDEO_RENDER_OPENGL;
 
-public class GLMediaPlayerActivity extends AppCompatActivity implements GLSurfaceView.Renderer, FFMediaPlayer.EventCallback{
+public class GLMediaPlayerActivity extends AppCompatActivity implements GLSurfaceView.Renderer, FFMediaPlayer.EventCallback, MyGLSurfaceView.OnGestureCallback{
     private static final String TAG = "MediaPlayerActivity";
     private static final String[] REQUEST_PERMISSIONS = {
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
@@ -51,6 +51,7 @@ public class GLMediaPlayerActivity extends AppCompatActivity implements GLSurfac
         mGLSurfaceView = findViewById(R.id.surface_view);
         mGLSurfaceView.setEGLContextClientVersion(3);
         mGLSurfaceView.setRenderer(this);
+        mGLSurfaceView.addOnGestureCallback(this);
         mGLSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
 
         mSeekBar = findViewById(R.id.seek_bar);
@@ -189,4 +190,13 @@ public class GLMediaPlayerActivity extends AppCompatActivity implements GLSurfac
         return true;
     }
 
+    @Override
+    public void onGesture(int xRotateAngle, int yRotateAngle, float scale) {
+         FFMediaPlayer.native_SetGesture(xRotateAngle, yRotateAngle, scale);
+    }
+
+    @Override
+    public void onTouchLoc(float touchX, float touchY) {
+        FFMediaPlayer.native_SetTouchLoc(touchX, touchY);
+    }
 }
