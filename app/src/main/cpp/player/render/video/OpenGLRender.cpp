@@ -22,34 +22,48 @@ static char vShaderStr[] =
         "}";
 
 static char fShaderStr[] =
+        "//dynimic mesh 动态网格\n"
         "#version 300 es\n"
         "precision highp float;\n"
         "in vec2 v_texCoord;\n"
         "layout(location = 0) out vec4 outColor;\n"
         "uniform sampler2D s_TextureMap;//采样器\n"
-        "uniform vec2 u_TouchXY;//点击的位置（归一化）\n"
-        "uniform vec2 u_TexSize;//纹理尺寸\n"
-        "uniform float u_Time;//归一化的时间\n"
-        "uniform float u_Boundary;//边界 0.1\n"
+        "uniform float u_Offset;\n"
+        "uniform vec2 u_TexSize;\n"
         "void main()\n"
         "{\n"
-        "    float ratio = u_TexSize.y / u_TexSize.x;\n"
-        "    vec2 texCoord = v_texCoord * vec2(1.0, ratio);//根据纹理尺寸，对采用坐标进行转换\n"
-        "    vec2 touchXY = u_TouchXY * vec2(1.0, ratio);//根据纹理尺寸，对中心点坐标进行转换\n"
-        "    float distance = distance(texCoord, touchXY);//采样点坐标与中心点的距离\n"
+        "    vec2 imgTexCoord = v_texCoord * u_TexSize;\n"
+        "    float sideLength = u_TexSize.y / 6.0;\n"
+        "    float maxOffset = 0.15 * sideLength;\n"
+        "    float x = mod(imgTexCoord.x, floor(sideLength));\n"
+        "    float y = mod(imgTexCoord.y, floor(sideLength));\n"
         "\n"
-        "    if ((u_Time - u_Boundary) > 0.0\n"
-        "    && (distance <= (u_Time + u_Boundary))\n"
-        "    && (distance >= (u_Time - u_Boundary))) {\n"
-        "        float diff = (distance - u_Time);\n"
-        "        float moveDis = 20.0*diff*(diff - u_Boundary)*(diff + u_Boundary);//采样坐标移动距离\n"
-        "        vec2 unitDirectionVec = normalize(texCoord - touchXY);//单位方向向量\n"
-        "        texCoord = texCoord + (unitDirectionVec * moveDis);//采样坐标偏移（实现放大和缩小效果）\n"
+        "    float offset = u_Offset * maxOffset;\n"
+        "\n"
+        "    if(offset <= x\n"
+        "    && x <= sideLength - offset\n"
+        "    && offset <= y\n"
+        "    && y <= sideLength - offset)\n"
+        "    {\n"
+        "        outColor = texture(s_TextureMap, v_texCoord);\n"
         "    }\n"
-        "\n"
-        "    texCoord = texCoord / vec2(1.0, ratio);//转换回来\n"
-        "    outColor = texture(s_TextureMap, texCoord);\n"
-        "    if(texCoord.x > 0.5)\n"
+        "    else\n"
+        "    {\n"
+        "        outColor = vec4(1.0, 1.0, 1.0, 1.0);\n"
+        "    }\n"
+        "}";
+
+static char fGrayShaderStr[] =
+        "//黑白滤镜\n"
+        "#version 300 es\n"
+        "precision highp float;\n"
+        "in vec2 v_texCoord;\n"
+        "layout(location = 0) out vec4 outColor;\n"
+        "uniform sampler2D s_TextureMap;//采样器\n"
+        "void main()\n"
+        "{\n"
+        "    outColor = texture(s_TextureMap, v_texCoord);\n"
+        "    if(v_texCoord.x > 0.5)\n"
         "        outColor = vec4(vec3(outColor.r*0.299 + outColor.g*0.587 + outColor.b*0.114), outColor.a);\n"
         "}";
 
@@ -225,12 +239,15 @@ void OpenGLRender::OnDrawFrame() {
     glBindTexture(GL_TEXTURE_2D, m_TextureId);
     GLUtils::setFloat(m_ProgramObj, "s_TextureMap", 0);
 
-    float time = static_cast<float>(fmod(m_FrameIndex, 60) / 50);
-    GLUtils::setFloat(m_ProgramObj, "u_Time", time);
+    //float time = static_cast<float>(fmod(m_FrameIndex, 60) / 50);
+    //GLUtils::setFloat(m_ProgramObj, "u_Time", time);
 
-    GLUtils::setVec2(m_ProgramObj, "u_TouchXY", m_TouchXY);
+    float offset = (sin(m_FrameIndex * MATH_PI / 25) + 1.0f) / 2.0f;
+    GLUtils::setFloat(m_ProgramObj, "u_Offset", offset);
+
+    //GLUtils::setVec2(m_ProgramObj, "u_TouchXY", m_TouchXY);
     GLUtils::setVec2(m_ProgramObj, "u_TexSize", vec2(m_RenderImage.width, m_RenderImage.height));
-    GLUtils::setFloat(m_ProgramObj, "u_Boundary", 0.1f);
+    //GLUtils::setFloat(m_ProgramObj, "u_Boundary", 0.1f);
 
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, (const void *)0);
 
@@ -260,7 +277,6 @@ void OpenGLRender::ReleaseInstance() {
         }
 
     }
-
 }
 
 
