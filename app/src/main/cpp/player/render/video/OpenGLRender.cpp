@@ -234,7 +234,6 @@ void OpenGLRender::OnDrawFrame() {
 
     GLUtils::setMat4(m_ProgramObj, "u_MVPMatrix", m_MVPMatrix);
 
-    // Bind the RGBA map
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, m_TextureId);
     GLUtils::setFloat(m_ProgramObj, "s_TextureMap", 0);
@@ -244,10 +243,7 @@ void OpenGLRender::OnDrawFrame() {
 
     float offset = (sin(m_FrameIndex * MATH_PI / 25) + 1.0f) / 2.0f;
     GLUtils::setFloat(m_ProgramObj, "u_Offset", offset);
-
-    //GLUtils::setVec2(m_ProgramObj, "u_TouchXY", m_TouchXY);
     GLUtils::setVec2(m_ProgramObj, "u_TexSize", vec2(m_RenderImage.width, m_RenderImage.height));
-    //GLUtils::setFloat(m_ProgramObj, "u_Boundary", 0.1f);
 
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, (const void *)0);
 

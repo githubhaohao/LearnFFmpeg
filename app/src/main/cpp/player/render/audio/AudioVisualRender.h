@@ -1,5 +1,5 @@
 //
-// Created by chh7563 on 2020/7/14.
+// Created by 字节流动 on 2020/8/14.
 //
 
 #ifndef LEARNFFMPEG_AUDIOVISUALRENDER_H
