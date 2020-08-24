@@ -6,7 +6,7 @@
 # 展示图
 ![gl_playe](https://github.com/githubhaohao/LearnFFmpeg/blob/master/doc/gl_player.gif?raw=true)
 
-# FFmpeg 开发连载
+# Android FFmpeg 开发系列连载
 - [FFmpeg 开发(01)：FFmpeg 编译和集成](https://blog.csdn.net/Kennethdroid/article/details/106956601)
 
 - [FFmpeg 开发(02)：FFmpeg + ANativeWindow 实现视频解码播放](https://blog.csdn.net/Kennethdroid/article/details/107103315)
