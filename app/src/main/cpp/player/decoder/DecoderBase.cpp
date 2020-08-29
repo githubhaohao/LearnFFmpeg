@@ -169,7 +169,6 @@ void DecoderBase::DecodingLoop() {
     }
 
     for(;;) {
-
         while (m_DecoderState == STATE_PAUSE) {
             std::unique_lock<std::mutex> lock(m_Mutex);
             LOGCATE("DecoderBase::DecodingLoop waiting, m_MediaType=%d", m_MediaType);
@@ -190,9 +189,7 @@ void DecoderBase::DecodingLoop() {
             m_DecoderState = STATE_PAUSE;
         }
     }
-
     LOGCATE("DecoderBase::DecodingLoop end");
-
 }
 
 void DecoderBase::UpdateTimeStamp() {
@@ -232,9 +229,9 @@ void DecoderBase::AVSync() {
 //        av_usleep(sleepTime * 1000);
 //    }
 
-    if(m_AudioSyncCallback != nullptr) {
-        //视频向音频同步,或者音频向视频同步,视传进来的 m_AudioSyncCallback 而定
-        long elapsedTime = m_AudioSyncCallback(m_AVDecoderContext);
+    if(m_AVSyncCallback != nullptr) {
+        //视频向音频同步,或者音频向视频同步,视传进来的 m_AVSyncCallback 而定
+        long elapsedTime = m_AVSyncCallback(m_AVDecoderContext);
         LOGCATE("DecoderBase::AVSync m_CurTimeStamp=%ld, elapsedTime=%ld", m_CurTimeStamp, elapsedTime);
 
         if(m_CurTimeStamp > elapsedTime) {
@@ -246,7 +243,34 @@ void DecoderBase::AVSync() {
 }
 
 int DecoderBase::DecodeOnePacket() {
-    LOGCATE("DecoderBase::DecodeOnePacket m_MediaType=%d", m_MediaType);
+    LOGCATE("DecoderBase::DecodeOnevoid DecoderBase::AVSync() {\n"
+            "    LOGCATE(\"DecoderBase::AVSync\");\n"
+            "    long curSysTime = GetSysCurrentTime();\n"
+            "    //基于系统时钟计算从开始播放流逝的时间\n"
+            "    long elapsedTime = curSysTime - m_StartTimeStamp;\n"
+            "\n"
+            "    if(m_MsgContext && m_MsgCallback && m_MediaType == AVMEDIA_TYPE_VIDEO)\n"
+            "        m_MsgCallback(m_MsgContext, MSG_DECODING_TIME, m_CurTimeStamp * 1.0f / 1000);\n"
+            "\n"
+            "    //向系统时钟同步\n"
+            "//    if(m_CurTimeStamp > elapsedTime) {\n"
+            "//        //休眠时间\n"
+            "//        auto sleepTime = static_cast<unsigned int>(m_CurTimeStamp - elapsedTime);//ms\n"
+            "//        av_usleep(sleepTime * 1000);\n"
+            "//    }\n"
+            "\n"
+            "    if(m_AVSyncCallback != nullptr) {\n"
+            "        //视频向音频同步,或者音频向视频同步,视传进来的 m_AVSyncCallback 而定\n"
+            "        long elapsedTime = m_AVSyncCallback(m_AVDecoderContext);\n"
+            "        LOGCATE(\"DecoderBase::AVSync m_CurTimeStamp=%ld, elapsedTime=%ld\", m_CurTimeStamp, elapsedTime);\n"
+            "\n"
+            "        if(m_CurTimeStamp > elapsedTime) {\n"
+            "            //休眠时间\n"
+            "            auto sleepTime = static_cast<unsigned int>(m_CurTimeStamp - elapsedTime);//ms\n"
+            "            av_usleep(sleepTime * 1000);\n"
+            "        }\n"
+            "    }\n"
+            "}Packet m_MediaType=%d", m_MediaType);
     if(m_SeekPosition > 0) {
         //seek to frame
         int64_t seek_target = static_cast<int64_t>(m_SeekPosition * 1000000);//微秒

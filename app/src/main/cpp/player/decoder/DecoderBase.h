@@ -40,15 +40,21 @@ public:
     {};
     virtual~ DecoderBase()
     {};
+    //开始播放
     virtual void Start();
+    //暂停播放
     virtual void Pause();
+    //停止
     virtual void Stop();
+    //获取时长
     virtual float GetDuration()
     {
         //ms to s
         return m_Duration * 1.0f / 1000;
     }
+    //seek 到某个时间点播放
     virtual void SeekToPosition(float position);
+    //当前播放的位置，用于更新进度条和音视频同步
     virtual float GetCurrentPosition();
     virtual void ClearCache()
     {};
@@ -57,11 +63,11 @@ public:
         m_MsgContext = context;
         m_MsgCallback = callback;
     }
-
+    //设置音视频同步的回调
     virtual void SetAVSyncCallback(void* context, AVSyncCallback callback)
     {
         m_AVDecoderContext = context;
-        m_AudioSyncCallback = callback;
+        m_AVSyncCallback = callback;
     }
 
 protected:
@@ -71,6 +77,7 @@ protected:
     virtual void UnInit();
     virtual void OnDecoderReady() = 0;
     virtual void OnDecoderDone() = 0;
+    //解码数据的回调
     virtual void OnFrameAvailable(AVFrame *frame) = 0;
 
     AVCodecContext *GetCodecContext() {
@@ -80,12 +87,17 @@ protected:
 private:
     int InitFFDecoder();
     void UnInitDecoder();
-
+    //启动解码线程
     void StartDecodingThread();
+    //音视频解码循环
     void DecodingLoop();
+    //更新显示时间戳
     void UpdateTimeStamp();
+    //音视频同步
     void AVSync();
+    //解码一个packet编码数据
     int DecodeOnePacket();
+    //线程函数
     static void DoAVDecoding(DecoderBase *decoder);
 
     //封装格式上下文
@@ -120,7 +132,7 @@ private:
     //解码器状态
     volatile int  m_DecoderState = STATE_UNKNOWN;
     void* m_AVDecoderContext = nullptr;
-    AVSyncCallback m_AudioSyncCallback = nullptr;//用作音视频同步
+    AVSyncCallback m_AVSyncCallback = nullptr;//用作音视频同步
 };
 
 
