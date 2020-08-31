@@ -5,6 +5,7 @@
 #include <render/video/NativeRender.h>
 #include <render/audio/OpenSLRender.h>
 #include <render/video/OpenGLRender.h>
+#include <render/video/VRGLRender.h>
 #include "FFMediaPlayer.h"
 
 void FFMediaPlayer::Init(JNIEnv *jniEnv, jobject obj, char *url, int videoRenderType, jobject surface) {
@@ -28,7 +29,7 @@ void FFMediaPlayer::Init(JNIEnv *jniEnv, jobject obj, char *url, int videoRender
     m_AudioDecoder->SetMessageCallback(this, PostMessage);
 
     //AVSync
-    m_VideoDecoder->SetAVSyncCallback(m_AudioDecoder, AudioDecoder::GetAudioDecoderTimestampForAVSync);
+    //m_VideoDecoder->SetAVSyncCallback(m_AudioDecoder, AudioDecoder::GetAudioDecoderTimestampForAVSync);
 
 }
 
