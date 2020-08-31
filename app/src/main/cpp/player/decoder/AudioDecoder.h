@@ -38,7 +38,7 @@ public:
         UnInit();
     }
 
-    void SetVideoRender(AudioRender *audioRender)
+    void SetAudioRender(AudioRender *audioRender)
     {
         m_AudioRender = audioRender;
     }
