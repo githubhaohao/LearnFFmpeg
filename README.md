@@ -17,6 +17,8 @@
 
 - [FFmpeg 开发(05)：FFmpeg + OpenGLES 实现视频解码播放和视频滤镜](https://blog.csdn.net/Kennethdroid/article/details/108135636)
 
+- [FFmpeg 开发(06)：FFmpeg 播放器实现音视频同步的三种方式](https://blog.csdn.net/Kennethdroid/article/details/108308154)
+
 # 联系我
 
 我的微信
