@@ -21,6 +21,6 @@
 
 # 联系我
 
-我的微信
+技术交流可以我的微信，获取视频教程。
 
 ![我的微信](https://github.com/githubhaohao/LearnFFmpeg/blob/master/doc/wechat_byteflow.png?raw=true)
