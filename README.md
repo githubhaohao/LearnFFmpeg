@@ -4,7 +4,8 @@
 ![Build](https://img.shields.io/badge/build-passing-brightgreen)
 
 # 展示图
-![gl_playe](https://github.com/githubhaohao/LearnFFmpeg/blob/master/doc/gl_player.gif?raw=true)
+![gl_playe](https://github.com/githubhaohao/LearnFFmpeg/blob/master/doc/filter.gif?raw=true)
+![gl_playe](https://github.com/githubhaohao/LearnFFmpeg/blob/master/doc/filter1.gif?raw=true)
 
 # Android FFmpeg 开发系列连载
 - [FFmpeg 开发(01)：FFmpeg 编译和集成](https://blog.csdn.net/Kennethdroid/article/details/106956601)
