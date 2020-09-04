@@ -20,6 +20,7 @@ import com.byteflow.learnffmpeg.media.MyGLSurfaceView;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
+import static com.byteflow.learnffmpeg.media.FFMediaPlayer.AUDIO_GL_RENDER;
 import static com.byteflow.learnffmpeg.media.FFMediaPlayer.MEDIA_PARAM_VIDEO_DURATION;
 import static com.byteflow.learnffmpeg.media.FFMediaPlayer.MEDIA_PARAM_VIDEO_HEIGHT;
 import static com.byteflow.learnffmpeg.media.FFMediaPlayer.MEDIA_PARAM_VIDEO_WIDTH;
@@ -28,6 +29,7 @@ import static com.byteflow.learnffmpeg.media.FFMediaPlayer.MSG_DECODER_INIT_ERRO
 import static com.byteflow.learnffmpeg.media.FFMediaPlayer.MSG_DECODER_READY;
 import static com.byteflow.learnffmpeg.media.FFMediaPlayer.MSG_DECODING_TIME;
 import static com.byteflow.learnffmpeg.media.FFMediaPlayer.MSG_REQUEST_RENDER;
+import static com.byteflow.learnffmpeg.media.FFMediaPlayer.VIDEO_GL_RENDER;
 import static com.byteflow.learnffmpeg.media.FFMediaPlayer.VIDEO_RENDER_OPENGL;
 
 public class AudioVisualMediaPlayerActivity extends AppCompatActivity implements GLSurfaceView.Renderer, FFMediaPlayer.EventCallback{
@@ -46,19 +48,19 @@ public class AudioVisualMediaPlayerActivity extends AppCompatActivity implements
     private GLSurfaceView.Renderer mAudioGLRender = new GLSurfaceView.Renderer() {
         @Override
         public void onSurfaceCreated(GL10 gl10, EGLConfig eglConfig) {
-            FFMediaPlayer.native_OnAudioVisualSurfaceCreated();
+            FFMediaPlayer.native_OnSurfaceCreated(AUDIO_GL_RENDER);
 
         }
 
         @Override
         public void onSurfaceChanged(GL10 gl10, int w, int h) {
-            FFMediaPlayer.native_OnAudioVisualSurfaceChanged(w, h);
+            FFMediaPlayer.native_OnSurfaceChanged(AUDIO_GL_RENDER, w, h);
 
         }
 
         @Override
         public void onDrawFrame(GL10 gl10) {
-            FFMediaPlayer.native_OnAudioVisualDrawFrame();
+            FFMediaPlayer.native_OnDrawFrame(AUDIO_GL_RENDER);
         }
     };
 
@@ -144,18 +146,18 @@ public class AudioVisualMediaPlayerActivity extends AppCompatActivity implements
 
     @Override
     public void onSurfaceCreated(GL10 gl10, EGLConfig eglConfig) {
-        FFMediaPlayer.native_OnSurfaceCreated();
+        FFMediaPlayer.native_OnSurfaceCreated(VIDEO_GL_RENDER);
     }
 
     @Override
     public void onSurfaceChanged(GL10 gl10, int w, int h) {
         Log.d(TAG, "onSurfaceChanged() called with: gl10 = [" + gl10 + "], w = [" + w + "], h = [" + h + "]");
-        FFMediaPlayer.native_OnSurfaceChanged(w, h);
+        FFMediaPlayer.native_OnSurfaceChanged(VIDEO_GL_RENDER, w, h);
     }
 
     @Override
     public void onDrawFrame(GL10 gl10) {
-        FFMediaPlayer.native_OnDrawFrame();
+        FFMediaPlayer.native_OnDrawFrame(VIDEO_GL_RENDER);
     }
 
     @Override

@@ -14,11 +14,9 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
+import com.byteflow.learnffmpeg.R;
 import com.byteflow.learnffmpeg.media.FFMediaPlayer;
 import com.byteflow.learnffmpeg.media.MyGLSurfaceView;
-import com.byteflow.learnffmpeg.util.CommonUtils;
-
-import java.util.logging.LogManager;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -32,9 +30,11 @@ import static com.byteflow.learnffmpeg.media.FFMediaPlayer.MSG_DECODER_READY;
 import static com.byteflow.learnffmpeg.media.FFMediaPlayer.MSG_DECODING_TIME;
 import static com.byteflow.learnffmpeg.media.FFMediaPlayer.MSG_REQUEST_RENDER;
 import static com.byteflow.learnffmpeg.media.FFMediaPlayer.VIDEO_GL_RENDER;
+import static com.byteflow.learnffmpeg.media.FFMediaPlayer.VIDEO_RENDER_3D_VR;
 import static com.byteflow.learnffmpeg.media.FFMediaPlayer.VIDEO_RENDER_OPENGL;
+import static com.byteflow.learnffmpeg.media.FFMediaPlayer.VR_3D_GL_RENDER;
 
-public class GLMediaPlayerActivity extends AppCompatActivity implements GLSurfaceView.Renderer, FFMediaPlayer.EventCallback, MyGLSurfaceView.OnGestureCallback{
+public class VRMediaPlayerActivity extends AppCompatActivity implements GLSurfaceView.Renderer, FFMediaPlayer.EventCallback, MyGLSurfaceView.OnGestureCallback{
     private static final String TAG = "MediaPlayerActivity";
     private static final String[] REQUEST_PERMISSIONS = {
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
@@ -44,7 +44,7 @@ public class GLMediaPlayerActivity extends AppCompatActivity implements GLSurfac
     private FFMediaPlayer mMediaPlayer = null;
     private SeekBar mSeekBar = null;
     private boolean mIsTouch = false;
-    private String mVideoPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/byteflow/one_piece.mp4";
+    private String mVideoPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/byteflow/vr.mp4";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -79,7 +79,7 @@ public class GLMediaPlayerActivity extends AppCompatActivity implements GLSurfac
         });
         mMediaPlayer = new FFMediaPlayer();
         mMediaPlayer.addEventCallback(this);
-        mMediaPlayer.init(mVideoPath, VIDEO_RENDER_OPENGL, null);
+        mMediaPlayer.init(mVideoPath, VIDEO_RENDER_3D_VR, null);
     }
 
     @Override
@@ -125,18 +125,18 @@ public class GLMediaPlayerActivity extends AppCompatActivity implements GLSurfac
 
     @Override
     public void onSurfaceCreated(GL10 gl10, EGLConfig eglConfig) {
-        FFMediaPlayer.native_OnSurfaceCreated(VIDEO_GL_RENDER);
+        FFMediaPlayer.native_OnSurfaceCreated(VR_3D_GL_RENDER);
     }
 
     @Override
     public void onSurfaceChanged(GL10 gl10, int w, int h) {
         Log.d(TAG, "onSurfaceChanged() called with: gl10 = [" + gl10 + "], w = [" + w + "], h = [" + h + "]");
-        FFMediaPlayer.native_OnSurfaceChanged(VIDEO_GL_RENDER, w, h);
+        FFMediaPlayer.native_OnSurfaceChanged(VR_3D_GL_RENDER, w, h);
     }
 
     @Override
     public void onDrawFrame(GL10 gl10) {
-        FFMediaPlayer.native_OnDrawFrame(VIDEO_GL_RENDER);
+        FFMediaPlayer.native_OnDrawFrame(VR_3D_GL_RENDER);
     }
 
     @Override
@@ -193,11 +193,11 @@ public class GLMediaPlayerActivity extends AppCompatActivity implements GLSurfac
 
     @Override
     public void onGesture(int xRotateAngle, int yRotateAngle, float scale) {
-         FFMediaPlayer.native_SetGesture(VIDEO_GL_RENDER, xRotateAngle, yRotateAngle, scale);
+         FFMediaPlayer.native_SetGesture(VR_3D_GL_RENDER, xRotateAngle, yRotateAngle, scale);
     }
 
     @Override
     public void onTouchLoc(float touchX, float touchY) {
-        FFMediaPlayer.native_SetTouchLoc(VIDEO_GL_RENDER, touchX, touchY);
+        FFMediaPlayer.native_SetTouchLoc(VR_3D_GL_RENDER, touchX, touchY);
     }
 }

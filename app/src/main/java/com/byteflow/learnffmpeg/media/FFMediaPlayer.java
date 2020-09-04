@@ -3,6 +3,10 @@ package com.byteflow.learnffmpeg.media;
 import android.view.Surface;
 
 public class FFMediaPlayer {
+    //gl render type
+    public static final int VIDEO_GL_RENDER = 0;
+    public static final int AUDIO_GL_RENDER = 1;
+    public static final int VR_3D_GL_RENDER = 2;
 
     static {
         System.loadLibrary("learn-ffmpeg");
@@ -20,6 +24,7 @@ public class FFMediaPlayer {
 
     public static final int VIDEO_RENDER_OPENGL         = 0;
     public static final int VIDEO_RENDER_ANWINDOW       = 1;
+    public static final int VIDEO_RENDER_3D_VR          = 2;
 
     private long mNativePlayerHandle = 0;
 
@@ -83,19 +88,13 @@ public class FFMediaPlayer {
 
     private native long native_GetMediaParams(long playerHandle, int paramType);
 
-    //for video openGL render
-    public static native void native_OnSurfaceCreated();
-    public static native void native_OnSurfaceChanged(int width, int height);
-    public static native void native_OnDrawFrame();
-
-    //for audio visual render
-    public static native void native_OnAudioVisualSurfaceCreated();
-    public static native void native_OnAudioVisualSurfaceChanged(int width, int height);
-    public static native void native_OnAudioVisualDrawFrame();
-
+    //for GL render
+    public static native void native_OnSurfaceCreated(int renderType);
+    public static native void native_OnSurfaceChanged(int renderType, int width, int height);
+    public static native void native_OnDrawFrame(int renderType);
     //update MVP matrix
-    public static native void native_SetGesture(float xRotateAngle, float yRotateAngle, float scale);
-    public static native void native_SetTouchLoc(float touchX, float touchY);
+    public static native void native_SetGesture(int renderType, float xRotateAngle, float yRotateAngle, float scale);
+    public static native void native_SetTouchLoc(int renderType, float touchX, float touchY);
 
     public interface EventCallback {
         void onPlayerEvent(int msgType, float msgValue);

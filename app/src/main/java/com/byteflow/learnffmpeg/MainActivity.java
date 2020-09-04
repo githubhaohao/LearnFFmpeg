@@ -34,12 +34,14 @@ public class MainActivity extends AppCompatActivity {
     private static  final String [] EXAMPLE_LIST = {
             "FFmpeg + ANativeWindow",
             "FFmpeg + OpenGLES",
-            "FFmpeg + OpenSLES + Visual Audio"
+            "FFmpeg + OpenSLES + Visual Audio",
+            "FFmpeg + OpenGLES VR Media Player"
     };
 
     private static final int FF_ANATIVE_WINDOWS_EXAMPLE = 0;
     private static final int FF_OPENGLES_EXAMPLE = 1;
     private static final int FF_OPENGLES_AUDIO_VISUAL_EXAMPLE = 2;
+    private static final int FF_OPENGLES_VR_EXAMPLE = 3;
 
     private int mSampleSelectedIndex = -1;
 
@@ -126,6 +128,9 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     case FF_OPENGLES_AUDIO_VISUAL_EXAMPLE:
                         startActivity(new Intent(MainActivity.this, AudioVisualMediaPlayerActivity.class));
+                        break;
+                    case FF_OPENGLES_VR_EXAMPLE:
+                        startActivity(new Intent(MainActivity.this, VRMediaPlayerActivity.class));
                         break;
                         default:
                             break;
