@@ -4,7 +4,7 @@
 
 #include "NativeRender.h"
 
-NativeRender::NativeRender(JNIEnv *env, jobject surface)
+NativeRender::NativeRender(JNIEnv *env, jobject surface): VideoRender(VIDEO_RENDER_ANWINDOW)
 {
     m_NativeWindow = ANativeWindow_fromSurface(env, surface);
 }

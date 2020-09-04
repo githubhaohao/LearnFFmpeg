@@ -2,44 +2,47 @@
 // Created by 字节流动 on 2020/8/14.
 //
 
-#ifndef LEARNFFMPEG_AUDIOVISUALRENDER_H
-#define LEARNFFMPEG_AUDIOVISUALRENDER_H
+#ifndef LEARNFFMPEG_AUDIOGLRENDER_H
+#define LEARNFFMPEG_AUDIOGLRENDER_H
 
 #include "thread"
 #include "AudioRender.h"
 #include <GLES3/gl3.h>
 #include <detail/type_mat.hpp>
 #include <detail/type_mat4x4.hpp>
+#include <render/BaseGLRender.h>
 
 using namespace glm;
 
 #define MAX_AUDIO_LEVEL 5000
 #define RESAMPLE_LEVEL  40
 
-class AudioVisualRender {
+class AudioGLRender : public BaseGLRender {
 public:
-    static AudioVisualRender* GetInstance();
+    static AudioGLRender* GetInstance();
     static void ReleaseInstance();
 
-    void OnAudioVisualSurfaceCreated();
-    void OnAudioVisualSurfaceChanged(int w, int h);
-    void OnAudioVisualDrawFrame();
+    virtual void OnSurfaceCreated();
+    virtual void OnSurfaceChanged(int w, int h);
+    virtual void OnDrawFrame();
+    virtual void UpdateMVPMatrix(int angleX, int angleY, float scaleX, float scaleY){};
+    virtual void SetTouchLoc(float touchX, float touchY) {}
 
     void UpdateAudioFrame(AudioFrame *audioFrame);
 
 private:
     void Init();
     void UnInit();
-    AudioVisualRender(){
+    AudioGLRender(){
         Init();
     }
-    ~AudioVisualRender(){
+    ~AudioGLRender(){
         UnInit();
     }
 
     void UpdateMesh();
 
-    static AudioVisualRender *m_pInstance;
+    static AudioGLRender *m_pInstance;
     static std::mutex m_Mutex;
     AudioFrame *m_pAudioBuffer = nullptr;
 
@@ -56,4 +59,4 @@ private:
 };
 
 
-#endif //LEARNFFMPEG_AUDIOVISUALRENDER_H
+#endif //LEARNFFMPEG_AUDIOGLRENDER_H

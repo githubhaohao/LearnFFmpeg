@@ -223,23 +223,23 @@ void DecoderBase::AVSync() {
         m_MsgCallback(m_MsgContext, MSG_DECODING_TIME, m_CurTimeStamp * 1.0f / 1000);
 
     //向系统时钟同步
-    if(m_CurTimeStamp > elapsedTime) {
-        //休眠时间
-        auto sleepTime = static_cast<unsigned int>(m_CurTimeStamp - elapsedTime);//ms
-        av_usleep(sleepTime * 1000);
-    }
-
-//    if(m_AVSyncCallback != nullptr) {
-//        //视频向音频同步,或者音频向视频同步,视传进来的 m_AVSyncCallback 而定
-//        long elapsedTime = m_AVSyncCallback(m_AVDecoderContext);
-//        LOGCATE("DecoderBase::AVSync m_CurTimeStamp=%ld, elapsedTime=%ld", m_CurTimeStamp, elapsedTime);
-//
-//        if(m_CurTimeStamp > elapsedTime) {
-//            //休眠时间
-//            auto sleepTime = static_cast<unsigned int>(m_CurTimeStamp - elapsedTime);//ms
-//            av_usleep(sleepTime * 1000);
-//        }
+//    if(m_CurTimeStamp > elapsedTime) {
+//        //休眠时间
+//        auto sleepTime = static_cast<unsigned int>(m_CurTimeStamp - elapsedTime);//ms
+//        av_usleep(sleepTime * 1000);
 //    }
+
+    if(m_AVSyncCallback != nullptr && m_SeekPosition == 0) {
+        //视频向音频同步,或者音频向视频同步,视传进来的 m_AVSyncCallback 而定
+        long elapsedTime = m_AVSyncCallback(m_AVDecoderContext);
+        LOGCATE("DecoderBase::AVSync m_CurTimeStamp=%ld, elapsedTime=%ld", m_CurTimeStamp, elapsedTime);
+
+        if(m_CurTimeStamp > elapsedTime) {
+            //休眠时间
+            auto sleepTime = static_cast<unsigned int>(m_CurTimeStamp - elapsedTime);//ms
+            av_usleep(sleepTime * 1000);
+        }
+    }
 }
 
 int DecoderBase::DecodeOnePacket() {

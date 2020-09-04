@@ -4,7 +4,8 @@
 #include <cstdio>
 #include <cstring>
 #include <FFMediaPlayer.h>
-#include <render/video/OpenGLRender.h>
+#include <render/video/VideoGLRender.h>
+#include <render/video/VRGLRender.h>
 #include <render/audio/OpenSLRender.h>
 #include "util/LogUtil.h"
 #include "jni.h"
@@ -152,56 +153,104 @@ JNIEXPORT void JNICALL Java_com_byteflow_learnffmpeg_media_FFMediaPlayer_native_
 
 JNIEXPORT void JNICALL
 Java_com_byteflow_learnffmpeg_media_FFMediaPlayer_native_1OnSurfaceCreated(JNIEnv *env,
-                                                                           jclass clazz) {
-    OpenGLRender::GetInstance()->OnSurfaceCreated();
+                                                                           jclass clazz,
+                                                                           jint render_type) {
+    switch (render_type)
+    {
+        case VIDEO_GL_RENDER:
+            VideoGLRender::GetInstance()->OnSurfaceCreated();
+            break;
+        case AUDIO_GL_RENDER:
+            AudioGLRender::GetInstance()->OnSurfaceCreated();
+            break;
+        case VR_3D_GL_RENDER:
+            VRGLRender::GetInstance()->OnSurfaceCreated();
+            break;
+        default:
+            break;
+    }
 }
 
 JNIEXPORT void JNICALL
-Java_com_byteflow_learnffmpeg_media_FFMediaPlayer_native_1OnSurfaceChanged(JNIEnv *env,
-                                                                           jclass clazz, jint width,
+Java_com_byteflow_learnffmpeg_media_FFMediaPlayer_native_1OnSurfaceChanged(JNIEnv *env, jclass clazz,
+                                                                           jint render_type,
+                                                                           jint width,
                                                                            jint height) {
-    OpenGLRender::GetInstance()->OnSurfaceChanged(width, height);
+    switch (render_type)
+    {
+        case VIDEO_GL_RENDER:
+            VideoGLRender::GetInstance()->OnSurfaceChanged(width, height);
+            break;
+        case AUDIO_GL_RENDER:
+            AudioGLRender::GetInstance()->OnSurfaceChanged(width, height);
+            break;
+        case VR_3D_GL_RENDER:
+            VRGLRender::GetInstance()->OnSurfaceChanged(width, height);
+            break;
+        default:
+            break;
+    }
 }
 
 JNIEXPORT void JNICALL
-Java_com_byteflow_learnffmpeg_media_FFMediaPlayer_native_1OnDrawFrame(JNIEnv *env, jclass clazz) {
-    OpenGLRender::GetInstance()->OnDrawFrame();
+Java_com_byteflow_learnffmpeg_media_FFMediaPlayer_native_1OnDrawFrame(JNIEnv *env, jclass clazz, jint render_type) {
+    switch (render_type)
+    {
+        case VIDEO_GL_RENDER:
+            VideoGLRender::GetInstance()->OnDrawFrame();
+            break;
+        case AUDIO_GL_RENDER:
+            AudioGLRender::GetInstance()->OnDrawFrame();
+            break;
+        case VR_3D_GL_RENDER:
+            VRGLRender::GetInstance()->OnDrawFrame();
+            break;
+        default:
+            break;
+    }
 }
 
 JNIEXPORT void JNICALL
 Java_com_byteflow_learnffmpeg_media_FFMediaPlayer_native_1SetGesture(JNIEnv *env, jclass clazz,
+                                                                     jint   render_type,
                                                                      jfloat x_rotate_angle,
                                                                      jfloat y_rotate_angle,
                                                                      jfloat scale) {
-    OpenGLRender::GetInstance()->UpdateMVPMatrix(x_rotate_angle, y_rotate_angle, scale, scale);
+    switch (render_type)
+    {
+        case VIDEO_GL_RENDER:
+            VideoGLRender::GetInstance()->UpdateMVPMatrix(x_rotate_angle, y_rotate_angle, scale, scale);
+            break;
+        case AUDIO_GL_RENDER:
+            AudioGLRender::GetInstance()->UpdateMVPMatrix(x_rotate_angle, y_rotate_angle, scale, scale);
+            break;
+        case VR_3D_GL_RENDER:
+            VRGLRender::GetInstance()->UpdateMVPMatrix(x_rotate_angle, y_rotate_angle, scale, scale);
+            break;
+        default:
+            break;
+    }
 }
 
 JNIEXPORT void JNICALL
 Java_com_byteflow_learnffmpeg_media_FFMediaPlayer_native_1SetTouchLoc(JNIEnv *env, jclass clazz,
+                                                                      jint   render_type,
                                                                       jfloat touch_x,
                                                                       jfloat touch_y) {
-    OpenGLRender::GetInstance()->SetTouchLoc(touch_x, touch_y);
-}
-
-//可视化音频的渲染接口
-JNIEXPORT void JNICALL
-Java_com_byteflow_learnffmpeg_media_FFMediaPlayer_native_1OnAudioVisualSurfaceCreated(JNIEnv *env,
-                                                                                      jclass clazz) {
-    AudioVisualRender::GetInstance()->OnAudioVisualSurfaceCreated();
-}
-
-JNIEXPORT void JNICALL
-Java_com_byteflow_learnffmpeg_media_FFMediaPlayer_native_1OnAudioVisualSurfaceChanged(JNIEnv *env,
-                                                                                      jclass clazz,
-                                                                                      jint width,
-                                                                                      jint height) {
-    AudioVisualRender::GetInstance()->OnAudioVisualSurfaceChanged(width, height);
-}
-
-JNIEXPORT void JNICALL
-Java_com_byteflow_learnffmpeg_media_FFMediaPlayer_native_1OnAudioVisualDrawFrame(JNIEnv *env,
-                                                                                 jclass clazz) {
-    AudioVisualRender::GetInstance()->OnAudioVisualDrawFrame();
+    switch (render_type)
+    {
+        case VIDEO_GL_RENDER:
+            VideoGLRender::GetInstance()->SetTouchLoc(touch_x, touch_y);
+            break;
+        case AUDIO_GL_RENDER:
+            AudioGLRender::GetInstance()->SetTouchLoc(touch_x, touch_y);
+            break;
+        case VR_3D_GL_RENDER:
+            VRGLRender::GetInstance()->SetTouchLoc(touch_x, touch_y);
+            break;
+        default:
+            break;
+    }
 }
 
 #ifdef __cplusplus

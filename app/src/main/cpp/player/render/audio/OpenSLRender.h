@@ -12,7 +12,7 @@
 #include <string>
 #include <thread>
 #include "AudioRender.h"
-#include "AudioVisualRender.h"
+#include "AudioGLRender.h"
 
 #define MAX_QUEUE_BUFFER_SIZE 3
 

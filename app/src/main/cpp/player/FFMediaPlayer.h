@@ -16,9 +16,6 @@
 #define MEDIA_PARAM_VIDEO_HEIGHT        0x0002
 #define MEDIA_PARAM_VIDEO_DURATION      0x0003
 
-#define VIDEO_RENDER_OPENGL             0
-#define VIDEO_RENDER_ANWINDOW           1
-
 class FFMediaPlayer {
 public:
     FFMediaPlayer(){};

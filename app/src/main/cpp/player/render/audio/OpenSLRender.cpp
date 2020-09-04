@@ -109,7 +109,7 @@ void OpenSLRender::UnInit() {
         m_thread = nullptr;
     }
 
-    AudioVisualRender::ReleaseInstance();
+    AudioGLRender::ReleaseInstance();
 
 }
 
@@ -250,7 +250,7 @@ void OpenSLRender::StartRender() {
 }
 
 void OpenSLRender::HandleAudioFrameQueue() {
-    LOGCATE("OpenSLRender::HandleAudioFrameQueue QueueSize=%d", m_AudioFrameQueue.size());
+    LOGCATE("OpenSLRender::HandleAudioFrameQueue QueueSize=%lu", m_AudioFrameQueue.size());
     if (m_AudioPlayerPlay == nullptr) return;
 
     while (GetAudioFrameQueueSize() < MAX_QUEUE_BUFFER_SIZE && !m_Exit) {
@@ -263,7 +263,7 @@ void OpenSLRender::HandleAudioFrameQueue() {
     if (nullptr != audioFrame && m_AudioPlayerPlay) {
         SLresult result = (*m_BufferQueue)->Enqueue(m_BufferQueue, audioFrame->data, (SLuint32) audioFrame->dataSize);
         if (result == SL_RESULT_SUCCESS) {
-            AudioVisualRender::GetInstance()->UpdateAudioFrame(audioFrame);
+            AudioGLRender::GetInstance()->UpdateAudioFrame(audioFrame);
             m_AudioFrameQueue.pop();
             delete audioFrame;
         }

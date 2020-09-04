@@ -4,28 +4,28 @@
 
 #include <LogUtil.h>
 #include <GLUtils.h>
-#include "AudioVisualRender.h"
+#include "AudioGLRender.h"
 #include <gtc/matrix_transform.hpp>
 #include <detail/type_mat.hpp>
 #include <detail/type_mat4x4.hpp>
-#include <render/video/OpenGLRender.h>
+#include <render/video/VideoGLRender.h>
 
 
-AudioVisualRender* AudioVisualRender::m_pInstance = nullptr;
-std::mutex AudioVisualRender::m_Mutex;
+AudioGLRender* AudioGLRender::m_pInstance = nullptr;
+std::mutex AudioGLRender::m_Mutex;
 
-AudioVisualRender *AudioVisualRender::GetInstance() {
+AudioGLRender *AudioGLRender::GetInstance() {
     if(m_pInstance == nullptr) {
         std::unique_lock<std::mutex> lock(m_Mutex);
         if(m_pInstance == nullptr) {
-            m_pInstance = new AudioVisualRender();
+            m_pInstance = new AudioGLRender();
         }
 
     }
     return m_pInstance;
 }
 
-void AudioVisualRender::ReleaseInstance() {
+void AudioGLRender::ReleaseInstance() {
     std::unique_lock<std::mutex> lock(m_Mutex);
     if(m_pInstance != nullptr) {
         delete m_pInstance;
@@ -34,8 +34,8 @@ void AudioVisualRender::ReleaseInstance() {
 
 }
 
-void AudioVisualRender::OnAudioVisualSurfaceCreated() {
-    ByteFlowPrintE("AudioVisualRender::OnAudioVisualSurfaceCreated");
+void AudioGLRender::OnSurfaceCreated() {
+    ByteFlowPrintE("AudioGLRender::OnSurfaceCreated");
     if (m_ProgramObj)
         return;
     char vShaderStr[] =
@@ -103,15 +103,15 @@ void AudioVisualRender::OnAudioVisualSurfaceCreated() {
 
 }
 
-void AudioVisualRender::OnAudioVisualSurfaceChanged(int w, int h) {
-    ByteFlowPrintE("AudioVisualRender::OnAudioVisualSurfaceChanged [w, h] = [%d, %d]", w, h);
+void AudioGLRender::OnSurfaceChanged(int w, int h) {
+    ByteFlowPrintE("AudioGLRender::OnSurfaceChanged [w, h] = [%d, %d]", w, h);
     glClearColor(1.0f, 1.0f, 1.0f, 1.0);
     glViewport(0, 0, w, h);
 
 }
 
-void AudioVisualRender::OnAudioVisualDrawFrame() {
-    ByteFlowPrintD("AudioVisualRender::OnAudioVisualDrawFrame");
+void AudioGLRender::OnDrawFrame() {
+    ByteFlowPrintD("AudioGLRender::OnDrawFrame");
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
     std::unique_lock<std::mutex> lock(m_Mutex);
     if (m_ProgramObj == GL_NONE || m_pAudioBuffer == nullptr) return;
@@ -167,9 +167,9 @@ void AudioVisualRender::OnAudioVisualDrawFrame() {
 
 }
 
-void AudioVisualRender::UpdateAudioFrame(AudioFrame *audioFrame) {
+void AudioGLRender::UpdateAudioFrame(AudioFrame *audioFrame) {
     if(audioFrame != nullptr) {
-        ByteFlowPrintD("AudioVisualRender::UpdateAudioFrame audioFrame->dataSize=%d", audioFrame->dataSize);
+        ByteFlowPrintD("AudioGLRender::UpdateAudioFrame audioFrame->dataSize=%d", audioFrame->dataSize);
         std::unique_lock<std::mutex> lock(m_Mutex);
         if(m_pAudioBuffer != nullptr && m_pAudioBuffer->dataSize != audioFrame->dataSize) {
             delete m_pAudioBuffer;
@@ -195,7 +195,7 @@ void AudioVisualRender::UpdateAudioFrame(AudioFrame *audioFrame) {
     }
 }
 
-void AudioVisualRender::UpdateMesh() {
+void AudioGLRender::UpdateMesh() {
     float dy = 0.25f / MAX_AUDIO_LEVEL;
     float dx = 1.0f / m_RenderDataSize;
     for (int i = 0; i < m_RenderDataSize; ++i) {
@@ -224,7 +224,7 @@ void AudioVisualRender::UpdateMesh() {
     }
 }
 
-void AudioVisualRender::Init() {
+void AudioGLRender::Init() {
     m_VaoId = GL_NONE;
 
     m_pTextureCoords = nullptr;
@@ -235,7 +235,7 @@ void AudioVisualRender::Init() {
 
 }
 
-void AudioVisualRender::UnInit() {
+void AudioGLRender::UnInit() {
     if (m_pAudioBuffer != nullptr) {
         delete m_pAudioBuffer;
         m_pAudioBuffer = nullptr;

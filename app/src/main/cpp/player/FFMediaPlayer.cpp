@@ -4,7 +4,8 @@
 
 #include <render/video/NativeRender.h>
 #include <render/audio/OpenSLRender.h>
-#include <render/video/OpenGLRender.h>
+#include <render/video/VideoGLRender.h>
+#include <render/video/VRGLRender.h>
 #include "FFMediaPlayer.h"
 
 void FFMediaPlayer::Init(JNIEnv *jniEnv, jobject obj, char *url, int videoRenderType, jobject surface) {
@@ -15,10 +16,12 @@ void FFMediaPlayer::Init(JNIEnv *jniEnv, jobject obj, char *url, int videoRender
     m_AudioDecoder = new AudioDecoder(url);
 
     if(videoRenderType == VIDEO_RENDER_OPENGL) {
-        m_VideoDecoder->SetVideoRender(OpenGLRender::GetInstance());
+        m_VideoDecoder->SetVideoRender(VideoGLRender::GetInstance());
     } else if (videoRenderType == VIDEO_RENDER_ANWINDOW) {
         m_VideoRender = new NativeRender(jniEnv, surface);
         m_VideoDecoder->SetVideoRender(m_VideoRender);
+    } else if (videoRenderType == VIDEO_RENDER_3D_VR) {
+        m_VideoDecoder->SetVideoRender(VRGLRender::GetInstance());
     }
 
     m_AudioRender = new OpenSLRender();
@@ -29,7 +32,6 @@ void FFMediaPlayer::Init(JNIEnv *jniEnv, jobject obj, char *url, int videoRender
 
     //AVSync
     m_VideoDecoder->SetAVSyncCallback(m_AudioDecoder, AudioDecoder::GetAudioDecoderTimestampForAVSync);
-
 }
 
 void FFMediaPlayer::UnInit() {
@@ -54,7 +56,7 @@ void FFMediaPlayer::UnInit() {
         m_AudioRender = nullptr;
     }
 
-    OpenGLRender::ReleaseInstance();
+    VideoGLRender::ReleaseInstance();
 
     bool isAttach = false;
     GetJNIEnv(&isAttach)->DeleteGlobalRef(m_JavaObj);

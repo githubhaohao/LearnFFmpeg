@@ -2,12 +2,12 @@
 // Created by 字节流动 on 2020/6/11.
 //
 
-#include "OpenGLRender.h"
+#include "VideoGLRender.h"
 #include <GLUtils.h>
 #include <gtc/matrix_transform.hpp>
 
-OpenGLRender* OpenGLRender::s_Instance = nullptr;
-std::mutex OpenGLRender::m_Mutex;
+VideoGLRender* VideoGLRender::s_Instance = nullptr;
+std::mutex VideoGLRender::m_Mutex;
 
 static char vShaderStr[] =
         "#version 300 es\n"
@@ -83,17 +83,17 @@ GLfloat textureCoords[] = {
 
 GLushort indices[] = { 0, 1, 2, 0, 2, 3 };
 
-OpenGLRender::OpenGLRender() {
+VideoGLRender::VideoGLRender():VideoRender(VIDEO_RENDER_OPENGL) {
 
 }
 
-OpenGLRender::~OpenGLRender() {
+VideoGLRender::~VideoGLRender() {
     NativeImageUtil::FreeNativeImage(&m_RenderImage);
 
 }
 
-void OpenGLRender::Init(int videoWidth, int videoHeight, int *dstSize) {
-    LOGCATE("OpenGLRender::InitRender video[w, h]=[%d, %d]", videoWidth, videoHeight);
+void VideoGLRender::Init(int videoWidth, int videoHeight, int *dstSize) {
+    LOGCATE("VideoGLRender::InitRender video[w, h]=[%d, %d]", videoWidth, videoHeight);
     std::unique_lock<std::mutex> lock(m_Mutex);
     m_RenderImage.format = IMAGE_FORMAT_RGBA;
     m_RenderImage.width = videoWidth;
@@ -104,8 +104,8 @@ void OpenGLRender::Init(int videoWidth, int videoHeight, int *dstSize) {
 
 }
 
-void OpenGLRender::RenderVideoFrame(NativeImage *pImage) {
-    LOGCATE("OpenGLRender::RenderVideoFrame pImage=%p", pImage);
+void VideoGLRender::RenderVideoFrame(NativeImage *pImage) {
+    LOGCATE("VideoGLRender::RenderVideoFrame pImage=%p", pImage);
     if(pImage == nullptr || pImage->ppPlane[0] == nullptr)
         return;
     std::unique_lock<std::mutex> lock(m_Mutex);
@@ -117,11 +117,11 @@ void OpenGLRender::RenderVideoFrame(NativeImage *pImage) {
     NativeImageUtil::CopyNativeImage(pImage, &m_RenderImage);
 }
 
-void OpenGLRender::UnInit() {
+void VideoGLRender::UnInit() {
 
 }
 
-void OpenGLRender::UpdateMVPMatrix(int angleX, int angleY, float scaleX, float scaleY)
+void VideoGLRender::UpdateMVPMatrix(int angleX, int angleY, float scaleX, float scaleY)
 {
     angleX = angleX % 360;
     angleY = angleY % 360;
@@ -152,13 +152,13 @@ void OpenGLRender::UpdateMVPMatrix(int angleX, int angleY, float scaleX, float s
 
 }
 
-void OpenGLRender::OnSurfaceCreated() {
-    LOGCATE("OpenGLRender::OnSurfaceCreated");
+void VideoGLRender::OnSurfaceCreated() {
+    LOGCATE("VideoGLRender::OnSurfaceCreated");
 
     m_ProgramObj = GLUtils::CreateProgram(vShaderStr, fShaderStr);
     if (!m_ProgramObj)
     {
-        LOGCATE("OpenGLRender::OnSurfaceCreated create program fail");
+        LOGCATE("VideoGLRender::OnSurfaceCreated create program fail");
         return;
     }
 
@@ -203,18 +203,18 @@ void OpenGLRender::OnSurfaceCreated() {
     m_TouchXY = vec2(0.5f, 0.5f);
 }
 
-void OpenGLRender::OnSurfaceChanged(int w, int h) {
-    LOGCATE("OpenGLRender::OnSurfaceChanged [w, h]=[%d, %d]", w, h);
+void VideoGLRender::OnSurfaceChanged(int w, int h) {
+    LOGCATE("VideoGLRender::OnSurfaceChanged [w, h]=[%d, %d]", w, h);
     m_ScreenSize.x = w;
     m_ScreenSize.y = h;
     glViewport(0, 0, w, h);
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 }
 
-void OpenGLRender::OnDrawFrame() {
+void VideoGLRender::OnDrawFrame() {
     glClear(GL_COLOR_BUFFER_BIT);
     if(m_ProgramObj == GL_NONE || m_TextureId == GL_NONE || m_RenderImage.ppPlane[0] == nullptr) return;
-    LOGCATE("OpenGLRender::OnDrawFrame [w, h]=[%d, %d]", m_RenderImage.width, m_RenderImage.height);
+    LOGCATE("VideoGLRender::OnDrawFrame [w, h]=[%d, %d]", m_RenderImage.width, m_RenderImage.height);
     m_FrameIndex++;
 
     //upload RGBA image data
@@ -249,20 +249,20 @@ void OpenGLRender::OnDrawFrame() {
 
 }
 
-OpenGLRender *OpenGLRender::GetInstance() {
+VideoGLRender *VideoGLRender::GetInstance() {
     if(s_Instance == nullptr)
     {
         std::lock_guard<std::mutex> lock(m_Mutex);
         if(s_Instance == nullptr)
         {
-            s_Instance = new OpenGLRender();
+            s_Instance = new VideoGLRender();
         }
 
     }
     return s_Instance;
 }
 
-void OpenGLRender::ReleaseInstance() {
+void VideoGLRender::ReleaseInstance() {
     if(s_Instance != nullptr)
     {
         std::lock_guard<std::mutex> lock(m_Mutex);
