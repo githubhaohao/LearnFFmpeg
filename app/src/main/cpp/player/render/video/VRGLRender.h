@@ -22,6 +22,7 @@ using namespace std;
 #define UNIT_SIZE   0.5
 #define BALL_RADIUS 6.0
 #define RADIAN(angle) ((angle) / 180 * MATH_PI)
+#define TEXTURE_NUM 3
 
 class VRGLRender: public VideoRender, public BaseGLRender {
 public:
@@ -52,7 +53,7 @@ private:
     static std::mutex m_Mutex;
     static VRGLRender* s_Instance;
     GLuint m_ProgramObj = GL_NONE;
-    GLuint m_TextureId;
+    GLuint m_TextureIds[TEXTURE_NUM];
     GLuint m_VaoId;
     GLuint m_VboIds[2];
     NativeImage m_RenderImage;

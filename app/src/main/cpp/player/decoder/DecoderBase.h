@@ -16,6 +16,7 @@ extern "C" {
 #include "Decoder.h"
 
 #define MAX_PATH   2048
+#define DELAY_THRESHOLD 90 //90ms
 
 using namespace std;
 
@@ -93,8 +94,9 @@ private:
     void DecodingLoop();
     //更新显示时间戳
     void UpdateTimeStamp();
+    void UpdateTimeStamp(AVPacket *avPacket);
     //音视频同步
-    void AVSync();
+    long AVSync();
     //解码一个packet编码数据
     int DecodeOnePacket();
     //线程函数

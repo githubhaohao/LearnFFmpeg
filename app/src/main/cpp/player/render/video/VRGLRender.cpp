@@ -21,6 +21,63 @@ static char vShaderStr[] =
         "    v_texCoord = a_texCoord;\n"
         "}";
 
+static char fShaderStr[] =
+        "#version 300 es\n"
+        "precision highp float;\n"
+        "in vec2 v_texCoord;\n"
+        "layout(location = 0) out vec4 outColor;\n"
+        "uniform sampler2D s_texture0;\n"
+        "uniform sampler2D s_texture1;\n"
+        "uniform sampler2D s_texture2;\n"
+        "uniform int u_nImgType;// 1:RGBA, 2:NV21, 3:NV12, 4:I420\n"
+        "\n"
+        "void main()\n"
+        "{\n"
+        "\n"
+        "    if(u_nImgType == 1) //RGBA\n"
+        "    {\n"
+        "        outColor = texture(s_texture0, v_texCoord);\n"
+        "    }\n"
+        "    else if(u_nImgType == 2) //NV21\n"
+        "    {\n"
+        "        vec3 yuv;\n"
+        "        yuv.x = texture(s_texture0, v_texCoord).r;\n"
+        "        yuv.y = texture(s_texture1, v_texCoord).a - 0.5;\n"
+        "        yuv.z = texture(s_texture1, v_texCoord).r - 0.5;\n"
+        "        highp vec3 rgb = mat3(1.0,       1.0,     1.0,\n"
+        "        0.0, \t-0.344, \t1.770,\n"
+        "        1.403,  -0.714,     0.0) * yuv;\n"
+        "        outColor = vec4(rgb, 1.0);\n"
+        "\n"
+        "    }\n"
+        "    else if(u_nImgType == 3) //NV12\n"
+        "    {\n"
+        "        vec3 yuv;\n"
+        "        yuv.x = texture(s_texture0, v_texCoord).r;\n"
+        "        yuv.y = texture(s_texture1, v_texCoord).r - 0.5;\n"
+        "        yuv.z = texture(s_texture1, v_texCoord).a - 0.5;\n"
+        "        highp vec3 rgb = mat3(1.0,       1.0,     1.0,\n"
+        "        0.0, \t-0.344, \t1.770,\n"
+        "        1.403,  -0.714,     0.0) * yuv;\n"
+        "        outColor = vec4(rgb, 1.0);\n"
+        "    }\n"
+        "    else if(u_nImgType == 4) //I420\n"
+        "    {\n"
+        "        vec3 yuv;\n"
+        "        yuv.x = texture(s_texture0, v_texCoord).r;\n"
+        "        yuv.y = texture(s_texture1, v_texCoord).r - 0.5;\n"
+        "        yuv.z = texture(s_texture2, v_texCoord).r - 0.5;\n"
+        "        highp vec3 rgb = mat3(1.0,       1.0,     1.0,\n"
+        "                              0.0, \t-0.344, \t1.770,\n"
+        "                              1.403,  -0.714,     0.0) * yuv;\n"
+        "        outColor = vec4(rgb, 1.0);\n"
+        "    }\n"
+        "    else\n"
+        "    {\n"
+        "        outColor = vec4(1.0);\n"
+        "    }\n"
+        "}";
+
 static char fMeshShaderStr[] =
         "//dynimic mesh 动态网格\n"
         "#version 300 es\n"
@@ -53,7 +110,8 @@ static char fMeshShaderStr[] =
         "    }\n"
         "}";
 
-static char fShaderStr[] =
+static char fGrayShaderStr[] =
+        "//黑白滤镜\n"
         "#version 300 es\n"
         "precision highp float;\n"
         "in vec2 v_texCoord;\n"
@@ -62,8 +120,8 @@ static char fShaderStr[] =
         "void main()\n"
         "{\n"
         "    outColor = texture(s_TextureMap, v_texCoord);\n"
-        "    //if(v_texCoord.x > 0.5)\n"
-        "        //outColor = vec4(vec3(outColor.r*0.299 + outColor.g*0.587 + outColor.b*0.114), outColor.a);\n"
+        "    if(v_texCoord.x > 0.5)\n"
+        "        outColor = vec4(vec3(outColor.r*0.299 + outColor.g*0.587 + outColor.b*0.114), outColor.a);\n"
         "}";
 
 //GLfloat verticesCoords[] = {
@@ -93,10 +151,6 @@ VRGLRender::~VRGLRender() {
 
 void VRGLRender::Init(int videoWidth, int videoHeight, int *dstSize) {
     LOGCATE("VRGLRender::InitRender video[w, h]=[%d, %d]", videoWidth, videoHeight);
-    std::unique_lock<std::mutex> lock(m_Mutex);
-    m_RenderImage.format = IMAGE_FORMAT_RGBA;
-    m_RenderImage.width = videoWidth;
-    m_RenderImage.height = videoHeight;
     dstSize[0] = videoWidth;
     dstSize[1] = videoHeight;
     m_FrameIndex = 0;
@@ -110,6 +164,9 @@ void VRGLRender::RenderVideoFrame(NativeImage *pImage) {
     std::unique_lock<std::mutex> lock(m_Mutex);
     if(m_RenderImage.ppPlane[0] == nullptr)
     {
+        m_RenderImage.format = pImage->format;
+        m_RenderImage.width = pImage->width;
+        m_RenderImage.height = pImage->height;
         NativeImageUtil::AllocNativeImage(&m_RenderImage);
     }
 
@@ -163,13 +220,16 @@ void VRGLRender::OnSurfaceCreated() {
     }
     GenerateMesh();
 
-    glGenTextures(1, &m_TextureId);
-    glBindTexture(GL_TEXTURE_2D, m_TextureId);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glBindTexture(GL_TEXTURE_2D, GL_NONE);
+    glGenTextures(TEXTURE_NUM, m_TextureIds);
+    for (int i = 0; i < TEXTURE_NUM ; ++i) {
+        glActiveTexture(GL_TEXTURE0 + i);
+        glBindTexture(GL_TEXTURE_2D, m_TextureIds[i]);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glBindTexture(GL_TEXTURE_2D, GL_NONE);
+    }
 
     // Generate VBO Ids and load the VBOs with data
     glGenBuffers(2, m_VboIds);
@@ -209,20 +269,69 @@ void VRGLRender::OnSurfaceChanged(int w, int h) {
 
 void VRGLRender::OnDrawFrame() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    if(m_ProgramObj == GL_NONE || m_TextureId == GL_NONE || m_RenderImage.ppPlane[0] == nullptr) return;
+    if(m_ProgramObj == GL_NONE || m_RenderImage.ppPlane[0] == nullptr) return;
     LOGCATE("VRGLRender::OnDrawFrame [w, h]=[%d, %d]", m_RenderImage.width, m_RenderImage.height);
     m_FrameIndex++;
     //glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
-    //upload RGBA image data
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, m_TextureId);
-
+    // upload image data
     std::unique_lock<std::mutex> lock(m_Mutex);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_RenderImage.width, m_RenderImage.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, m_RenderImage.ppPlane[0]);
+    switch (m_RenderImage.format)
+    {
+        case IMAGE_FORMAT_RGBA:
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, m_TextureIds[0]);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_RenderImage.width, m_RenderImage.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, m_RenderImage.ppPlane[0]);
+            glBindTexture(GL_TEXTURE_2D, GL_NONE);
+            break;
+        case IMAGE_FORMAT_NV21:
+        case IMAGE_FORMAT_NV12:
+            //upload Y plane data
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, m_TextureIds[0]);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, m_RenderImage.width,
+                         m_RenderImage.height, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE,
+                         m_RenderImage.ppPlane[0]);
+            glBindTexture(GL_TEXTURE_2D, GL_NONE);
+
+            //update UV plane data
+            glActiveTexture(GL_TEXTURE1);
+            glBindTexture(GL_TEXTURE_2D, m_TextureIds[1]);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE_ALPHA, m_RenderImage.width >> 1,
+                         m_RenderImage.height >> 1, 0, GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE,
+                         m_RenderImage.ppPlane[1]);
+            glBindTexture(GL_TEXTURE_2D, GL_NONE);
+            break;
+        case IMAGE_FORMAT_I420:
+            //upload Y plane data
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, m_TextureIds[0]);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, m_RenderImage.width,
+                         m_RenderImage.height, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE,
+                         m_RenderImage.ppPlane[0]);
+            glBindTexture(GL_TEXTURE_2D, GL_NONE);
+
+            //update U plane data
+            glActiveTexture(GL_TEXTURE1);
+            glBindTexture(GL_TEXTURE_2D, m_TextureIds[1]);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, m_RenderImage.width >> 1,
+                         m_RenderImage.height >> 1, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE,
+                         m_RenderImage.ppPlane[1]);
+            glBindTexture(GL_TEXTURE_2D, GL_NONE);
+
+            //update V plane data
+            glActiveTexture(GL_TEXTURE2);
+            glBindTexture(GL_TEXTURE_2D, m_TextureIds[2]);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, m_RenderImage.width >> 1,
+                         m_RenderImage.height >> 1, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE,
+                         m_RenderImage.ppPlane[2]);
+            glBindTexture(GL_TEXTURE_2D, GL_NONE);
+            break;
+        default:
+            break;
+    }
     lock.unlock();
 
-    glBindTexture(GL_TEXTURE_2D, GL_NONE);
 
     // Use the program object
     glUseProgram (m_ProgramObj);
@@ -231,9 +340,13 @@ void VRGLRender::OnDrawFrame() {
 
     GLUtils::setMat4(m_ProgramObj, "u_MVPMatrix", m_MVPMatrix);
 
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, m_TextureId);
-    GLUtils::setFloat(m_ProgramObj, "s_TextureMap", 0);
+    for (int i = 0; i < TEXTURE_NUM; ++i) {
+        glActiveTexture(GL_TEXTURE0 + i);
+        glBindTexture(GL_TEXTURE_2D, m_TextureIds[i]);
+        char samplerName[64] = {0};
+        sprintf(samplerName, "s_texture%d", i);
+        GLUtils::setInt(m_ProgramObj, samplerName, i);
+    }
 
     //float time = static_cast<float>(fmod(m_FrameIndex, 60) / 50);
     //GLUtils::setFloat(m_ProgramObj, "u_Time", time);
@@ -241,6 +354,7 @@ void VRGLRender::OnDrawFrame() {
     float offset = (sin(m_FrameIndex * MATH_PI / 25) + 1.0f) / 2.0f;
     GLUtils::setFloat(m_ProgramObj, "u_Offset", offset);
     GLUtils::setVec2(m_ProgramObj, "u_TexSize", vec2(m_RenderImage.width, m_RenderImage.height));
+    GLUtils::setInt(m_ProgramObj, "u_nImgType", m_RenderImage.format);
 
     glDrawArrays(GL_TRIANGLES, 0, m_VertexCoords.size());
     //glDrawArrays(GL_LINES, 0, m_VertexCoords.size());

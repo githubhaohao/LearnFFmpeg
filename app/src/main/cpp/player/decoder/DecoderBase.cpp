@@ -37,7 +37,7 @@ void DecoderBase::SeekToPosition(float position) {
 }
 
 float DecoderBase::GetCurrentPosition() {
-    std::unique_lock<std::mutex> lock(m_Mutex);//读写保护
+    //std::unique_lock<std::mutex> lock(m_Mutex);//读写保护
     //单位 ms
     return m_CurTimeStamp;
 }
@@ -213,21 +213,27 @@ void DecoderBase::UpdateTimeStamp() {
     }
 }
 
-void DecoderBase::AVSync() {
+long DecoderBase::AVSync() {
     LOGCATE("DecoderBase::AVSync");
     long curSysTime = GetSysCurrentTime();
     //基于系统时钟计算从开始播放流逝的时间
     long elapsedTime = curSysTime - m_StartTimeStamp;
 
-    if(m_MsgContext && m_MsgCallback && m_MediaType == AVMEDIA_TYPE_VIDEO)
+    if(m_MsgContext && m_MsgCallback && m_MediaType == AVMEDIA_TYPE_AUDIO)
         m_MsgCallback(m_MsgContext, MSG_DECODING_TIME, m_CurTimeStamp * 1.0f / 1000);
+
+    long delay = 0;
 
     //向系统时钟同步
     if(m_CurTimeStamp > elapsedTime) {
         //休眠时间
         auto sleepTime = static_cast<unsigned int>(m_CurTimeStamp - elapsedTime);//ms
+        //限制休眠时间不能过长
+        sleepTime = sleepTime > DELAY_THRESHOLD ? DELAY_THRESHOLD :  sleepTime;
         av_usleep(sleepTime * 1000);
     }
+    delay = elapsedTime - m_CurTimeStamp;
+
 
 //    if(m_AVSyncCallback != nullptr && m_SeekPosition == 0) {
 //        //视频向音频同步,或者音频向视频同步,视传进来的 m_AVSyncCallback 而定
@@ -237,9 +243,14 @@ void DecoderBase::AVSync() {
 //        if(m_CurTimeStamp > elapsedTime) {
 //            //休眠时间
 //            auto sleepTime = static_cast<unsigned int>(m_CurTimeStamp - elapsedTime);//ms
+//            //限制休眠时间不能过长
+//            sleepTime = sleepTime > DELAY_THRESHOLD ? DELAY_THRESHOLD :  sleepTime;
 //            av_usleep(sleepTime * 1000);
 //        }
+//        delay = elapsedTime - m_CurTimeStamp;
 //    }
+
+    return delay;
 }
 
 int DecoderBase::DecodeOnePacket() {
@@ -252,19 +263,26 @@ int DecoderBase::DecodeOnePacket() {
         int seek_ret = avformat_seek_file(m_AVFormatContext, -1, seek_min, seek_target, seek_max, 0);
         if (seek_ret < 0) {
             m_SeekSuccess = false;
-            LOGCATE("BaseDecoder::DecodeOneFrame error while seeking");
+            LOGCATE("BaseDecoder::DecodeOneFrame error while seeking m_MediaType=%d", m_MediaType);
         } else {
             if (-1 != m_StreamIndex) {
                 avcodec_flush_buffers(m_AVCodecContext);
             }
             ClearCache();
             m_SeekSuccess = true;
-            LOGCATE("BaseDecoder::DecodeOneFrame seekFrame pos=%f", m_SeekPosition);
+            LOGCATE("BaseDecoder::DecodeOneFrame seekFrame pos=%f, m_MediaType=%d", m_SeekPosition, m_MediaType);
         }
     }
     int result = av_read_frame(m_AVFormatContext, m_Packet);
     while(result == 0) {
         if(m_Packet->stream_index == m_StreamIndex) {
+            UpdateTimeStamp(m_Packet);
+            if(AVSync() > DELAY_THRESHOLD && m_CurTimeStamp > DELAY_THRESHOLD)
+            {
+                result = 0;
+                goto __EXIT;
+            }
+
             if(avcodec_send_packet(m_AVCodecContext, m_Packet) == AVERROR_EOF) {
                 //解码结束
                 result = -1;
@@ -314,3 +332,20 @@ void DecoderBase::DoAVDecoding(DecoderBase *decoder) {
     decoder->OnDecoderDone();
 
 }
+
+void DecoderBase::UpdateTimeStamp(AVPacket *avPacket) {
+    std::unique_lock<std::mutex> lock(m_Mutex);
+    if (avPacket->pts > 0 && avPacket->pts != AV_NOPTS_VALUE) {
+        m_CurTimeStamp = avPacket->pts;
+    }
+
+    m_CurTimeStamp = (int64_t)((m_CurTimeStamp * av_q2d(m_AVFormatContext->streams[m_StreamIndex]->time_base)) * 1000);
+
+    if(m_SeekPosition > 0 && m_SeekSuccess)
+    {
+        m_StartTimeStamp = GetSysCurrentTime() - m_CurTimeStamp;
+        m_SeekPosition = 0;
+        m_SeekSuccess = false;
+    }
+}
+

@@ -16,6 +16,7 @@
 using namespace glm;
 
 #define MATH_PI 3.1415926535897932384626433832802
+#define TEXTURE_NUM 3
 
 class VideoGLRender: public VideoRender, public BaseGLRender{
 public:
@@ -43,7 +44,7 @@ private:
     static std::mutex m_Mutex;
     static VideoGLRender* s_Instance;
     GLuint m_ProgramObj = GL_NONE;
-    GLuint m_TextureId;
+    GLuint m_TextureIds[TEXTURE_NUM];
     GLuint m_VaoId;
     GLuint m_VboIds[3];
     NativeImage m_RenderImage;
