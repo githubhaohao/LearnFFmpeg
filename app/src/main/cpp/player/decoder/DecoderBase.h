@@ -16,7 +16,7 @@ extern "C" {
 #include "Decoder.h"
 
 #define MAX_PATH   2048
-#define DELAY_THRESHOLD 90 //90ms
+#define DELAY_THRESHOLD 100 //100ms
 
 using namespace std;
 
