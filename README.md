@@ -24,6 +24,8 @@
 
 - [FFmpeg 开发(07)：FFmpeg + OpenGLES 实现 3D 全景播放器](https://blog.csdn.net/Kennethdroid/article/details/108425267)
 
+- [FFmpeg 开发(08)：FFmpeg 播放器视频渲染优化](https://blog.csdn.net/Kennethdroid/article/details/108737936)
+
 # 联系我
 
 技术交流可以扫码添加我的微信：Byte-Flow 。
