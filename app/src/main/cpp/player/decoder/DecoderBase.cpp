@@ -276,12 +276,12 @@ int DecoderBase::DecodeOnePacket() {
     int result = av_read_frame(m_AVFormatContext, m_Packet);
     while(result == 0) {
         if(m_Packet->stream_index == m_StreamIndex) {
-            UpdateTimeStamp(m_Packet);
-            if(AVSync() > DELAY_THRESHOLD && m_CurTimeStamp > DELAY_THRESHOLD)
-            {
-                result = 0;
-                goto __EXIT;
-            }
+//            UpdateTimeStamp(m_Packet);
+//            if(AVSync() > DELAY_THRESHOLD && m_CurTimeStamp > DELAY_THRESHOLD)
+//            {
+//                result = 0;
+//                goto __EXIT;
+//            }
 
             if(avcodec_send_packet(m_AVCodecContext, m_Packet) == AVERROR_EOF) {
                 //解码结束
@@ -333,19 +333,19 @@ void DecoderBase::DoAVDecoding(DecoderBase *decoder) {
 
 }
 
-void DecoderBase::UpdateTimeStamp(AVPacket *avPacket) {
-    std::unique_lock<std::mutex> lock(m_Mutex);
-    if (avPacket->pts > 0 && avPacket->pts != AV_NOPTS_VALUE) {
-        m_CurTimeStamp = avPacket->pts;
-    }
-
-    m_CurTimeStamp = (int64_t)((m_CurTimeStamp * av_q2d(m_AVFormatContext->streams[m_StreamIndex]->time_base)) * 1000);
-
-    if(m_SeekPosition > 0 && m_SeekSuccess)
-    {
-        m_StartTimeStamp = GetSysCurrentTime() - m_CurTimeStamp;
-        m_SeekPosition = 0;
-        m_SeekSuccess = false;
-    }
-}
+//void DecoderBase::UpdateTimeStamp(AVPacket *avPacket) {
+//    std::unique_lock<std::mutex> lock(m_Mutex);
+//    if (avPacket->pts > 0 && avPacket->pts != AV_NOPTS_VALUE) {
+//        m_CurTimeStamp = avPacket->pts;
+//    }
+//
+//    m_CurTimeStamp = (int64_t)((m_CurTimeStamp * av_q2d(m_AVFormatContext->streams[m_StreamIndex]->time_base)) * 1000);
+//
+//    if(m_SeekPosition > 0 && m_SeekSuccess)
+//    {
+//        m_StartTimeStamp = GetSysCurrentTime() - m_CurTimeStamp;
+//        m_SeekPosition = 0;
+//        m_SeekSuccess = false;
+//    }
+//}
 

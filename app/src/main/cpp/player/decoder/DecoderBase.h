@@ -94,7 +94,6 @@ private:
     void DecodingLoop();
     //更新显示时间戳
     void UpdateTimeStamp();
-    void UpdateTimeStamp(AVPacket *avPacket);
     //音视频同步
     long AVSync();
     //解码一个packet编码数据

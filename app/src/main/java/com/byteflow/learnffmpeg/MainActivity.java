@@ -35,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
             "FFmpeg + ANativeWindow",
             "FFmpeg + OpenGLES",
             "FFmpeg + OpenSLES + Visual Audio",
-            "FFmpeg + OpenGLES VR Media Player"
+            "FFmpeg + OpenGLES VR 3D Player"
     };
 
     private static final int FF_ANATIVE_WINDOWS_EXAMPLE = 0;
