@@ -87,6 +87,8 @@ set(third-party-libs
         swresample
         swscale
         avutil
+        fdk-aac
+        x264
         )
 
 set(native-libs
