@@ -1,0 +1,14 @@
+//
+// Created by ByteFlow on 2021/2/23.
+//
+
+#ifndef LEARNFFMPEG_SINGLEAUDIORECORDER_H
+#define LEARNFFMPEG_SINGLEAUDIORECORDER_H
+
+
+class SingleAudioRecorder {
+
+};
+
+
+#endif //LEARNFFMPEG_SINGLEAUDIORECORDER_H
