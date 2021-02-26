@@ -31,13 +31,13 @@ public:
 
 private:
     static void StartH264EncoderThread(SingleVideoRecorder *context);
-    int EncodeFrame(AVCodecContext *pCodecCtx, AVFrame *pFrame, AVPacket *pPacket);
+    int EncodeFrame(AVFrame *pFrame);
 private:
     ThreadSafeQueue<NativeImage *> m_frameQueue;
     char m_outUrl[1024] = {0};
     int m_frameWidth;
     int m_frameHeight;
-    int m_frameIndex;
+    int m_frameIndex = 0;
     long m_bitRate;
     int m_frameRate;
     AVPacket m_avPacket;

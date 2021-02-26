@@ -109,7 +109,7 @@ int SingleVideoRecorder::StopRecord() {
         delete m_encodeThread;
         m_encodeThread = nullptr;
 
-        int result = EncodeFrame(m_pCodecCtx, nullptr, &m_avPacket);
+        int result = EncodeFrame(nullptr);
         if(result >= 0) {
             av_write_trailer(m_pFormatCtx);
         }
@@ -147,6 +147,7 @@ void SingleVideoRecorder::StartH264EncoderThread(SingleVideoRecorder *recorder) 
     while (!recorder->m_exit)
     {
         if(recorder->m_frameQueue.Empty()) {
+            //队列为空，休眠等待
             usleep(10 * 1000);
             continue;
         }
@@ -157,7 +158,7 @@ void SingleVideoRecorder::StartH264EncoderThread(SingleVideoRecorder *recorder) 
         pFrame->data[1] = pImage->ppPlane[1];
         pFrame->data[2] = pImage->ppPlane[2];
         pFrame->pts = recorder->m_frameIndex++;
-        recorder->EncodeFrame(recorder->m_pCodecCtx, pFrame, &recorder->m_avPacket);
+        recorder->EncodeFrame(pFrame);
         NativeImageUtil::FreeNativeImage(pImage);
     }
 
@@ -177,28 +178,28 @@ int SingleVideoRecorder::OnFrame2Encode(NativeImage *inputFrame) {
     return 0;
 }
 
-int SingleVideoRecorder::EncodeFrame(AVCodecContext *pCodecCtx, AVFrame *pFrame, AVPacket *pPacket) {
+int SingleVideoRecorder::EncodeFrame(AVFrame *pFrame) {
     int result = 0;
-    result = avcodec_send_frame(pCodecCtx, pFrame);
+    result = avcodec_send_frame(m_pCodecCtx, pFrame);
     if(result < 0)
     {
         LOGCATE("SingleVideoRecorder::EncodeFrame avcodec_send_frame fail. ret=%d", result);
         return result;
     }
     while(!result) {
-        result = avcodec_receive_packet(pCodecCtx, pPacket);
+        result = avcodec_receive_packet(m_pCodecCtx, &m_avPacket);
         if (result == AVERROR(EAGAIN) || result == AVERROR_EOF) {
             return 0;
         } else if (result < 0) {
             LOGCATE("SingleVideoRecorder::EncodeFrame avcodec_receive_packet fail. ret=%d", result);
             return result;
         }
-        LOGCATE("SingleVideoRecorder::EncodeFrame frame pts=%ld, size=%d", pPacket->pts, pPacket->size);
-        pPacket->stream_index = m_pStream->index;
-        av_packet_rescale_ts(pPacket, pCodecCtx->time_base, m_pStream->time_base);
-        pPacket->pos = -1;
-        av_interleaved_write_frame(m_pFormatCtx, pPacket);
-        av_packet_unref(pPacket);
+        LOGCATE("SingleVideoRecorder::EncodeFrame frame pts=%ld, size=%d", m_avPacket.pts, m_avPacket.size);
+        m_avPacket.stream_index = m_pStream->index;
+        av_packet_rescale_ts(&m_avPacket, m_pCodecCtx->time_base, m_pStream->time_base);
+        m_avPacket.pos = -1;
+        av_interleaved_write_frame(m_pFormatCtx, &m_avPacket);
+        av_packet_unref(&m_avPacket);
     }
     return 0;
 }
