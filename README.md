@@ -24,6 +24,8 @@
 
 - [FFmpeg 开发(08)：FFmpeg 播放器视频渲染优化](https://blog.csdn.net/Kennethdroid/article/details/108737936)
 
+- [FFmpeg 开发(09)：FFmpeg、x264以及fdk-aac 编译整合](https://blog.csdn.net/Kennethdroid/article/details/114239464)
+
 # 联系我
 
 技术交流可以扫码添加我的微信：Byte-Flow 。
