@@ -141,7 +141,7 @@ static char fMeshShaderStr[] =
         "{\n"
         "    vec2 imgTexCoord = v_texCoord * u_TexSize;\n"
         "    float sideLength = u_TexSize.y / 6.0;\n"
-        "    float maxOffset = 0.15 * sideLength;\n"
+        "    float maxOffset = 0.08 * sideLength;\n"
         "    float x = mod(imgTexCoord.x, floor(sideLength));\n"
         "    float y = mod(imgTexCoord.y, floor(sideLength));\n"
         "\n"
@@ -201,9 +201,12 @@ VideoGLRender::~VideoGLRender() {
 
 void VideoGLRender::Init(int videoWidth, int videoHeight, int *dstSize) {
     LOGCATE("VideoGLRender::InitRender video[w, h]=[%d, %d]", videoWidth, videoHeight);
-    dstSize[0] = videoWidth;
-    dstSize[1] = videoHeight;
+    if(dstSize != nullptr) {
+        dstSize[0] = videoWidth;
+        dstSize[1] = videoHeight;
+    }
     m_FrameIndex = 0;
+    UpdateMVPMatrix(0, 0, 1.0f, 1.0f);
 }
 
 void VideoGLRender::RenderVideoFrame(NativeImage *pImage) {
@@ -211,8 +214,11 @@ void VideoGLRender::RenderVideoFrame(NativeImage *pImage) {
     if(pImage == nullptr || pImage->ppPlane[0] == nullptr)
         return;
     std::unique_lock<std::mutex> lock(m_Mutex);
-    if(m_RenderImage.ppPlane[0] == nullptr)
-    {
+    if (pImage->width != m_RenderImage.width || pImage->height != m_RenderImage.height) {
+        if (m_RenderImage.ppPlane[0] != nullptr) {
+            NativeImageUtil::FreeNativeImage(&m_RenderImage);
+        }
+        memset(&m_RenderImage, 0, sizeof(NativeImage));
         m_RenderImage.format = pImage->format;
         m_RenderImage.width = pImage->width;
         m_RenderImage.height = pImage->height;
@@ -220,6 +226,7 @@ void VideoGLRender::RenderVideoFrame(NativeImage *pImage) {
     }
 
     NativeImageUtil::CopyNativeImage(pImage, &m_RenderImage);
+    //NativeImageUtil::DumpNativeImage(&m_RenderImage, "/sdcard", "camera");
 }
 
 void VideoGLRender::UnInit() {
@@ -255,6 +262,58 @@ void VideoGLRender::UpdateMVPMatrix(int angleX, int angleY, float scaleX, float 
 
     m_MVPMatrix = Projection * View * Model;
 
+}
+
+void VideoGLRender::UpdateMVPMatrix(TransformMatrix *pTransformMatrix) {
+    //BaseGLRender::UpdateMVPMatrix(pTransformMatrix);
+    float fFactorX = 1.0f;
+    float fFactorY = 1.0f;
+
+    if (pTransformMatrix->mirror == 1) {
+        fFactorX = -1.0f;
+    } else if (pTransformMatrix->mirror == 2) {
+        fFactorY = -1.0f;
+    }
+
+    float fRotate = MATH_PI * pTransformMatrix->degree * 1.0f / 180;
+    if (pTransformMatrix->mirror == 0) {
+        if (pTransformMatrix->degree == 270) {
+            fRotate = MATH_PI * 0.5;
+        } else if (pTransformMatrix->degree == 180) {
+            fRotate = MATH_PI;
+        } else if (pTransformMatrix->degree == 90) {
+            fRotate = MATH_PI * 1.5;
+        }
+    } else if (pTransformMatrix->mirror == 1) {
+        if (pTransformMatrix->degree == 90) {
+            fRotate = MATH_PI * 0.5;
+        } else if (pTransformMatrix->degree == 180) {
+            fRotate = MATH_PI;
+        } else if (pTransformMatrix->degree == 270) {
+            fRotate = MATH_PI * 1.5;
+        }
+    }
+
+    glm::mat4 Projection = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, 0.0f, 1.0f);
+    glm::mat4 View = glm::lookAt(
+            glm::vec3(0, 0, 1), // Camera is at (0,0,1), in World Space
+            glm::vec3(0, 0, 0), // and looks at the origin
+            glm::vec3(0, 1, 0) // Head is up (set to 0,-1,0 to look upside-down)
+    );
+
+    // Model matrix : an identity matrix (model will be at the origin)
+    glm::mat4 Model = glm::mat4(1.0f);
+    Model = glm::scale(Model, glm::vec3(fFactorX * pTransformMatrix->scaleX,
+                                        fFactorY * pTransformMatrix->scaleY, 1.0f));
+    Model = glm::rotate(Model, fRotate, glm::vec3(0.0f, 0.0f, 1.0f));
+    Model = glm::translate(Model,
+                           glm::vec3(pTransformMatrix->translateX, pTransformMatrix->translateY, 0.0f));
+
+    LOGCATE("VideoGLRender::UpdateMVPMatrix rotate %d,%.2f,%0.5f,%0.5f,%0.5f,%0.5f,", pTransformMatrix->degree, fRotate,
+            pTransformMatrix->translateX, pTransformMatrix->translateY,
+            fFactorX * pTransformMatrix->scaleX, fFactorY * pTransformMatrix->scaleY);
+
+    m_MVPMatrix = Projection * View * Model;
 }
 
 void VideoGLRender::OnSurfaceCreated() {
@@ -307,7 +366,6 @@ void VideoGLRender::OnSurfaceCreated() {
 
     glBindVertexArray(GL_NONE);
 
-    UpdateMVPMatrix(0, 0, 1.0f, 1.0f);
     m_TouchXY = vec2(0.5f, 0.5f);
 }
 
@@ -405,7 +463,7 @@ void VideoGLRender::OnDrawFrame() {
     //float time = static_cast<float>(fmod(m_FrameIndex, 60) / 50);
     //GLUtils::setFloat(m_ProgramObj, "u_Time", time);
 
-    float offset = (sin(m_FrameIndex * MATH_PI / 25) + 1.0f) / 2.0f;
+    float offset = (sin(m_FrameIndex * MATH_PI / 40) + 1.0f) / 2.0f;
     GLUtils::setFloat(m_ProgramObj, "u_Offset", offset);
     GLUtils::setVec2(m_ProgramObj, "u_TexSize", vec2(m_RenderImage.width, m_RenderImage.height));
     GLUtils::setInt(m_ProgramObj, "u_nImgType", m_RenderImage.format);
@@ -439,5 +497,6 @@ void VideoGLRender::ReleaseInstance() {
 
     }
 }
+
 
 

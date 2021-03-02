@@ -32,6 +32,7 @@ public:
     static void ReleaseInstance();
 
     virtual void UpdateMVPMatrix(int angleX, int angleY, float scaleX, float scaleY);
+    virtual void UpdateMVPMatrix(TransformMatrix * pTransformMatrix);
     virtual void SetTouchLoc(float touchX, float touchY) {
         m_TouchXY.x = touchX / m_ScreenSize.x;
         m_TouchXY.y = touchY / m_ScreenSize.y;
