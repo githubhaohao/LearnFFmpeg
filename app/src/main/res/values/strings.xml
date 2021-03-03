@@ -2,5 +2,7 @@
     <string name="app_name">LearnFFmpeg</string>
     <string name="select_sample">Select FFmpeg Example</string>
     <string name="tip">点击右上角的框进行选择\nClick the box in the upper right corner to select</string>
-
+    <string name="action_resolutions">Resolutions</string>
+    <string name="action_switch_camera">SwitchCamera</string>
+    <string name="action_settings">Settings</string>
 </resources>

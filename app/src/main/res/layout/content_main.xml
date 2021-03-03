@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context=".CameraActivity"
+    tools:showIn="@layout/activity_camera">
+
+    <ImageButton
+        android:id="@+id/switch_camera_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/tool_margin"
+        android:layout_marginEnd="@dimen/fab_margin"
+        app:layout_constraintEnd_toStartOf="@id/switch_ratio_btn"
+        app:layout_constraintTop_toTopOf="parent"
+        android:background="@android:color/transparent"
+        android:src="@drawable/ic_switch_camera_btn" />
+
+    <ImageButton
+        android:id="@+id/switch_ratio_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/tool_margin"
+        android:layout_marginEnd="@dimen/tool_margin"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:background="@android:color/transparent"
+        android:src="@drawable/ic_aspect_ratio_btn" />
+
+    <RelativeLayout
+        android:id="@+id/surface_root"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+    </RelativeLayout>
+    <RelativeLayout
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginBottom="30dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <com.byteflow.learnffmpeg.view.CaptureLayout
+            android:id="@+id/record_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"/>
+    </RelativeLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

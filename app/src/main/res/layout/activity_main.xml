@@ -13,7 +13,7 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintBottom_toTopOf="@id/text_view"
         android:text="@string/tip"
-        android:textSize="16sp"
+        android:textSize="14sp"
         android:id="@+id/tip"/>
 
     <TextView
@@ -21,6 +21,7 @@
         android:layout_height="wrap_content"
         android:text="Hello World!"
         android:id="@+id/text_view"
+        android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
