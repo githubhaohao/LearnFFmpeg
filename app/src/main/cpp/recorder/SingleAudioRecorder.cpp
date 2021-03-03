@@ -88,7 +88,7 @@ int SingleAudioRecorder::StartRecord() {
         av_opt_set_channel_layout(m_swrCtx,  "out_channel_layout", AV_CH_LAYOUT_STEREO, 0);
         av_opt_set_int(m_swrCtx,  "in_sample_rate", m_sampleRate, 0);
         av_opt_set_int(m_swrCtx,  "out_sample_rate", DEFAULT_SAMPLE_RATE, 0);
-        av_opt_set_sample_fmt(m_swrCtx,  "in_sample_fmt", AV_SAMPLE_FMT_S16, 0);
+        av_opt_set_sample_fmt(m_swrCtx,  "in_sample_fmt", AVSampleFormat(m_sampleFormat), 0);
         av_opt_set_sample_fmt(m_swrCtx,  "out_sample_fmt", AV_SAMPLE_FMT_FLTP, 0);
         swr_init(m_swrCtx);
 
@@ -167,7 +167,7 @@ void SingleAudioRecorder::StartAACEncoderThread(SingleAudioRecorder *recorder) {
         uint8_t *outBuffers[2];
         outBuffers[0] = new uint8_t[audioFrame->dataSize];
         outBuffers[1] = new uint8_t[audioFrame->dataSize];
-        int result = swr_convert(recorder->m_swrCtx, (uint8_t **)outBuffers, audioFrame->dataSize * 4, (const uint8_t **) &(audioFrame->data), audioFrame->dataSize / 4);
+        int result = swr_convert(recorder->m_swrCtx, (uint8_t **)outBuffers, audioFrame->dataSize, (const uint8_t **) &(audioFrame->data), audioFrame->dataSize / 4);
         LOGCATE("SingleAudioRecorder::StartAACEncoderThread result=%d", result);
         if(result >= 0) {
             AVFrame *pFrame = recorder->m_pFrame;

@@ -43,6 +43,7 @@ private:
     int m_frameIndex = 0;
     int m_sampleRate;
     int m_channelLayout;
+    int m_sampleFormat;
     AVPacket m_avPacket;
     AVFrame  *m_pFrame = nullptr;
     uint8_t *m_pFrameBuffer = nullptr;

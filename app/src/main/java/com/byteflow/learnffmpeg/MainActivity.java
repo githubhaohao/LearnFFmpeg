@@ -28,20 +28,23 @@ import java.util.Arrays;
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     private static final String[] REQUEST_PERMISSIONS = {
+            Manifest.permission.CAMERA,
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
     };
     private static final int PERMISSION_REQUEST_CODE = 1;
     private static  final String [] EXAMPLE_LIST = {
-            "FFmpeg + ANativeWindow",
-            "FFmpeg + OpenGLES",
+            "FFmpeg + ANativeWindow player",
+            "FFmpeg + OpenGLES player",
             "FFmpeg + OpenSLES + Visual Audio",
-            "FFmpeg + OpenGLES VR 3D Player"
+            "FFmpeg + OpenGLES VR 3D player",
+            "FFmpeg + x264 video recorder"
     };
 
     private static final int FF_ANATIVE_WINDOWS_EXAMPLE = 0;
     private static final int FF_OPENGLES_EXAMPLE = 1;
     private static final int FF_OPENGLES_AUDIO_VISUAL_EXAMPLE = 2;
     private static final int FF_OPENGLES_VR_EXAMPLE = 3;
+    private static final int FF_X264_VIDEO_RECORDER = 4;
 
     private int mSampleSelectedIndex = -1;
 
@@ -131,6 +134,9 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     case FF_OPENGLES_VR_EXAMPLE:
                         startActivity(new Intent(MainActivity.this, VRMediaPlayerActivity.class));
+                        break;
+                    case FF_X264_VIDEO_RECORDER:
+                        startActivity(new Intent(MainActivity.this, CameraActivity.class));
                         break;
                         default:
                             break;

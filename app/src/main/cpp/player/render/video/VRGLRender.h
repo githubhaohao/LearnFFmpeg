@@ -13,6 +13,7 @@
 #include <vec2.hpp>
 #include <vector>
 #include <render/BaseGLRender.h>
+#include <SingleVideoRecorder.h>
 
 using namespace glm;
 using namespace std;
@@ -64,6 +65,7 @@ private:
     vec2 m_ScreenSize;
     vector<vec3> m_VertexCoords;
     vector<vec2> m_TextureCoords;
+    //SingleVideoRecorder *m_pSingleVideoRecorder = nullptr;
 };
 
 

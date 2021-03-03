@@ -154,11 +154,13 @@ void VRGLRender::Init(int videoWidth, int videoHeight, int *dstSize) {
     dstSize[0] = videoWidth;
     dstSize[1] = videoHeight;
     m_FrameIndex = 0;
+    //m_pSingleVideoRecorder = new SingleVideoRecorder("/sdcard/output.mp4", videoWidth, videoHeight, 400000, 25);
+    //m_pSingleVideoRecorder->StartRecord();
 
 }
 
 void VRGLRender::RenderVideoFrame(NativeImage *pImage) {
-    LOGCATE("VRGLRender::RenderVideoFrame pImage=%p", pImage);
+    LOGCATE("VRGLRender::RenderVideoFrame pImage=%p, format=%d", pImage, pImage->format);
     if(pImage == nullptr || pImage->ppPlane[0] == nullptr)
         return;
     std::unique_lock<std::mutex> lock(m_Mutex);
@@ -171,10 +173,15 @@ void VRGLRender::RenderVideoFrame(NativeImage *pImage) {
     }
 
     NativeImageUtil::CopyNativeImage(pImage, &m_RenderImage);
+    //m_pSingleVideoRecorder->OnFrame2Encode(pImage);
 }
 
 void VRGLRender::UnInit() {
-
+//    if(m_pSingleVideoRecorder != nullptr) {
+//        m_pSingleVideoRecorder->StopRecord();
+//        delete m_pSingleVideoRecorder;
+//        m_pSingleVideoRecorder = nullptr;
+//    }
 }
 
 void VRGLRender::UpdateMVPMatrix(int angleX, int angleY, float scaleX, float scaleY)

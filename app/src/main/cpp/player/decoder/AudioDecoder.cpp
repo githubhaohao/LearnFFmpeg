@@ -36,6 +36,9 @@ void AudioDecoder::OnDecoderReady() {
 
         m_AudioRender->Init();
 
+        //m_pAudioRecorder = new SingleAudioRecorder("/sdcard/output.aac", DEFAULT_SAMPLE_RATE, AV_CH_LAYOUT_STEREO, AV_SAMPLE_FMT_S16);
+        //m_pAudioRecorder->StartRecord();
+
     } else {
         LOGCATE("AudioDecoder::OnDecoderReady m_AudioRender == null");
     }
@@ -43,11 +46,13 @@ void AudioDecoder::OnDecoderReady() {
 }
 
 void AudioDecoder::OnFrameAvailable(AVFrame *frame) {
-    LOGCATE("AudioDecoder::OnFrameAvailable frame=%p", frame);
+    LOGCATE("AudioDecoder::OnFrameAvailable frame=%p, frame->nb_samples=%d", frame, frame->nb_samples);
     if(m_AudioRender) {
         int result = swr_convert(m_SwrContext, &m_AudioOutBuffer, m_DstFrameDataSze / 2, (const uint8_t **) frame->data, frame->nb_samples);
         if (result > 0 ) {
             m_AudioRender->RenderAudioFrame(m_AudioOutBuffer, m_DstFrameDataSze);
+            AudioFrame audioFrame(m_AudioOutBuffer, m_DstFrameDataSze, false);
+            //m_pAudioRecorder->OnFrame2Encode(&audioFrame);
         }
     }
 }
@@ -66,6 +71,12 @@ void AudioDecoder::OnDecoderDone() {
         swr_free(&m_SwrContext);
         m_SwrContext = nullptr;
     }
+
+//    if(m_pAudioRecorder != nullptr) {
+//        m_pAudioRecorder->StopRecord();
+//        delete m_pAudioRecorder;
+//        m_pAudioRecorder = nullptr;
+//    }
 }
 
 void AudioDecoder::ClearCache() {

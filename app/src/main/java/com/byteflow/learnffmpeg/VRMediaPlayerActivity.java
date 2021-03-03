@@ -2,6 +2,10 @@ package com.byteflow.learnffmpeg;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.opengl.GLSurfaceView;
 import android.os.Build;
 import android.os.Bundle;
@@ -34,7 +38,7 @@ import static com.byteflow.learnffmpeg.media.FFMediaPlayer.VIDEO_RENDER_3D_VR;
 import static com.byteflow.learnffmpeg.media.FFMediaPlayer.VIDEO_RENDER_OPENGL;
 import static com.byteflow.learnffmpeg.media.FFMediaPlayer.VR_3D_GL_RENDER;
 
-public class VRMediaPlayerActivity extends AppCompatActivity implements GLSurfaceView.Renderer, FFMediaPlayer.EventCallback, MyGLSurfaceView.OnGestureCallback{
+public class VRMediaPlayerActivity extends AppCompatActivity implements GLSurfaceView.Renderer, FFMediaPlayer.EventCallback, MyGLSurfaceView.OnGestureCallback, SensorEventListener {
     private static final String TAG = "MediaPlayerActivity";
     private static final String[] REQUEST_PERMISSIONS = {
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
@@ -44,6 +48,7 @@ public class VRMediaPlayerActivity extends AppCompatActivity implements GLSurfac
     private FFMediaPlayer mMediaPlayer = null;
     private SeekBar mSeekBar = null;
     private boolean mIsTouch = false;
+    private SensorManager mSensorManager;
     private String mVideoPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/byteflow/vr.mp4";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,18 +85,24 @@ public class VRMediaPlayerActivity extends AppCompatActivity implements GLSurfac
         mMediaPlayer = new FFMediaPlayer();
         mMediaPlayer.addEventCallback(this);
         mMediaPlayer.init(mVideoPath, VIDEO_RENDER_3D_VR, null);
+
+        mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
     }
 
     @Override
     protected void onResume() {
         Log.e(TAG, "onResume() called");
         super.onResume();
+        mSensorManager.registerListener(this,
+                mSensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY),
+                SensorManager.SENSOR_DELAY_FASTEST);
         if (!hasPermissionsGranted(REQUEST_PERMISSIONS)) {
             ActivityCompat.requestPermissions(this, REQUEST_PERMISSIONS, PERMISSION_REQUEST_CODE);
         } else {
             if(mMediaPlayer != null)
                 mMediaPlayer.play();
         }
+        Toast.makeText(this, "拖动画面感受 3D 效果", Toast.LENGTH_SHORT).show();
 
     }
 
@@ -112,6 +123,7 @@ public class VRMediaPlayerActivity extends AppCompatActivity implements GLSurfac
     @Override
     protected void onPause() {
         super.onPause();
+        mSensorManager.unregisterListener(this);
         if(mMediaPlayer != null)
             mMediaPlayer.pause();
     }
@@ -199,5 +211,20 @@ public class VRMediaPlayerActivity extends AppCompatActivity implements GLSurfac
     @Override
     public void onTouchLoc(float touchX, float touchY) {
         FFMediaPlayer.native_SetTouchLoc(VR_3D_GL_RENDER, touchX, touchY);
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent sensorEvent) {
+        switch (sensorEvent.sensor.getType()) {
+            case Sensor.TYPE_GRAVITY:
+                Log.d(TAG, "onSensorChanged() called with TYPE_GRAVITY: [x,y,z] = [" + sensorEvent.values[0] + ", " + sensorEvent.values[1] + ", " + sensorEvent.values[2] + "]");
+                //FFMediaPlayer.native_SetGesture(VR_3D_GL_RENDER,  - sensorEvent.values[1] * 5,  - sensorEvent.values[0] * 5, 1);
+                break;
+        }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int i) {
+
     }
 }

@@ -7,6 +7,7 @@
 #include <render/video/VideoGLRender.h>
 #include <render/video/VRGLRender.h>
 #include <render/audio/OpenSLRender.h>
+#include <MediaRecorderContext.h>
 #include "util/LogUtil.h"
 #include "jni.h"
 
@@ -256,3 +257,123 @@ Java_com_byteflow_learnffmpeg_media_FFMediaPlayer_native_1SetTouchLoc(JNIEnv *en
 #ifdef __cplusplus
 }
 #endif
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_byteflow_learnffmpeg_media_MediaRecorderContext_native_1CreateContext(JNIEnv *env,
+                                                                                jobject thiz) {
+    MediaRecorderContext::CreateContext(env, thiz);
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_byteflow_learnffmpeg_media_MediaRecorderContext_native_1DestroyContext(JNIEnv *env,
+                                                                                 jobject thiz) {
+    MediaRecorderContext::DeleteContext(env, thiz);
+}
+
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_byteflow_learnffmpeg_media_MediaRecorderContext_native_1Init(JNIEnv *env, jobject thiz) {
+    MediaRecorderContext *pContext = MediaRecorderContext::GetContext(env, thiz);
+    if(pContext) return pContext->Init();
+    return 0;
+}
+
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_byteflow_learnffmpeg_media_MediaRecorderContext_native_1UnInit(JNIEnv *env, jobject thiz) {
+    MediaRecorderContext *pContext = MediaRecorderContext::GetContext(env, thiz);
+    if(pContext) return pContext->UnInit();
+    return 0;
+}
+
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_byteflow_learnffmpeg_media_MediaRecorderContext_native_1StartRecord(JNIEnv *env,
+                                                                             jobject thiz,
+                                                                             jint recorder_type,
+                                                                             jstring out_url,
+                                                                             jint frame_width,
+                                                                             jint frame_height,
+                                                                             jlong video_bit_rate,
+                                                                             jint fps) {
+    const char* url = env->GetStringUTFChars(out_url, nullptr);
+    MediaRecorderContext *pContext = MediaRecorderContext::GetContext(env, thiz);
+    env->ReleaseStringUTFChars(out_url, url);
+    if(pContext) return pContext->StartRecord(recorder_type, url, frame_width, frame_height, video_bit_rate, fps);
+    return 0;
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_byteflow_learnffmpeg_media_MediaRecorderContext_native_1OnAudioData(JNIEnv *env,
+                                                                             jobject thiz,
+                                                                             jbyteArray data,
+                                                                             jint len) {
+    // TODO: implement native_OnAudioData()
+}
+
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_byteflow_learnffmpeg_media_MediaRecorderContext_native_1StopRecord(JNIEnv *env,
+                                                                            jobject thiz) {
+    MediaRecorderContext *pContext = MediaRecorderContext::GetContext(env, thiz);
+    if(pContext) return pContext->StopRecord();
+    return 0;
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_byteflow_learnffmpeg_media_MediaRecorderContext_native_1OnPreviewFrame(JNIEnv *env,
+                                                                                 jobject thiz,
+                                                                                 jint format,
+                                                                                 jbyteArray data,
+                                                                                 jint width,
+                                                                                 jint height) {
+    int len = env->GetArrayLength (data);
+    unsigned char* buf = new unsigned char[len];
+    env->GetByteArrayRegion(data, 0, len, reinterpret_cast<jbyte*>(buf));
+    MediaRecorderContext *pContext = MediaRecorderContext::GetContext(env, thiz);
+    if(pContext) return pContext->OnPreviewFrame(format, buf, width, height);
+    delete[] buf;
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_byteflow_learnffmpeg_media_MediaRecorderContext_native_1SetTransformMatrix(JNIEnv *env,
+                                                                                     jobject thiz,
+                                                                                     jfloat translate_x,
+                                                                                     jfloat translate_y,
+                                                                                     jfloat scale_x,
+                                                                                     jfloat scale_y,
+                                                                                     jint degree,
+                                                                                     jint mirror) {
+    MediaRecorderContext *pContext = MediaRecorderContext::GetContext(env, thiz);
+    if(pContext) return pContext->SetTransformMatrix(translate_x, translate_y, scale_x, scale_y, degree, mirror);
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_byteflow_learnffmpeg_media_MediaRecorderContext_native_1OnSurfaceCreated(JNIEnv *env,
+                                                                                   jobject thiz) {
+    MediaRecorderContext *pContext = MediaRecorderContext::GetContext(env, thiz);
+    if(pContext) return pContext->OnSurfaceCreated();
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_byteflow_learnffmpeg_media_MediaRecorderContext_native_1OnSurfaceChanged(JNIEnv *env,
+                                                                                   jobject thiz,
+                                                                                   jint width,
+                                                                                   jint height) {
+    MediaRecorderContext *pContext = MediaRecorderContext::GetContext(env, thiz);
+    if(pContext) return pContext->OnSurfaceChanged(width, height);
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_byteflow_learnffmpeg_media_MediaRecorderContext_native_1OnDrawFrame(JNIEnv *env, jobject thiz) {
+    MediaRecorderContext *pContext = MediaRecorderContext::GetContext(env, thiz);
+    if(pContext) return pContext->OnDrawFrame();
+}

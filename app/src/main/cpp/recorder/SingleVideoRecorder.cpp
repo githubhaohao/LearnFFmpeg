@@ -57,7 +57,7 @@ int SingleVideoRecorder::StartRecord() {
         m_pCodecCtx->time_base.num = 1;
         m_pCodecCtx->time_base.den = m_frameRate;
         m_pCodecCtx->bit_rate = m_bitRate;
-        m_pCodecCtx->gop_size = 24;
+        m_pCodecCtx->gop_size = 15;
 
         result = avcodec_parameters_from_context(m_pStream->codecpar, m_pCodecCtx);
         if(result < 0) {
