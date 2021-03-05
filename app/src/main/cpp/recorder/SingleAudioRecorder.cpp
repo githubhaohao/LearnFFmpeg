@@ -164,20 +164,13 @@ void SingleAudioRecorder::StartAACEncoderThread(SingleAudioRecorder *recorder) {
         }
 
         AudioFrame *audioFrame = recorder->m_frameQueue.Pop();
-        uint8_t *outBuffers[2];
-        outBuffers[0] = new uint8_t[audioFrame->dataSize];
-        outBuffers[1] = new uint8_t[audioFrame->dataSize];
-        int result = swr_convert(recorder->m_swrCtx, (uint8_t **)outBuffers, audioFrame->dataSize, (const uint8_t **) &(audioFrame->data), audioFrame->dataSize / 4);
+        AVFrame *pFrame = recorder->m_pFrame;
+        int result = swr_convert(recorder->m_swrCtx, pFrame->data, pFrame->nb_samples, (const uint8_t **) &(audioFrame->data), pFrame->nb_samples);
         LOGCATE("SingleAudioRecorder::StartAACEncoderThread result=%d", result);
         if(result >= 0) {
-            AVFrame *pFrame = recorder->m_pFrame;
             pFrame->pts = recorder->m_frameIndex++;
-            pFrame->data[0] = outBuffers[0];
-            pFrame->data[1] = outBuffers[1];
             recorder->EncodeFrame(pFrame);
         }
-        delete outBuffers[0];
-        delete outBuffers[1];
         delete audioFrame;
     }
 
