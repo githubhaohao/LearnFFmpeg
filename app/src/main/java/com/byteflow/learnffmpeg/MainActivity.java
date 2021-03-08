@@ -40,8 +40,9 @@ public class MainActivity extends AppCompatActivity {
             "FFmpeg + OpenGLES VR 3D player",
             "FFmpeg + X264 video recorder",
             "FFmpeg + FDK-AAC audio recorder",
-            "FFmpeg + AV recorder"
     };
+
+    //"FFmpeg + AV recorder"
 
     private static final int FF_ANATIVE_WINDOWS_EXAMPLE = 0;
     private static final int FF_OPENGLES_EXAMPLE = 1;
