@@ -29,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     private static final String[] REQUEST_PERMISSIONS = {
             Manifest.permission.CAMERA,
+            Manifest.permission.RECORD_AUDIO,
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
     };
     private static final int PERMISSION_REQUEST_CODE = 1;
@@ -37,7 +38,9 @@ public class MainActivity extends AppCompatActivity {
             "FFmpeg + OpenGLES player",
             "FFmpeg + OpenSLES + Visual Audio",
             "FFmpeg + OpenGLES VR 3D player",
-            "FFmpeg + x264 video recorder"
+            "FFmpeg + X264 video recorder",
+            "FFmpeg + FDK-AAC audio recorder",
+            "FFmpeg + AV recorder"
     };
 
     private static final int FF_ANATIVE_WINDOWS_EXAMPLE = 0;
@@ -45,6 +48,8 @@ public class MainActivity extends AppCompatActivity {
     private static final int FF_OPENGLES_AUDIO_VISUAL_EXAMPLE = 2;
     private static final int FF_OPENGLES_VR_EXAMPLE = 3;
     private static final int FF_X264_VIDEO_RECORDER = 4;
+    private static final int FF_FDK_AAC_AUDIO_RECORDER = 5;
+    private static final int FF_AV_RECORDER = 6;
 
     private int mSampleSelectedIndex = -1;
 
@@ -52,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        ((TextView)findViewById(R.id.text_view)).setText("FFmpeg Version Info:\n" + FFMediaPlayer.GetFFmpegVersion());
+        ((TextView)findViewById(R.id.text_view)).setText("FFmpeg 版本和编译配置信息\n\n" + FFMediaPlayer.GetFFmpegVersion());
 
     }
 
@@ -136,7 +141,13 @@ public class MainActivity extends AppCompatActivity {
                         startActivity(new Intent(MainActivity.this, VRMediaPlayerActivity.class));
                         break;
                     case FF_X264_VIDEO_RECORDER:
-                        startActivity(new Intent(MainActivity.this, CameraActivity.class));
+                        startActivity(new Intent(MainActivity.this, VideoRecorderActivity.class));
+                        break;
+                    case FF_FDK_AAC_AUDIO_RECORDER:
+                        startActivity(new Intent(MainActivity.this, AudioRecorderActivity.class));
+                        break;
+                    case FF_AV_RECORDER:
+                        startActivity(new Intent(MainActivity.this, AVRecorderActivity.class));
                         break;
                         default:
                             break;

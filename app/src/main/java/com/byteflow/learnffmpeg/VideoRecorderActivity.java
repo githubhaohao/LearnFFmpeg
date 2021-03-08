@@ -60,7 +60,7 @@ import static com.byteflow.learnffmpeg.media.MediaRecorderContext.RECORDER_TYPE_
 import static com.byteflow.learnffmpeg.view.RecordedButton.BUTTON_STATE_ONLY_RECORDER;
 
 
-public class CameraActivity extends AppCompatActivity implements Camera2FrameCallback, View.OnClickListener {
+public class VideoRecorderActivity extends AppCompatActivity implements Camera2FrameCallback, View.OnClickListener {
     private static final String TAG = "MainActivity";
     private static final SimpleDateFormat DateTime_FORMAT = new SimpleDateFormat("yyyyMMddHHmmss", Locale.US);
     private static final String RESULT_IMG_DIR = "byteflow/learnffmpeg";
@@ -207,7 +207,7 @@ public class CameraActivity extends AppCompatActivity implements Camera2FrameCal
         mMediaRecorder.init(mGLSurfaceView);
 
         mCamera2Wrapper = new Camera2Wrapper(this);
-        mCamera2Wrapper.setDefaultPreviewSize(getScreenSize());
+        //mCamera2Wrapper.setDefaultPreviewSize(getScreenSize());
 
         ViewTreeObserver treeObserver = mSurfaceViewRoot.getViewTreeObserver();
         treeObserver.addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
@@ -243,6 +243,7 @@ public class CameraActivity extends AppCompatActivity implements Camera2FrameCal
                 int bitRate = (int) (frameWidth * frameHeight * fps * 0.25);
                 mOutUrl = getOutFile(".mp4").getAbsolutePath();
                 mMediaRecorder.startRecord(RECORDER_TYPE_SINGLE_VIDEO, mOutUrl, frameWidth, frameHeight, bitRate, fps);
+
             }
 
             @Override
@@ -273,12 +274,12 @@ public class CameraActivity extends AppCompatActivity implements Camera2FrameCal
             @Override
             public void confirm() {
                 mRecordedButton.resetCaptureLayout();
-                Toast.makeText(CameraActivity.this, "视频已保存至：" + mOutUrl, Toast.LENGTH_SHORT).show();
+                Toast.makeText(VideoRecorderActivity.this, "视频已保存至：" + mOutUrl, Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(Intent.ACTION_VIEW);
                 File file = new File(mOutUrl);
                 Uri uri = null;
                 if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.N){
-                    uri = FileProvider.getUriForFile(CameraActivity.this,"com.byteflow.learnffmpeg.fileprovider", file);
+                    uri = FileProvider.getUriForFile(VideoRecorderActivity.this,"com.byteflow.learnffmpeg.fileprovider", file);
                 }else {
                     uri = Uri.fromFile(file);
                 }
@@ -476,7 +477,7 @@ public class CameraActivity extends AppCompatActivity implements Camera2FrameCal
         Log.d(TAG, "path=" + dir.toString());
         dir.mkdirs();
         if (dir.canWrite()) {
-            return new File(dir, "Video_" + getDateTimeString() + ext);
+            return new File(dir, "video_" + getDateTimeString() + ext);
         }
         return null;
     }

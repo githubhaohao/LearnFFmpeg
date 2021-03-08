@@ -133,6 +133,7 @@ public class Camera2Wrapper {
                 Log.d(TAG, "initCamera2Wrapper() called mSupportPreviewSize " + size.getWidth() + "x" + size.getHeight());
                 float ratio = size.getWidth() * 1.0f / size.getHeight();
                 if (Math.abs(ratio - defaultRatio) < THRESHOLD) {
+                    Log.d(TAG, "initCamera2Wrapper() called mSupportPreviewSize sameRatioSize == size" + size.getWidth() + "x" + size.getHeight());
                     sameRatioSize = size;
                 }
 
@@ -148,6 +149,7 @@ public class Camera2Wrapper {
             } else if(sameRatioSize != null) {
                 mPreviewSize = sameRatioSize;
             }
+            //Log.d(TAG, "initCamera2Wrapper() called mPreviewSize[w,h] = [" + mPreviewSize.getWidth() + "," + mPictureSize.getHeight() + "]");
 
             supportDefaultSize = false;
             sameRatioSize = null;
