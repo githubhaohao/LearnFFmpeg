@@ -1,5 +1,5 @@
 //
-// Created by ByteFlow on 2021/2/22.
+// Created by 公众号：字节流动 on 2021/2/22.
 //
 
 #include "SingleVideoRecorder.h"
@@ -118,6 +118,7 @@ int SingleVideoRecorder::StopRecord() {
     while (!m_frameQueue.Empty()) {
         NativeImage *pImage = m_frameQueue.Pop();
         NativeImageUtil::FreeNativeImage(pImage);
+        delete pImage;
     }
 
     if (m_pCodecCtx != nullptr) {
@@ -139,6 +140,11 @@ int SingleVideoRecorder::StopRecord() {
         m_pFormatCtx = nullptr;
     }
 
+    if(m_SwsContext != nullptr) {
+        sws_freeContext(m_SwsContext);
+        m_SwsContext = nullptr;
+    }
+
     return 0;
 }
 
@@ -154,12 +160,55 @@ void SingleVideoRecorder::StartH264EncoderThread(SingleVideoRecorder *recorder) 
 
         NativeImage *pImage = recorder->m_frameQueue.Pop();
         AVFrame *pFrame = recorder->m_pFrame;
-        pFrame->data[0] = pImage->ppPlane[0];
-        pFrame->data[1] = pImage->ppPlane[1];
-        pFrame->data[2] = pImage->ppPlane[2];
+        AVPixelFormat srcPixFmt = AV_PIX_FMT_YUV420P;
+        switch (pImage->format) {
+            case IMAGE_FORMAT_RGBA:
+                srcPixFmt = AV_PIX_FMT_RGBA;
+                break;
+            case IMAGE_FORMAT_NV21:
+                srcPixFmt = AV_PIX_FMT_NV21;
+                break;
+            case IMAGE_FORMAT_NV12:
+                srcPixFmt = AV_PIX_FMT_NV12;
+                break;
+            case IMAGE_FORMAT_I420:
+                srcPixFmt = AV_PIX_FMT_YUV420P;
+                break;
+            default:
+                LOGCATE("SingleVideoRecorder::StartH264EncoderThread unsupport format pImage->format=%d", pImage->format);
+                break;
+        }
+        if(srcPixFmt != AV_PIX_FMT_YUV420P) {
+            if(recorder->m_SwsContext == nullptr) {
+                recorder->m_SwsContext = sws_getContext(pImage->width, pImage->height, srcPixFmt,
+                                                        recorder->m_frameWidth, recorder->m_frameHeight, AV_PIX_FMT_YUV420P,
+                                                        SWS_FAST_BILINEAR, nullptr, nullptr, nullptr);
+            }
+
+            if(recorder->m_SwsContext != nullptr) {
+                int slice = sws_scale(recorder->m_SwsContext, pImage->ppPlane, pImage->pLineSize, 0,
+                          recorder->m_frameHeight, pFrame->data, pFrame->linesize);
+//                NativeImage i420;
+//                i420.format = IMAGE_FORMAT_I420;
+//                i420.width = pFrame->width;
+//                i420.height = pFrame->height;
+//                i420.ppPlane[0] = pFrame->data[0];
+//                i420.ppPlane[1] = pFrame->data[1];
+//                i420.ppPlane[2] = pFrame->data[2];
+//                i420.pLineSize[0] = pFrame->linesize[0];
+//                i420.pLineSize[1] = pFrame->linesize[1];
+//                i420.pLineSize[2] = pFrame->linesize[2];
+//                NativeImageUtil::DumpNativeImage(&i420, "/sdcard/DCIM", "NDK");
+                LOGCATE("SingleVideoRecorder::StartH264EncoderThread sws_scale slice=%d", slice);
+            }
+        }
+//        pFrame->data[0] = pImage->ppPlane[0];
+//        pFrame->data[1] = pImage->ppPlane[1];
+//        pFrame->data[2] = pImage->ppPlane[2];
         pFrame->pts = recorder->m_frameIndex++;
         recorder->EncodeFrame(pFrame);
         NativeImageUtil::FreeNativeImage(pImage);
+        delete pImage;
     }
 
     LOGCATE("SingleVideoRecorder::StartH264EncoderThread end");

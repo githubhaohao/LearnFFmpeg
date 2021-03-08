@@ -1,5 +1,5 @@
 //
-// Created by ByteFlow on 2019/4/18.
+// Created by 公众号：字节流动 on 2019/4/18.
 //
 
 #ifndef OPENGLCAMERA2_BYTEFLOWRENDERCONTEXT_H
@@ -9,6 +9,9 @@
 #include <jni.h>
 #include <SingleVideoRecorder.h>
 #include "VideoGLRender.h"
+#include "GLCameraRender.h"
+#include "SingleAudioRecorder.h"
+#include "MediaRecorder.h"
 
 #define RECORDER_TYPE_SINGLE_VIDEO  0 //仅录制视频
 #define RECORDER_TYPE_SINGLE_AUDIO  1 //仅录制音频
@@ -28,6 +31,8 @@ public:
 	static void DeleteContext(JNIEnv *env, jobject instance);
 
 	static MediaRecorderContext* GetContext(JNIEnv *env, jobject instance);
+
+	static void OnGLRenderFrame(void *ctx, NativeImage * pImage);
 
 	int Init();
 
@@ -53,6 +58,9 @@ private:
 	static jfieldID s_ContextHandle;
 	TransformMatrix m_transformMatrix;
 	SingleVideoRecorder *m_pVideoRecorder = nullptr;
+	SingleAudioRecorder *m_pAudioRecorder = nullptr;
+	MediaRecorder       *m_pAVRecorder    = nullptr;
+	mutex m_mutex;
 
 };
 

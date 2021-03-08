@@ -1,5 +1,5 @@
 //
-// Created by ByteFlow on 2021/2/22.
+// Created by 公众号：字节流动 on 2021/2/22.
 //
 
 #ifndef LEARNFFMPEG_SINGLEVIDEORECORDER_H
@@ -48,6 +48,7 @@ private:
     AVCodecContext *m_pCodecCtx = nullptr;
     AVFormatContext *m_pFormatCtx = nullptr;
     thread *m_encodeThread = nullptr;
+    SwsContext *m_SwsContext = nullptr;
     volatile int m_exit = 0;
 };
 

@@ -6,6 +6,7 @@
     <uses-permission android:name="android.permission.RECORD_AUDIO"/>
     <uses-feature android:glEsVersion="0x00020000" android:required="true" />
     <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
 
     <application
         android:requestLegacyExternalStorage="true"
@@ -31,7 +32,12 @@
             android:screenOrientation="portrait"/>
         <activity android:name=".VRMediaPlayerActivity"
             android:screenOrientation="portrait"/>
-        <activity android:name=".CameraActivity"
+        <activity android:name=".VideoRecorderActivity"
+            android:theme="@style/AppNoActionBarTheme"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".AudioRecorderActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".AVRecorderActivity"
             android:theme="@style/AppNoActionBarTheme"
             android:screenOrientation="portrait"/>
 

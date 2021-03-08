@@ -1,5 +1,5 @@
 //
-// Created by ByteFlow on 2021/2/22.
+// Created by 公众号：字节流动 on 2021/2/22.
 //
 
 #ifndef LEARNFFMPEG_THREADSAFEQUEUE_H
@@ -38,6 +38,11 @@ public:
 
     bool Empty() const {
         return m_dataQueue.empty();
+    }
+
+    int Size() {
+        std::unique_lock<std::mutex> lk(m_mutex);
+        return m_dataQueue.size();
     }
 
 private:

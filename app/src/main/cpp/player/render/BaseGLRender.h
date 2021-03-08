@@ -18,6 +18,8 @@ struct TransformMatrix {
     float translateY;
     float scaleX;
     float scaleY;
+    int angleX;
+    int angleY;
 
     TransformMatrix():
             translateX(0),
@@ -25,7 +27,9 @@ struct TransformMatrix {
             scaleX(1.0),
             scaleY(1.0),
             degree(0),
-            mirror(0)
+            mirror(0),
+            angleX(0),
+            angleY(0)
     {
 
     }

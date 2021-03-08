@@ -66,12 +66,6 @@ private:
 
     //dst frame data size
     int           m_DstFrameDataSze = 0;
-
-    //SingleAudioRecorder *m_pAudioRecorder = nullptr;
-
-
-
-
 };
 
 
