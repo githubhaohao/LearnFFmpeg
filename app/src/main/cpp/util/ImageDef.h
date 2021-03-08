@@ -1,5 +1,5 @@
 //
-// Created by ByteFlow on 2019/7/10.
+// Created by 公众号：字节流动 on 2019/7/10.
 //
 
 #ifndef NDK_OPENGLES_3_0_IMAGEDEF_H
@@ -241,7 +241,8 @@ public:
 				break;
 		}
 
-		sprintf(imgPath, "%s/IMG_%dx%d_%s.%s", pPath, pSrcImg->width, pSrcImg->height, pFileName, pExt);
+		static int index = 0;
+		sprintf(imgPath, "%s/IMG_%dx%d_%s_%d.%s", pPath, pSrcImg->width, pSrcImg->height, pFileName, index, pExt);
 
 		FILE *fp = fopen(imgPath, "wb");
 
