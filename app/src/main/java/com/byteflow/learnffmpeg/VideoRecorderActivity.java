@@ -3,6 +3,7 @@ package com.byteflow.learnffmpeg;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -248,7 +249,19 @@ public class VideoRecorderActivity extends AppCompatActivity implements Camera2F
 
             @Override
             public void recordEnd(long time) {
-                mMediaRecorder.stopRecord();
+                final ProgressDialog progressDialog = ProgressDialog.show(VideoRecorderActivity.this, null, "[软编]等待队列中的数据编码完成", false, false);
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mMediaRecorder.stopRecord();
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                progressDialog.dismiss();
+                            }
+                        });
+                    }
+                }).start();
                 mRecordedButton.resetCaptureLayout();
             }
 

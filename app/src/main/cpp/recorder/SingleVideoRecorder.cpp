@@ -150,14 +150,15 @@ int SingleVideoRecorder::StopRecord() {
 
 void SingleVideoRecorder::StartH264EncoderThread(SingleVideoRecorder *recorder) {
     LOGCATE("SingleVideoRecorder::StartH264EncoderThread start");
-    while (!recorder->m_exit)
+    //停止编码且队列为空时退出循环
+    while (!recorder->m_exit || !recorder->m_frameQueue.Empty())
     {
         if(recorder->m_frameQueue.Empty()) {
             //队列为空，休眠等待
             usleep(10 * 1000);
             continue;
         }
-
+        //从队列中取一帧预览帧
         NativeImage *pImage = recorder->m_frameQueue.Pop();
         AVFrame *pFrame = recorder->m_pFrame;
         AVPixelFormat srcPixFmt = AV_PIX_FMT_YUV420P;
@@ -184,7 +185,7 @@ void SingleVideoRecorder::StartH264EncoderThread(SingleVideoRecorder *recorder) 
                                                         recorder->m_frameWidth, recorder->m_frameHeight, AV_PIX_FMT_YUV420P,
                                                         SWS_FAST_BILINEAR, nullptr, nullptr, nullptr);
             }
-
+            //转换为编码器的目标格式 AV_PIX_FMT_YUV420P
             if(recorder->m_SwsContext != nullptr) {
                 int slice = sws_scale(recorder->m_SwsContext, pImage->ppPlane, pImage->pLineSize, 0,
                           recorder->m_frameHeight, pFrame->data, pFrame->linesize);
@@ -202,9 +203,7 @@ void SingleVideoRecorder::StartH264EncoderThread(SingleVideoRecorder *recorder) 
                 LOGCATE("SingleVideoRecorder::StartH264EncoderThread sws_scale slice=%d", slice);
             }
         }
-//        pFrame->data[0] = pImage->ppPlane[0];
-//        pFrame->data[1] = pImage->ppPlane[1];
-//        pFrame->data[2] = pImage->ppPlane[2];
+        //设置 pts
         pFrame->pts = recorder->m_frameIndex++;
         recorder->EncodeFrame(pFrame);
         NativeImageUtil::FreeNativeImage(pImage);

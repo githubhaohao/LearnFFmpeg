@@ -254,13 +254,6 @@ public class AVRecorderActivity extends AppCompatActivity implements Camera2Fram
 
             @Override
             public void recordEnd(long time) {
-                mAudioRecorder.interrupt();
-                try {
-                    mAudioRecorder.join();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                mAudioRecorder = null;
                 final ProgressDialog progressDialog = ProgressDialog.show(AVRecorderActivity.this, null, "[软编]等待队列中的数据编码完成", false, false);
                 new Thread(new Runnable() {
                     @Override
@@ -270,11 +263,17 @@ public class AVRecorderActivity extends AppCompatActivity implements Camera2Fram
                             @Override
                             public void run() {
                                 progressDialog.dismiss();
+                                mAudioRecorder.interrupt();
+                                try {
+                                    mAudioRecorder.join();
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+                                mAudioRecorder = null;
                             }
                         });
                     }
                 }).start();
-
                 mRecordedButton.resetCaptureLayout();
             }
 

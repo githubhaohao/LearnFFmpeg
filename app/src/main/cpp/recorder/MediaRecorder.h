@@ -36,6 +36,7 @@ public:
         m_pSwsCtx = nullptr;
         m_NextPts = 0;
         m_SamplesCount = 0;
+        m_EncodeEnd = 0;
     }
 
     ~AVOutputStream(){}
@@ -43,6 +44,7 @@ public:
     AVStream *m_pStream;
     AVCodecContext *m_pCodecCtx;
     volatile int64_t m_NextPts;
+    volatile int m_EncodeEnd;
     int m_SamplesCount;
     AVFrame *m_pFrame;
     AVFrame *m_pTmpFrame;

@@ -292,7 +292,7 @@ static char fCircleShaderStr[] =
         "void main()\n"
         "{\n"
         "    vec2 imgTex = v_texCoord * u_TexSize;\n"
-        "    float r = (u_Offset + 0.208 ) * u_TexSize.x;\n"
+        "    float r = (u_Offset + 0.208 ) * u_TexSize.y;\n"
         "    if(distance(imgTex, vec2(u_TexSize.x / 2.0, u_TexSize.y / 2.0)) < r)\n"
         "    {\n"
         "        outColor = sampleImage(v_texCoord);\n"
