@@ -9,6 +9,8 @@
 ![gl_playe](https://github.com/githubhaohao/LearnFFmpeg/blob/master/doc/filter.gif?raw=true)
 ![gl_playe](https://github.com/githubhaohao/LearnFFmpeg/blob/master/doc/boll.gif?raw=true)
 
+![recorder](https://github.com/githubhaohao/LearnFFmpeg/blob/master/doc/recorder.gif?raw=true)
+
 # Android FFmpeg 音视频开发系列连载
 - [FFmpeg 开发(01)：FFmpeg 编译和集成](https://blog.csdn.net/Kennethdroid/article/details/106956601)
 
