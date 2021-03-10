@@ -7,7 +7,7 @@
 
 # 展示图
 ![gl_playe](https://github.com/githubhaohao/LearnFFmpeg/blob/master/doc/filter.gif?raw=true)
-![gl_playe](https://github.com/githubhaohao/LearnFFmpeg/blob/master/doc/boll.gif?raw=true)
+![gl_playe](https://github.com/githubhaohao/LearnFFmpeg/blob/master/doc/vr.gif?raw=true)
 
 ![recorder](https://github.com/githubhaohao/LearnFFmpeg/blob/master/doc/recorder.gif?raw=true)
 
