@@ -9,7 +9,7 @@
 ![gl_playe](https://github.com/githubhaohao/LearnFFmpeg/blob/master/doc/filter.gif?raw=true)
 ![gl_playe](https://github.com/githubhaohao/LearnFFmpeg/blob/master/doc/boll.gif?raw=true)
 
-# Android FFmpeg 开发系列连载
+# Android FFmpeg 音视频开发系列连载
 - [FFmpeg 开发(01)：FFmpeg 编译和集成](https://blog.csdn.net/Kennethdroid/article/details/106956601)
 
 - [FFmpeg 开发(02)：FFmpeg + ANativeWindow 实现视频解码播放](https://blog.csdn.net/Kennethdroid/article/details/107103315)
