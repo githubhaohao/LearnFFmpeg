@@ -32,7 +32,7 @@
 
 - [FFmpeg 开发(10)：FFmpeg 视频录制 - 视频添加滤镜和编码](https://blog.csdn.net/Kennethdroid/article/details/114584127)
 
-# 联系我
+# 技术交流
 
 技术交流可以扫码添加我的微信：Byte-Flow 。
 
