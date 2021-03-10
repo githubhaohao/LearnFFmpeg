@@ -1,4 +1,4 @@
-# Android FFmpeg 开发极简教程
+# Android FFmpeg 音视频开发极简教程
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/githubhaohao/NDK_OpenGLES_3_0/blob/master/LICENSE.txt)
 ![Build](https://img.shields.io/badge/build-passing-brightgreen)
