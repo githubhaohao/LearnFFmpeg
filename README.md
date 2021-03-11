@@ -8,8 +8,8 @@
 # 展示图
 ![gl_playe](https://github.com/githubhaohao/LearnFFmpeg/blob/master/doc/filter.gif?raw=true)
 ![gl_playe](https://github.com/githubhaohao/LearnFFmpeg/blob/master/doc/vr.gif?raw=true)
-![visual_audio](https://github.com/githubhaohao/LearnFFmpeg/blob/master/doc/visual_audio.gif?raw=true)
 
+![visual_audio](https://github.com/githubhaohao/LearnFFmpeg/blob/master/doc/visual_audio.gif?raw=true)
 ![recorder](https://github.com/githubhaohao/LearnFFmpeg/blob/master/doc/recorder.gif?raw=true)
 
 # Android FFmpeg 音视频开发系列连载
