@@ -46,7 +46,7 @@ private:
     static std::mutex m_Mutex;
     AudioFrame *m_pAudioBuffer = nullptr;
 
-    GLuint m_ProgramObj;
+    GLuint m_ProgramObj = 0;
     GLuint m_VaoId;
     GLuint m_VboIds[2];
     glm::mat4 m_MVPMatrix;
