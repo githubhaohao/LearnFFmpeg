@@ -319,7 +319,7 @@ void VideoGLRender::UpdateMVPMatrix(TransformMatrix *pTransformMatrix) {
 void VideoGLRender::OnSurfaceCreated() {
     LOGCATE("VideoGLRender::OnSurfaceCreated");
 
-    m_ProgramObj = GLUtils::CreateProgram(vShaderStr, fMeshShaderStr);
+    m_ProgramObj = GLUtils::CreateProgram(vShaderStr, fShaderStr);
     if (!m_ProgramObj)
     {
         LOGCATE("VideoGLRender::OnSurfaceCreated create program fail");
