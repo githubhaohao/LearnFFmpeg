@@ -6,8 +6,8 @@
 
 
 # 展示图
+<p align="center">![gl_playe](https://github.com/githubhaohao/LearnFFmpeg/blob/master/doc/filter.gif?raw=true)</p>
 
-![gl_playe](https://github.com/githubhaohao/LearnFFmpeg/blob/master/doc/filter.gif?raw=true)
 <center>播放器加滤镜</center>
 
 
