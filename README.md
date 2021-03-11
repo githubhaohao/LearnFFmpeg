@@ -6,7 +6,10 @@
 
 
 # 展示图
-![gl_playe](https://github.com/githubhaohao/LearnFFmpeg/blob/master/doc/filter.gif?raw=true)
+## 播放器加滤镜
+<center>![gl_playe](https://github.com/githubhaohao/LearnFFmpeg/blob/master/doc/filter.gif?raw=true)</center>
+
+
 ![gl_playe](https://github.com/githubhaohao/LearnFFmpeg/blob/master/doc/vr.gif?raw=true)
 
 ![visual_audio](https://github.com/githubhaohao/LearnFFmpeg/blob/master/doc/visual_audio.gif?raw=true)
