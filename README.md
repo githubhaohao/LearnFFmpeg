@@ -6,9 +6,9 @@
 
 
 # 展示图
-<p align="center">![gl_playe](https://github.com/githubhaohao/LearnFFmpeg/blob/master/doc/filter.gif?raw=true)</p>
+播放器加滤镜
+![gl_playe](https://github.com/githubhaohao/LearnFFmpeg/blob/master/doc/filter.gif?raw=true)
 
-<center>播放器加滤镜</center>
 
 
 ![gl_playe](https://github.com/githubhaohao/LearnFFmpeg/blob/master/doc/vr.gif?raw=true)
