@@ -10,6 +10,7 @@
 ![gl_playe](https://github.com/githubhaohao/LearnFFmpeg/blob/master/doc/vr.gif?raw=true)
 
 ![recorder](https://github.com/githubhaohao/LearnFFmpeg/blob/master/doc/recorder.gif?raw=true)
+![visual_audio](https://github.com/githubhaohao/LearnFFmpeg/blob/master/doc/visual_audio.gif?raw=true)
 
 # Android FFmpeg 音视频开发系列连载
 - [FFmpeg 开发(01)：FFmpeg 编译和集成](https://blog.csdn.net/Kennethdroid/article/details/106956601)
