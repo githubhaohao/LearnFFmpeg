@@ -1,6 +1,7 @@
 package com.byteflow.learnffmpeg;
 
 import android.Manifest;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.hardware.camera2.CameraCharacteristics;
@@ -93,7 +94,7 @@ public class AudioRecorderActivity extends AppCompatActivity implements AudioRec
     private void initViews() {
         mRecordedButton = findViewById(R.id.record_view);
         mRecordedButton.setButtonFeatures(BUTTON_STATE_ONLY_RECORDER);
-        mRecordedButton.setDuration(50 * 1000);
+        mRecordedButton.setDuration(20 * 1000);
         mRecordedButton.setIconSrc(0, 0);
         mRecordedButton.setCaptureLisenter(new CaptureListener() {
             @Override
@@ -124,7 +125,20 @@ public class AudioRecorderActivity extends AppCompatActivity implements AudioRec
                     e.printStackTrace();
                 }
                 mAudioRecorder = null;
-                mFFMediaRecorder.stopRecord();
+                final ProgressDialog progressDialog = ProgressDialog.show(AudioRecorderActivity.this, null, "[软编]等待队列中的数据编码完成", false, false);
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mFFMediaRecorder.stopRecord();
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                progressDialog.dismiss();
+                            }
+                        });
+                    }
+                }).start();
+                mRecordedButton.resetCaptureLayout();
                 mRecordedButton.resetCaptureLayout();
             }
 
