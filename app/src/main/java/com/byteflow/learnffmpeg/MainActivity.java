@@ -36,13 +36,12 @@ public class MainActivity extends AppCompatActivity {
     private static  final String [] EXAMPLE_LIST = {
             "FFmpeg + ANativeWindow player",
             "FFmpeg + OpenGLES player",
-            "FFmpeg + OpenSLES + Visual Audio",
-            "FFmpeg + OpenGLES VR 3D player",
-            "FFmpeg + X264 video recorder",
-            "FFmpeg + FDK-AAC audio recorder",
+            "FFmpeg + OpenSLES visual audio player",
+            "FFmpeg + OpenGLES VR player",
+            "FFmpeg + single video recorder",
+            "FFmpeg + single audio recorder",
+            "FFmpeg + AV recorder"
     };
-
-    //"FFmpeg + AV recorder"
 
     private static final int FF_ANATIVE_WINDOWS_EXAMPLE = 0;
     private static final int FF_OPENGLES_EXAMPLE = 1;

@@ -29,13 +29,17 @@ class SingleAudioRecorder {
 public:
     SingleAudioRecorder(const char *outUrl, int sampleRate, int channelLayout, int sampleFormat);
     ~SingleAudioRecorder();
-
+    //开始录制
     int StartRecord();
+    //接收音频数据
     int OnFrame2Encode(AudioFrame *inputFrame);
+    //停止录制
     int StopRecord();
 
 private:
+    //编码循环
     static void StartAACEncoderThread(SingleAudioRecorder *context);
+    //编码一帧的函数
     int EncodeFrame(AVFrame *pFrame);
 private:
     ThreadSafeQueue<AudioFrame *> m_frameQueue;

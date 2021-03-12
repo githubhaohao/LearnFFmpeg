@@ -155,7 +155,7 @@ int SingleAudioRecorder::StopRecord() {
 
 void SingleAudioRecorder::StartAACEncoderThread(SingleAudioRecorder *recorder) {
     LOGCATE("SingleAudioRecorder::StartAACEncoderThread start");
-    while (!recorder->m_exit)
+    while (!recorder->m_exit || !recorder->m_frameQueue.Empty())
     {
         if(recorder->m_frameQueue.Empty()) {
             //队列为空，休眠等待
@@ -165,7 +165,7 @@ void SingleAudioRecorder::StartAACEncoderThread(SingleAudioRecorder *recorder) {
 
         AudioFrame *audioFrame = recorder->m_frameQueue.Pop();
         AVFrame *pFrame = recorder->m_pFrame;
-        int result = swr_convert(recorder->m_swrCtx, pFrame->data, pFrame->nb_samples, (const uint8_t **) &(audioFrame->data), pFrame->nb_samples);
+        int result = swr_convert(recorder->m_swrCtx, pFrame->data, pFrame->nb_samples, (const uint8_t **) &(audioFrame->data), audioFrame->dataSize / 4);
         LOGCATE("SingleAudioRecorder::StartAACEncoderThread result=%d", result);
         if(result >= 0) {
             pFrame->pts = recorder->m_frameIndex++;

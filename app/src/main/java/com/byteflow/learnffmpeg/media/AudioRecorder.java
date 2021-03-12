@@ -10,7 +10,7 @@ public class AudioRecorder extends Thread {
 	private static final int DEFAULT_SAMPLE_RATE = 44100;
 	private static final int DEFAULT_CHANNEL_LAYOUT = AudioFormat.CHANNEL_IN_STEREO;
 	private static final int DEFAULT_SAMPLE_FORMAT = AudioFormat.ENCODING_PCM_16BIT;
-	private AudioRecorderCallback mRecorderCallback;
+	private final AudioRecorderCallback mRecorderCallback;
 
 	public AudioRecorder(AudioRecorderCallback callback) {
 		this.mRecorderCallback = callback;
@@ -28,10 +28,6 @@ public class AudioRecorder extends Thread {
 		}
 
 		mAudioRecord = new AudioRecord(android.media.MediaRecorder.AudioSource.MIC, DEFAULT_SAMPLE_RATE, DEFAULT_CHANNEL_LAYOUT, DEFAULT_SAMPLE_FORMAT, mMinBufferSize);
-		if (null == mAudioRecord) {
-			mRecorderCallback.onError("new AudioRecord failed.");
-			return;
-		}
 		try {
 			mAudioRecord.startRecording();
 		} catch (IllegalStateException e) {
@@ -40,7 +36,6 @@ public class AudioRecorder extends Thread {
 		}
 
 		byte[] sampleBuffer = new byte[4096];
-
 		try {
 			while (!Thread.currentThread().isInterrupted()) {
 
@@ -50,10 +45,7 @@ public class AudioRecorder extends Thread {
 				}
 			}
 		} catch (Exception e) {
-			String message = "";
-			if (e != null)
-				message = e.getMessage();
-			mRecorderCallback.onError(message);
+			mRecorderCallback.onError(e.getMessage());
 		}
 
 		mAudioRecord.release();
