@@ -4,6 +4,7 @@
 ![Build](https://img.shields.io/badge/build-passing-brightgreen)
 [![apk](https://img.shields.io/badge/APK-download-green.svg)](https://github.com/githubhaohao/LearnFFmpeg/raw/master/doc/learnffmpeg.apk)
 
+An Android FFmpeg audio and video development tutorial.
 
 # 展示图1
 ![gl_player](https://github.com/githubhaohao/LearnFFmpeg/blob/master/doc/filter.gif?raw=true)
