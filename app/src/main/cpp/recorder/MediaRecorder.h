@@ -65,6 +65,8 @@ struct RecorderParam {
     int sampleFormat;
 };
 
+#define QUEUE_SIZE_THRESHOLD 80
+
 class MediaRecorder {
 public:
     MediaRecorder(const char *url, RecorderParam *param);
@@ -80,6 +82,8 @@ private:
 
     static void StartVideoEncodeThread(MediaRecorder *recorder);
 
+    static void StartMediaEncodeThread(MediaRecorder *recorder);
+
     AVFrame *AllocAudioFrame(AVSampleFormat sample_fmt, uint64_t channel_layout, int sample_rate, int nb_samples);
 
     AVFrame *AllocVideoFrame(AVPixelFormat pix_fmt, int width, int height);
@@ -94,9 +98,9 @@ private:
 
     int OpenVideo(AVFormatContext *oc, AVCodec *codec, AVOutputStream *ost, AVDictionary *opt_arg);
 
-    int WriteAudioFrame(AVFormatContext *oc, AVOutputStream *ost);
+    int EncodeAudioFrame(AVFormatContext *oc, AVOutputStream *ost);
 
-    int WriteVideoFrame(AVFormatContext *oc, AVOutputStream *ost);
+    int EncodeVideoFrame(AVFormatContext *oc, AVOutputStream *ost);
 
     void CloseStream(AVFormatContext *oc, AVOutputStream *ost);
 
@@ -118,6 +122,7 @@ private:
     volatile bool    m_Exit = false;
     thread          *m_pAudioThread = nullptr;
     thread          *m_pVideoThread = nullptr;
+    thread          *m_pMediaThread = nullptr;
 
 };
 

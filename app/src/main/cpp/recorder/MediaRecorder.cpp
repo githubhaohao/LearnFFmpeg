@@ -4,7 +4,6 @@
 
 #include "MediaRecorder.h"
 
-
 MediaRecorder::MediaRecorder(const char *url, RecorderParam *param) {
     LOGCATE("MediaRecorder::MediaRecorder url=%s", url);
     strcpy(m_OutUrl, url);
@@ -76,8 +75,12 @@ int MediaRecorder::StartRecord() {
     } while (false);
 
     if (result >= 0) {
-        m_pAudioThread = new thread(StartAudioEncodeThread, this);
-        m_pVideoThread = new thread(StartVideoEncodeThread, this);
+        if(m_EnableAudio)
+            m_pAudioThread = new thread(StartAudioEncodeThread, this);
+        if(m_EnableVideo)
+            m_pVideoThread = new thread(StartVideoEncodeThread, this);
+//          if(m_pMediaThread == nullptr)
+//              m_pVideoThread = new thread(StartMediaEncodeThread, this);
     }
 
     return result;
@@ -94,6 +97,7 @@ int MediaRecorder::OnFrame2Encode(AudioFrame *inputFrame) {
 int MediaRecorder::OnFrame2Encode(VideoFrame *inputFrame) {
     if(m_Exit) return 0;
     LOGCATE("MediaRecorder::OnFrame2Encode [w,h,format]=[%d,%d,%d]", inputFrame->width, inputFrame->height, inputFrame->format);
+    if(m_VideoFrameQueue.Size() > QUEUE_SIZE_THRESHOLD) usleep(10 * 1000);
     VideoFrame *pImage = new VideoFrame();
     pImage->width = inputFrame->width;
     pImage->height = inputFrame->height;
@@ -106,19 +110,26 @@ int MediaRecorder::OnFrame2Encode(VideoFrame *inputFrame) {
 
 int MediaRecorder::StopRecord() {
     LOGCATE("MediaRecorder::StopRecord");
-/* Write the trailer, if any. The trailer must be written before you
-  * close the CodecContexts open when you wrote the header; otherwise
-  * av_write_trailer() may try to use memory that was freed on
-  * av_codec_close(). */
     m_Exit = true;
-    if(m_pAudioThread != nullptr) {
-        m_pAudioThread->join();
-        delete m_pAudioThread;
-        m_pAudioThread = nullptr;
+    if(m_pAudioThread != nullptr || m_pVideoThread != nullptr || m_pMediaThread != nullptr) {
 
-        m_pVideoThread->join();
-        delete m_pVideoThread;
-        m_pVideoThread = nullptr;
+        if(m_pAudioThread != nullptr) {
+            m_pAudioThread->join();
+            delete m_pAudioThread;
+            m_pAudioThread = nullptr;
+        }
+
+        if(m_pVideoThread != nullptr) {
+            m_pVideoThread->join();
+            delete m_pVideoThread;
+            m_pVideoThread = nullptr;
+        }
+
+        if(m_pMediaThread != nullptr) {
+            m_pMediaThread->join();
+            delete m_pMediaThread;
+            m_pMediaThread = nullptr;
+        }
 
         while (!m_VideoFrameQueue.Empty()) {
             VideoFrame *pImage = m_VideoFrameQueue.Pop();
@@ -131,7 +142,9 @@ int MediaRecorder::StopRecord() {
             delete pAudio;
         }
 
-        av_write_trailer(m_FormatCtx);
+        int ret = av_write_trailer(m_FormatCtx);
+        LOGCATE("MediaRecorder::StopRecord while av_write_trailer %s",
+                av_err2str(ret));
 
         /* Close each codec. */
         if (m_EnableVideo)
@@ -160,8 +173,9 @@ void MediaRecorder::StartAudioEncodeThread(MediaRecorder *recorder) {
         LOGCATE("MediaRecorder::StartAudioEncodeThread [videoTimestamp, audioTimestamp]=[%lf, %lf]", videoTimestamp, audioTimestamp);
         if (av_compare_ts(vOs->m_NextPts, vOs->m_pCodecCtx->time_base,
                                            aOs->m_NextPts, aOs->m_pCodecCtx->time_base) >= 0 || vOs->m_EncodeEnd) {
-            LOGCATE("MediaRecorder::StartAudioEncodeThread start");
-            aOs->m_EncodeEnd = recorder->WriteAudioFrame(fmtCtx, aOs);
+            LOGCATE("MediaRecorder::StartAudioEncodeThread start queueSize=%d", recorder->m_AudioFrameQueue.Size());
+            //if(audioTimestamp >= videoTimestamp && vOs->m_EncodeEnd) aOs->m_EncodeEnd = vOs->m_EncodeEnd;
+            aOs->m_EncodeEnd = recorder->EncodeAudioFrame(fmtCtx, aOs);
         } else {
             LOGCATE("MediaRecorder::StartAudioEncodeThread usleep");
             usleep(5 * 1000);
@@ -181,9 +195,9 @@ void MediaRecorder::StartVideoEncodeThread(MediaRecorder *recorder) {
         if (av_compare_ts(vOs->m_NextPts, vOs->m_pCodecCtx->time_base,
                                            aOs->m_NextPts, aOs->m_pCodecCtx->time_base) <= 0 || aOs->m_EncodeEnd) {
             LOGCATE("MediaRecorder::StartVideoEncodeThread start queueSize=%d", recorder->m_VideoFrameQueue.Size());
-            //视频时间戳向音频时间戳对齐，人对于声音比较敏感，防止出现视频声音播放结束画面还没结束的情况
+            //视频和音频时间戳对齐，人对于声音比较敏感，防止出现视频声音播放结束画面还没结束的情况
             if(audioTimestamp <= videoTimestamp && aOs->m_EncodeEnd) vOs->m_EncodeEnd = aOs->m_EncodeEnd;
-            vOs->m_EncodeEnd = recorder->WriteVideoFrame(fmtCtx, vOs);
+            vOs->m_EncodeEnd = recorder->EncodeVideoFrame(fmtCtx, vOs);
         } else {
             LOGCATE("MediaRecorder::StartVideoEncodeThread start usleep");
             usleep(5 * 1000);
@@ -237,29 +251,14 @@ void MediaRecorder::AddStream(AVOutputStream *ost, AVFormatContext *oc, AVCodec 
             c->sample_fmt  = (*codec)->sample_fmts ?
                              (*codec)->sample_fmts[0] : AV_SAMPLE_FMT_FLTP;
             c->bit_rate    = 96000;
-            c->sample_rate = 44100;
-//            if ((*codec)->supported_samplerates) {
-//                c->sample_rate = (*codec)->supported_samplerates[0];
-//                for (i = 0; (*codec)->supported_samplerates[i]; i++) {
-//                    if ((*codec)->supported_samplerates[i] == 44100)
-//                        c->sample_rate = 44100;
-//                }
-//            }
-            c->channels        = av_get_channel_layout_nb_channels(c->channel_layout);
-            c->channel_layout = AV_CH_LAYOUT_STEREO;
-//            if ((*codec)->channel_layouts) {
-//                c->channel_layout = (*codec)->channel_layouts[0];
-//                for (i = 0; (*codec)->channel_layouts[i]; i++) {
-//                    if ((*codec)->channel_layouts[i] == AV_CH_LAYOUT_STEREO)
-//                        c->channel_layout = AV_CH_LAYOUT_STEREO;
-//                }
-//            }
+            c->sample_rate = m_RecorderParam.audioSampleRate;
+            c->channel_layout = m_RecorderParam.channelLayout;
             c->channels        = av_get_channel_layout_nb_channels(c->channel_layout);
             ost->m_pStream->time_base = (AVRational){ 1, c->sample_rate };
             break;
 
         case AVMEDIA_TYPE_VIDEO:
-            LOGCATE("AddStream AVMEDIA_TYPE_VIDEO AVCodecID=%d", codec_id);
+            LOGCATE("MediaRecorder::AddStream AVMEDIA_TYPE_VIDEO AVCodecID=%d", codec_id);
 
             c->codec_id = codec_id;
             c->bit_rate = m_RecorderParam.videoBitRate;
@@ -392,8 +391,8 @@ int MediaRecorder::OpenAudio(AVFormatContext *oc, AVCodec *codec, AVOutputStream
     return 0;
 }
 
-int MediaRecorder::WriteAudioFrame(AVFormatContext *oc, AVOutputStream *ost) {
-    LOGCATE("MediaRecorder::WriteAudioFrame");
+int MediaRecorder::EncodeAudioFrame(AVFormatContext *oc, AVOutputStream *ost) {
+    LOGCATE("MediaRecorder::EncodeAudioFrame");
     int result = 0;
     AVCodecContext *c;
     AVPacket pkt = { 0 }; // data and size must be 0;
@@ -417,7 +416,7 @@ int MediaRecorder::WriteAudioFrame(AVFormatContext *oc, AVOutputStream *ost) {
         ost->m_NextPts  += frame->nb_samples;
     }
 
-    if(m_AudioFrameQueue.Empty() && m_Exit) frame = nullptr;
+    if((m_AudioFrameQueue.Empty() && m_Exit) || ost->m_EncodeEnd) frame = nullptr;
 
     if (frame) {
         /* convert samples from native format to destination codec format, using the resampler */
@@ -432,7 +431,7 @@ int MediaRecorder::WriteAudioFrame(AVFormatContext *oc, AVOutputStream *ost) {
          */
         ret = av_frame_make_writable(ost->m_pFrame);
         if (ret < 0) {
-            LOGCATE("MediaRecorder::WriteAudioFrame Error while av_frame_make_writable");
+            LOGCATE("MediaRecorder::EncodeAudioFrame Error while av_frame_make_writable");
             result = 1;
             goto EXIT;
         }
@@ -441,9 +440,9 @@ int MediaRecorder::WriteAudioFrame(AVFormatContext *oc, AVOutputStream *ost) {
         ret = swr_convert(ost->m_pSwrCtx,
                           ost->m_pFrame->data, dst_nb_samples,
                           (const uint8_t **)frame->data, frame->nb_samples);
-        LOGCATE("MediaRecorder::WriteAudioFrame dst_nb_samples=%d, frame->nb_samples=%d", dst_nb_samples, frame->nb_samples);
+        LOGCATE("MediaRecorder::EncodeAudioFrame dst_nb_samples=%d, frame->nb_samples=%d", dst_nb_samples, frame->nb_samples);
         if (ret < 0) {
-            LOGCATE("MediaRecorder::WriteAudioFrame Error while converting");
+            LOGCATE("MediaRecorder::EncodeAudioFrame Error while converting");
             result = 1;
             goto EXIT;
         }
@@ -458,7 +457,7 @@ int MediaRecorder::WriteAudioFrame(AVFormatContext *oc, AVOutputStream *ost) {
         result = 1;
         goto EXIT;
     } else if(ret < 0) {
-        LOGCATE("MediaRecorder::WriteAudioFrame audio avcodec_send_frame fail. ret=%s", av_err2str(ret));
+        LOGCATE("MediaRecorder::EncodeAudioFrame audio avcodec_send_frame fail. ret=%s", av_err2str(ret));
         result = 0;
         goto EXIT;
     }
@@ -469,14 +468,14 @@ int MediaRecorder::WriteAudioFrame(AVFormatContext *oc, AVOutputStream *ost) {
             result = 0;
             goto EXIT;
         } else if (ret < 0) {
-            LOGCATE("MediaRecorder::WriteAudioFrame audio avcodec_receive_packet fail. ret=%s", av_err2str(ret));
+            LOGCATE("MediaRecorder::EncodeAudioFrame audio avcodec_receive_packet fail. ret=%s", av_err2str(ret));
             result = 0;
             goto EXIT;
         }
-        LOGCATE("MediaRecorder::WriteAudioFrame pkt pts=%ld, size=%d", pkt.pts, pkt.size);
+        LOGCATE("MediaRecorder::EncodeAudioFrame pkt pts=%ld, size=%d", pkt.pts, pkt.size);
         int result = WritePacket(oc, &c->time_base, ost->m_pStream, &pkt);
         if (result < 0) {
-            LOGCATE("MediaRecorder::WriteAudioFrame audio Error while writing audio frame: %s",
+            LOGCATE("MediaRecorder::EncodeAudioFrame audio Error while writing audio frame: %s",
                     av_err2str(ret));
             result = 0;
             goto EXIT;
@@ -545,8 +544,8 @@ int MediaRecorder::OpenVideo(AVFormatContext *oc, AVCodec *codec, AVOutputStream
     return 0;
 }
 
-int MediaRecorder::WriteVideoFrame(AVFormatContext *oc, AVOutputStream *ost) {
-    LOGCATE("MediaRecorder::WriteVideoFrame");
+int MediaRecorder::EncodeVideoFrame(AVFormatContext *oc, AVOutputStream *ost) {
+    LOGCATE("MediaRecorder::EncodeVideoFrame");
     int result = 0;
     int ret;
     AVCodecContext *c;
@@ -588,7 +587,7 @@ int MediaRecorder::WriteVideoFrame(AVFormatContext *oc, AVOutputStream *ost) {
                 srcPixFmt = AV_PIX_FMT_YUV420P;
                 break;
             default:
-                LOGCATE("MediaRecorder::WriteVideoFrame unSupport format pImage->format=%d", videoFrame->format);
+                LOGCATE("MediaRecorder::EncodeVideoFrame unSupport format pImage->format=%d", videoFrame->format);
                 break;
         }
     }
@@ -613,7 +612,7 @@ int MediaRecorder::WriteVideoFrame(AVFormatContext *oc, AVOutputStream *ost) {
                                               c->pix_fmt,
                                               SWS_FAST_BILINEAR, nullptr, nullptr, nullptr);
                 if (!ost->m_pSwsCtx) {
-                    LOGCATE("MediaRecorder::WriteVideoFrame Could not initialize the conversion context\n");
+                    LOGCATE("MediaRecorder::EncodeVideoFrame Could not initialize the conversion context\n");
                     result = 1;
                     goto EXIT;
                 }
@@ -646,7 +645,7 @@ int MediaRecorder::WriteVideoFrame(AVFormatContext *oc, AVOutputStream *ost) {
         result = 1;
         goto EXIT;
     } else if(ret < 0) {
-        LOGCATE("MediaRecorder::WriteVideoFrame video avcodec_send_frame fail. ret=%s", av_err2str(ret));
+        LOGCATE("MediaRecorder::EncodeVideoFrame video avcodec_send_frame fail. ret=%s", av_err2str(ret));
         result = 0;
         goto EXIT;
     }
@@ -657,14 +656,14 @@ int MediaRecorder::WriteVideoFrame(AVFormatContext *oc, AVOutputStream *ost) {
             result = 0;
             goto EXIT;
         } else if (ret < 0) {
-            LOGCATE("MediaRecorder::WriteVideoFrame video avcodec_receive_packet fail. ret=%s", av_err2str(ret));
+            LOGCATE("MediaRecorder::EncodeVideoFrame video avcodec_receive_packet fail. ret=%s", av_err2str(ret));
             result = 0;
             goto EXIT;
         }
-        LOGCATE("MediaRecorder::WriteVideoFrame video pkt pts=%ld, size=%d", pkt.pts, pkt.size);
+        LOGCATE("MediaRecorder::EncodeVideoFrame video pkt pts=%ld, size=%d", pkt.pts, pkt.size);
         int result = WritePacket(oc, &c->time_base, ost->m_pStream, &pkt);
         if (result < 0) {
-            LOGCATE("MediaRecorder::WriteVideoFrame video Error while writing audio frame: %s",
+            LOGCATE("MediaRecorder::EncodeVideoFrame video Error while writing audio frame: %s",
                     av_err2str(ret));
             result = 0;
             goto EXIT;
@@ -687,4 +686,26 @@ void MediaRecorder::CloseStream(AVFormatContext *oc, AVOutputStream *ost) {
         ost->m_pTmpFrame = nullptr;
     }
 
+}
+
+void MediaRecorder::StartMediaEncodeThread(MediaRecorder *recorder) {
+    LOGCATE("MediaRecorder::StartMediaEncodeThread start");
+    AVOutputStream *vOs = &recorder->m_VideoStream;
+    AVOutputStream *aOs = &recorder->m_AudioStream;
+    AVFormatContext  *fmtCtx = recorder->m_FormatCtx;
+    while (!vOs->m_EncodeEnd || !aOs->m_EncodeEnd) {
+        double videoTimestamp = vOs->m_NextPts * av_q2d(vOs->m_pCodecCtx->time_base);
+        double audioTimestamp = aOs->m_NextPts * av_q2d(aOs->m_pCodecCtx->time_base);
+        LOGCATE("MediaRecorder::StartVideoEncodeThread [videoTimestamp, audioTimestamp]=[%lf, %lf]", videoTimestamp, audioTimestamp);
+        if (!vOs->m_EncodeEnd &&
+            (aOs->m_EncodeEnd || av_compare_ts(vOs->m_NextPts, vOs->m_pCodecCtx->time_base,
+                                               aOs->m_NextPts, aOs->m_pCodecCtx->time_base) <= 0)) {
+            //视频和音频时间戳对齐，人对于声音比较敏感，防止出现视频声音播放结束画面还没结束的情况
+            if(audioTimestamp <= videoTimestamp && aOs->m_EncodeEnd) vOs->m_EncodeEnd = 1;
+            vOs->m_EncodeEnd = recorder->EncodeVideoFrame(fmtCtx, vOs);
+        } else {
+            aOs->m_EncodeEnd = recorder->EncodeAudioFrame(fmtCtx, aOs);
+        }
+    }
+    LOGCATE("MediaRecorder::StartVideoEncodeThread end");
 }
