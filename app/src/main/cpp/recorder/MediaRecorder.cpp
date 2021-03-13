@@ -80,7 +80,7 @@ int MediaRecorder::StartRecord() {
         if(m_EnableVideo)
             m_pVideoThread = new thread(StartVideoEncodeThread, this);
 //          if(m_pMediaThread == nullptr)
-//              m_pVideoThread = new thread(StartMediaEncodeThread, this);
+//              m_pMediaThread = new thread(StartMediaEncodeThread, this);
     }
 
     return result;
@@ -338,14 +338,11 @@ int MediaRecorder::OpenAudio(AVFormatContext *oc, AVCodec *codec, AVOutputStream
     AVCodecContext *c;
     int nb_samples;
     int ret;
-    //AVDictionary *opt = nullptr;
 
     c = ost->m_pCodecCtx;
-
+    
     /* open it */
-    //av_dict_copy(&opt, opt_arg, 0);
     ret = avcodec_open2(c, codec, nullptr);
-    //av_dict_free(&opt);
     if (ret < 0) {
         LOGCATE("MediaRecorder::OpenAudio Could not open audio codec: %s", av_err2str(ret));
         return -1;
