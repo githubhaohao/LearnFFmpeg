@@ -1,5 +1,6 @@
 //
 // Created by 公众号：字节流动 on 2021/3/5.
+// https://github.com/githubhaohao/LearnFFmpeg
 //
 
 #ifndef LEARNFFMPEG_MEDIARECORDER_H

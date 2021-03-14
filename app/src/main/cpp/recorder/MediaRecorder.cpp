@@ -1,5 +1,6 @@
 //
 // Created by 公众号：字节流动 on 2021/3/5.
+// https://github.com/githubhaohao/LearnFFmpeg
 //
 
 #include "MediaRecorder.h"
@@ -340,7 +341,7 @@ int MediaRecorder::OpenAudio(AVFormatContext *oc, AVCodec *codec, AVOutputStream
     int ret;
 
     c = ost->m_pCodecCtx;
-    
+
     /* open it */
     ret = avcodec_open2(c, codec, nullptr);
     if (ret < 0) {

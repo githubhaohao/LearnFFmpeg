@@ -1,5 +1,6 @@
 //
 // Created by 公众号：字节流动 on 2021/2/22.
+// https://github.com/githubhaohao/LearnFFmpeg
 //
 
 #include "SingleVideoRecorder.h"

@@ -1,5 +1,6 @@
 //
 // Created by 公众号：字节流动 on 2019/4/18.
+// https://github.com/githubhaohao/LearnFFmpeg
 //
 
 #ifndef OPENGLCAMERA2_BYTEFLOWRENDERCONTEXT_H
