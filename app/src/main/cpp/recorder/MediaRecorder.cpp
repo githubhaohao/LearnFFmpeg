@@ -46,10 +46,10 @@ int MediaRecorder::StartRecord() {
         /* Now that all the parameters are set, we can open the audio and
          * video codecs and allocate the necessary encode buffers. */
         if (m_EnableVideo)
-            OpenVideo(m_FormatCtx, m_VideoCodec, &m_VideoStream, nullptr);
+            OpenVideo(m_FormatCtx, m_VideoCodec, &m_VideoStream);
 
         if (m_EnableAudio)
-            OpenAudio(m_FormatCtx, m_AudioCodec, &m_AudioStream, nullptr);
+            OpenAudio(m_FormatCtx, m_AudioCodec, &m_AudioStream);
 
         av_dump_format(m_FormatCtx, 0, m_OutUrl, 1);
 
@@ -98,7 +98,6 @@ int MediaRecorder::OnFrame2Encode(AudioFrame *inputFrame) {
 int MediaRecorder::OnFrame2Encode(VideoFrame *inputFrame) {
     if(m_Exit) return 0;
     LOGCATE("MediaRecorder::OnFrame2Encode [w,h,format]=[%d,%d,%d]", inputFrame->width, inputFrame->height, inputFrame->format);
-    if(m_VideoFrameQueue.Size() > QUEUE_SIZE_THRESHOLD) usleep(10 * 1000);
     VideoFrame *pImage = new VideoFrame();
     pImage->width = inputFrame->width;
     pImage->height = inputFrame->height;
@@ -149,9 +148,9 @@ int MediaRecorder::StopRecord() {
 
         /* Close each codec. */
         if (m_EnableVideo)
-            CloseStream(m_FormatCtx, &m_VideoStream);
+            CloseStream(&m_VideoStream);
         if (m_EnableAudio)
-            CloseStream(m_FormatCtx, &m_AudioStream);
+            CloseStream(&m_AudioStream);
 
         if (!(m_OutputFormat->flags & AVFMT_NOFILE))
             /* Close the output file. */
@@ -333,15 +332,12 @@ AVFrame *MediaRecorder::AllocAudioFrame(AVSampleFormat sample_fmt, uint64_t chan
     return frame;
 }
 
-int MediaRecorder::OpenAudio(AVFormatContext *oc, AVCodec *codec, AVOutputStream *ost,
-                             AVDictionary *opt_arg) {
+int MediaRecorder::OpenAudio(AVFormatContext *oc, AVCodec *codec, AVOutputStream *ost) {
     LOGCATE("MediaRecorder::OpenAudio");
     AVCodecContext *c;
     int nb_samples;
     int ret;
-
     c = ost->m_pCodecCtx;
-
     /* open it */
     ret = avcodec_open2(c, codec, nullptr);
     if (ret < 0) {
@@ -389,7 +385,7 @@ int MediaRecorder::OpenAudio(AVFormatContext *oc, AVCodec *codec, AVOutputStream
     return 0;
 }
 
-int MediaRecorder::EncodeAudioFrame(AVFormatContext *oc, AVOutputStream *ost) {
+int MediaRecorder::EncodeAudioFrame(AVOutputStream *ost) {
     LOGCATE("MediaRecorder::EncodeAudioFrame");
     int result = 0;
     AVCodecContext *c;
@@ -471,7 +467,7 @@ int MediaRecorder::EncodeAudioFrame(AVFormatContext *oc, AVOutputStream *ost) {
             goto EXIT;
         }
         LOGCATE("MediaRecorder::EncodeAudioFrame pkt pts=%ld, size=%d", pkt.pts, pkt.size);
-        int result = WritePacket(oc, &c->time_base, ost->m_pStream, &pkt);
+        int result = WritePacket(m_FormatCtx, &c->time_base, ost->m_pStream, &pkt);
         if (result < 0) {
             LOGCATE("MediaRecorder::EncodeAudioFrame audio Error while writing audio frame: %s",
                     av_err2str(ret));
@@ -508,18 +504,13 @@ AVFrame *MediaRecorder::AllocVideoFrame(AVPixelFormat pix_fmt, int width, int he
     return picture;
 }
 
-int MediaRecorder::OpenVideo(AVFormatContext *oc, AVCodec *codec, AVOutputStream *ost,
-                             AVDictionary *opt_arg) {
+int MediaRecorder::OpenVideo(AVFormatContext *oc, AVCodec *codec, AVOutputStream *ost) {
     LOGCATE("MediaRecorder::OpenVideo");
     int ret;
     AVCodecContext *c = ost->m_pCodecCtx;
-    //AVDictionary *opt = NULL;
-
-    //av_dict_copy(&opt, opt_arg, 0);
 
     /* open the codec */
     ret = avcodec_open2(c, codec, nullptr);
-    //av_dict_free(&opt);
     if (ret < 0) {
         LOGCATE("MediaRecorder::OpenVideo Could not open video codec: %s", av_err2str(ret));
         return -1;
@@ -542,7 +533,7 @@ int MediaRecorder::OpenVideo(AVFormatContext *oc, AVCodec *codec, AVOutputStream
     return 0;
 }
 
-int MediaRecorder::EncodeVideoFrame(AVFormatContext *oc, AVOutputStream *ost) {
+int MediaRecorder::EncodeVideoFrame(AVOutputStream *ost) {
     LOGCATE("MediaRecorder::EncodeVideoFrame");
     int result = 0;
     int ret;
@@ -659,7 +650,7 @@ int MediaRecorder::EncodeVideoFrame(AVFormatContext *oc, AVOutputStream *ost) {
             goto EXIT;
         }
         LOGCATE("MediaRecorder::EncodeVideoFrame video pkt pts=%ld, size=%d", pkt.pts, pkt.size);
-        int result = WritePacket(oc, &c->time_base, ost->m_pStream, &pkt);
+        int result = WritePacket(m_FormatCtx, &c->time_base, ost->m_pStream, &pkt);
         if (result < 0) {
             LOGCATE("MediaRecorder::EncodeVideoFrame video Error while writing audio frame: %s",
                     av_err2str(ret));
@@ -674,7 +665,7 @@ EXIT:
     return result;
 }
 
-void MediaRecorder::CloseStream(AVFormatContext *oc, AVOutputStream *ost) {
+void MediaRecorder::CloseStream(AVOutputStream *ost) {
     avcodec_free_context(&ost->m_pCodecCtx);
     av_frame_free(&ost->m_pFrame);
     sws_freeContext(ost->m_pSwsCtx);

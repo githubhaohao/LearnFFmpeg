@@ -66,44 +66,46 @@ struct RecorderParam {
     int sampleFormat;
 };
 
-#define QUEUE_SIZE_THRESHOLD 80
-
 class MediaRecorder {
 public:
     MediaRecorder(const char *url, RecorderParam *param);
     ~MediaRecorder();
-
+    //开始录制
     int StartRecord();
+    //添加音频数据到音频队列
     int OnFrame2Encode(AudioFrame *inputFrame);
+    //添加视频数据到视频队列
     int OnFrame2Encode(VideoFrame *inputFrame);
+    //停止录制
     int StopRecord();
 
 private:
+    //启动音频编码线程
     static void StartAudioEncodeThread(MediaRecorder *recorder);
-
+    //启动视频编码线程
     static void StartVideoEncodeThread(MediaRecorder *recorder);
 
     static void StartMediaEncodeThread(MediaRecorder *recorder);
-
+    //分配音频缓冲帧
     AVFrame *AllocAudioFrame(AVSampleFormat sample_fmt, uint64_t channel_layout, int sample_rate, int nb_samples);
-
+    //分配视频缓冲帧
     AVFrame *AllocVideoFrame(AVPixelFormat pix_fmt, int width, int height);
-
+    //写编码包到媒体文件
     int WritePacket(AVFormatContext *fmt_ctx, AVRational *time_base, AVStream *st, AVPacket *pkt);
-
+    //添加媒体流程
     void AddStream(AVOutputStream *ost, AVFormatContext *oc, AVCodec **codec, AVCodecID codec_id);
-
+    //打印 packet 信息
     void PrintfPacket(AVFormatContext *fmt_ctx, AVPacket *pkt);
-
-    int OpenAudio(AVFormatContext *oc, AVCodec *codec, AVOutputStream *ost, AVDictionary *opt_arg);
-
-    int OpenVideo(AVFormatContext *oc, AVCodec *codec, AVOutputStream *ost, AVDictionary *opt_arg);
-
-    int EncodeAudioFrame(AVFormatContext *oc, AVOutputStream *ost);
-
-    int EncodeVideoFrame(AVFormatContext *oc, AVOutputStream *ost);
-
-    void CloseStream(AVFormatContext *oc, AVOutputStream *ost);
+    //打开音频编码器
+    int OpenAudio(AVFormatContext *oc, AVCodec *codec, AVOutputStream *ost);
+    //打开视频编码器
+    int OpenVideo(AVFormatContext *oc, AVCodec *codec, AVOutputStream *ost);
+    //编码一帧音频
+    int EncodeAudioFrame(AVOutputStream *ost);
+    //编码一帧视频
+    int EncodeVideoFrame(AVOutputStream *ost);
+    //释放编码器上下文
+    void CloseStream(AVOutputStream *ost);
 
 private:
     RecorderParam    m_RecorderParam = {0};
