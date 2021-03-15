@@ -34,6 +34,8 @@ An Android FFmpeg audio and video development tutorial.
 - [FFmpeg 开发(09)：FFmpeg、x264以及fdk-aac 编译整合](https://blog.csdn.net/Kennethdroid/article/details/114239464)
 
 - [FFmpeg 开发(10)：FFmpeg 视频录制 - 视频添加滤镜和编码](https://blog.csdn.net/Kennethdroid/article/details/114584127)
+-
+- [FFmpeg 开发(11)：FFmpeg + Android AudioRecorder 音频录制编码](https://blog.csdn.net/Kennethdroid/article/details/114818376)
 
 # 技术交流
 
