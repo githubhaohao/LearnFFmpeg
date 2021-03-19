@@ -1,4 +1,11 @@
-//原图
+/**
+ *
+ * Created by 公众号：字节流动 on 2021/3/16.
+ * https://github.com/githubhaohao/LearnFFmpeg
+ * 最新文章首发于公众号：字节流动，有疑问或者技术交流可以添加微信 Byte-Flow ,领取视频教程, 拉你进技术交流群
+ *
+ * 缩放的圆
+ * */
 #version 300 es
 precision highp float;
 in vec2 v_texCoord;
@@ -59,6 +66,15 @@ vec4 sampleImage(vec2 texCoord) {
 
 void main()
 {
-    outColor = sampleImage(v_texCoord);
+    vec2 imgTex = v_texCoord * u_TexSize;
+    float r = (u_Offset + 0.208 ) * u_TexSize.x;
+    if(distance(imgTex, vec2(u_TexSize.x / 2.0, u_TexSize.y / 2.0)) < r)
+    {
+        outColor = sampleImage(v_texCoord);
+    }
+    else
+    {
+        outColor = vec4(1.0, 1.0, 1.0, 1.0);
+    }
 }
 

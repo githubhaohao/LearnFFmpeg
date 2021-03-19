@@ -1,4 +1,11 @@
-//circle
+/**
+ *
+ * Created by 公众号：字节流动 on 2021/3/16.
+ * https://github.com/githubhaohao/LearnFFmpeg
+ * 最新文章首发于公众号：字节流动，有疑问或者技术交流可以添加微信 Byte-Flow ,领取视频教程, 拉你进技术交流群
+ *
+ * dynimic mesh 动态网格
+ * */
 #version 300 es
 precision highp float;
 in vec2 v_texCoord;
@@ -56,12 +63,20 @@ vec4 sampleImage(vec2 texCoord) {
     }
     return outColor;
 }
-
 void main()
 {
-    vec2 imgTex = v_texCoord * u_TexSize;
-    float r = (u_Offset + 0.208 ) * u_TexSize.x;
-    if(distance(imgTex, vec2(u_TexSize.x / 2.0, u_TexSize.y / 2.0)) < r)
+    vec2 imgTexCoord = v_texCoord * u_TexSize;
+    float sideLength = u_TexSize.y / 6.0;
+    float maxOffset = 0.08 * sideLength;
+    float x = mod(imgTexCoord.x, floor(sideLength));
+    float y = mod(imgTexCoord.y, floor(sideLength));
+
+    float offset = u_Offset * maxOffset;
+
+    if(offset <= x
+    && x <= sideLength - offset
+    && offset <= y
+    && y <= sideLength - offset)
     {
         outColor = sampleImage(v_texCoord);
     }
@@ -70,4 +85,3 @@ void main()
         outColor = vec4(1.0, 1.0, 1.0, 1.0);
     }
 }
-

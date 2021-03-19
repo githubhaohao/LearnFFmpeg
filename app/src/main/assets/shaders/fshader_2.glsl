@@ -1,4 +1,11 @@
-//circle
+/**
+ *
+ * Created by 公众号：字节流动 on 2021/3/16.
+ * https://github.com/githubhaohao/LearnFFmpeg
+ * 最新文章首发于公众号：字节流动，有疑问或者技术交流可以添加微信 Byte-Flow ,领取视频教程, 拉你进技术交流群
+ *
+ * 灵魂出窍
+ * */
 #version 300 es
 precision highp float;
 in vec2 v_texCoord;
@@ -57,17 +64,22 @@ vec4 sampleImage(vec2 texCoord) {
     return outColor;
 }
 
+const float MAX_ALPHA = 0.5;
+const float MAX_SCALE = 0.8;
+
 void main()
 {
-    vec2 imgTex = v_texCoord * u_TexSize;
-    float r = (u_Offset + 0.208 ) * u_TexSize.x;
-    if(distance(imgTex, vec2(u_TexSize.x / 2.0, u_TexSize.y / 2.0)) < r)
-    {
-        outColor = sampleImage(v_texCoord);
-    }
-    else
-    {
-        outColor = vec4(1.0, 1.0, 1.0, 1.0);
-    }
+    float alpha = MAX_ALPHA * (1.0 - u_Offset);
+    float scale = 1.0 + u_Offset * MAX_SCALE;
+
+    float scale_x = 0.5 + (v_texCoord.x - 0.5) / scale;
+    float scale_y = 0.5 + (v_texCoord.y - 0.5) / scale;
+
+    vec2 scaleCoord = vec2(scale_x, scale_y);
+    vec4 maskColor = sampleImage(scaleCoord);
+
+    vec4 originColor = sampleImage(v_texCoord);
+
+    outColor = originColor * (1.0 - alpha) + maskColor * alpha;
 }
 

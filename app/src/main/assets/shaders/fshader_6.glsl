@@ -1,4 +1,11 @@
-//分屏
+/**
+ *
+ * Created by 公众号：字节流动 on 2021/3/12.
+ * https://github.com/githubhaohao/LearnFFmpeg
+ * 最新文章首发于公众号：字节流动，有疑问或者技术交流可以添加微信 Byte-Flow ,领取视频教程, 拉你进技术交流群
+ *
+ * 磨砂
+ * */
 #version 300 es
 precision highp float;
 in vec2 v_texCoord;
@@ -57,27 +64,50 @@ vec4 sampleImage(vec2 texCoord) {
     return outColor;
 }
 
+const float arg = 0.5;
+const vec2 samplerSteps = vec2(1.0, 1.0);
+const float blurSamplerScale = 4.0;
+const float factor = 0.1;
+const int samplerRadius = 2;
+
+float random(vec2 seed)
+{
+    return fract(sin(dot(seed ,vec2(12.9898,78.233))) * 43758.5453);
+}
+
 void main()
 {
-    vec2 newTexCoord = v_texCoord;
-    if(newTexCoord.x < 0.5)
+    vec4 centralColor = sampleImage(v_texCoord);
+    float lum = dot(centralColor.rgb, vec3(0.299, 0.587, 0.114));
+    float factor = (1.0 + arg) / (arg + lum) * factor;
+
+    float gaussianWeightTotal = 1.0;
+    vec4 sum = centralColor * gaussianWeightTotal;
+    vec2 stepScale = blurSamplerScale * samplerSteps / float(samplerRadius);
+    float offset = random(v_texCoord) - 0.5;
+
+    for(int i = 1; i <= samplerRadius; ++i)
     {
-        newTexCoord.x = newTexCoord.x * 2.0;
-    }
-    else
-    {
-        newTexCoord.x = (newTexCoord.x - 0.5) * 2.0;
+        vec2 dis = (float(i) + offset) * stepScale;
+        float percent = 1.0 - (float(i) + offset) / float(samplerRadius);
+
+        {
+            vec4 sampleColor1 = sampleImage(v_texCoord + dis);
+            float distanceFromCentralColor1 = min(distance(centralColor, sampleColor1) * factor, 1.0);
+            float gaussianWeight1 = percent * (1.0 - distanceFromCentralColor1);
+            gaussianWeightTotal += gaussianWeight1;
+            sum += sampleColor1 * gaussianWeight1;
+        }
+
+        {
+            vec4 sampleColor2 = sampleImage(v_texCoord - dis);
+            float distanceFromCentralColor2 = min(distance(centralColor, sampleColor2) * factor, 1.0);
+            float gaussianWeight2 = percent * (1.0 - distanceFromCentralColor2);
+            gaussianWeightTotal += gaussianWeight2;
+            sum += sampleColor2 * gaussianWeight2;
+        }
     }
 
-    if(newTexCoord.y < 0.5)
-    {
-        newTexCoord.y = newTexCoord.y * 2.0;
-    }
-    else
-    {
-        newTexCoord.y = (newTexCoord.y - 0.5) * 2.0;
-    }
-
-    outColor = sampleImage(newTexCoord);
+    outColor = sum / gaussianWeightTotal;
 }
 
