@@ -39,6 +39,6 @@ An Android FFmpeg audio and video development tutorial.
 
 # 技术交流
 
-技术交流可以扫码添加我的微信：Byte-Flow 。
+有疑问或技术交流可以添加**我的微信：Byte-Flow , 拉你入相关技术交流群**，里面很多牛人帮你解答。
 
 ![我的微信](https://github.com/githubhaohao/LearnFFmpeg/blob/master/doc/wechat_byteflow.png?raw=true)
