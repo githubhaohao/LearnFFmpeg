@@ -1,7 +1,10 @@
-//
-// Created by 公众号：字节流动 on 2019/4/18.
-// https://github.com/githubhaohao/LearnFFmpeg
-//
+/**
+ *
+ * Created by 公众号：字节流动 on 2021/3/16.
+ * https://github.com/githubhaohao/LearnFFmpeg
+ * 最新文章首发于公众号：字节流动，有疑问或者技术交流可以添加微信 Byte-Flow ,领取视频教程, 拉你进技术交流群
+ *
+ * */
 
 #include <LogUtil.h>
 #include <ImageDef.h>
@@ -240,6 +243,24 @@ void MediaRecorderContext::OnGLRenderFrame(void *ctx, NativeImage *pImage) {
 
 	if(context->m_pAVRecorder != nullptr)
 		context->m_pAVRecorder->OnFrame2Encode(pImage);
+}
+
+void
+MediaRecorderContext::SetLUTImage(int index, int format, int width, int height, uint8_t *pData) {
+	LOGCATE("MediaRecorderContext::SetLUTImage index=%d, format=%d, width=%d, height=%d, pData=%p",
+			index, format, width, height, pData);
+	NativeImage nativeImage;
+	nativeImage.format = format;
+	nativeImage.width = width;
+	nativeImage.height = height;
+	nativeImage.ppPlane[0] = pData;
+	nativeImage.pLineSize[0] = width * 4; //RGBA
+
+	GLCameraRender::GetInstance()->SetLUTImage(index, &nativeImage);
+}
+
+void MediaRecorderContext::SetFragShader(int index, char *pShaderStr, int strSize) {
+	GLCameraRender::GetInstance()->SetFragShaderStr(index, pShaderStr, strSize);
 }
 
 

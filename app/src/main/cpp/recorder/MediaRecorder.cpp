@@ -1,7 +1,10 @@
-//
-// Created by 公众号：字节流动 on 2021/3/5.
-// https://github.com/githubhaohao/LearnFFmpeg
-//
+/**
+ *
+ * Created by 公众号：字节流动 on 2021/3/16.
+ * https://github.com/githubhaohao/LearnFFmpeg
+ * 最新文章首发于公众号：字节流动，有疑问或者技术交流可以添加微信 Byte-Flow ,领取视频教程, 拉你进技术交流群
+ *
+ * */
 
 #include "MediaRecorder.h"
 
@@ -187,7 +190,6 @@ void MediaRecorder::StartVideoEncodeThread(MediaRecorder *recorder) {
     LOGCATE("MediaRecorder::StartVideoEncodeThread start");
     AVOutputStream *vOs = &recorder->m_VideoStream;
     AVOutputStream *aOs = &recorder->m_AudioStream;
-    AVFormatContext  *fmtCtx = recorder->m_FormatCtx;
     while (!vOs->m_EncodeEnd) {
         double videoTimestamp = vOs->m_NextPts * av_q2d(vOs->m_pCodecCtx->time_base);
         double audioTimestamp = aOs->m_NextPts * av_q2d(aOs->m_pCodecCtx->time_base);

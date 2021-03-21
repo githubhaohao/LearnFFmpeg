@@ -1,7 +1,10 @@
-//
-// Created by 公众号：字节流动 on 2019/4/18.
-// https://github.com/githubhaohao/LearnFFmpeg
-//
+/**
+ *
+ * Created by 公众号：字节流动 on 2021/3/16.
+ * https://github.com/githubhaohao/LearnFFmpeg
+ * 最新文章首发于公众号：字节流动，有疑问或者技术交流可以添加微信 Byte-Flow ,领取视频教程, 拉你进技术交流群
+ *
+ * */
 
 #ifndef OPENGLCAMERA2_BYTEFLOWRENDERCONTEXT_H
 #define OPENGLCAMERA2_BYTEFLOWRENDERCONTEXT_H
@@ -49,11 +52,18 @@ public:
 
 	void SetTransformMatrix(float translateX, float translateY, float scaleX, float scaleY, int degree, int mirror);
 
+	//OpenGL callback
 	void OnSurfaceCreated();
 
 	void OnSurfaceChanged(int width, int height);
 
 	void OnDrawFrame();
+
+	//加载滤镜素材图像
+	void SetLUTImage(int index, int format, int width, int height, uint8_t *pData);
+
+	//加载着色器脚本
+	void SetFragShader(int index, char *pShaderStr, int strSize);
 
 private:
 	static jfieldID s_ContextHandle;

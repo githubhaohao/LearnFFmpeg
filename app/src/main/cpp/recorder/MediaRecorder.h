@@ -1,7 +1,10 @@
-//
-// Created by 公众号：字节流动 on 2021/3/5.
-// https://github.com/githubhaohao/LearnFFmpeg
-//
+/**
+ *
+ * Created by 公众号：字节流动 on 2021/3/16.
+ * https://github.com/githubhaohao/LearnFFmpeg
+ * 最新文章首发于公众号：字节流动，有疑问或者技术交流可以添加微信 Byte-Flow ,领取视频教程, 拉你进技术交流群
+ *
+ * */
 
 #ifndef LEARNFFMPEG_MEDIARECORDER_H
 #define LEARNFFMPEG_MEDIARECORDER_H
@@ -116,17 +119,20 @@ private:
     AVFormatContext *m_FormatCtx = nullptr;
     AVCodec         *m_AudioCodec = nullptr;
     AVCodec         *m_VideoCodec = nullptr;
+    //视频帧队列
     ThreadSafeQueue<VideoFrame *>
                      m_VideoFrameQueue;
+    //音频帧队列
     ThreadSafeQueue<AudioFrame *>
                      m_AudioFrameQueue;
     int              m_EnableVideo = 0;
     int              m_EnableAudio = 0;
     volatile bool    m_Exit = false;
+    //音频编码线程
     thread          *m_pAudioThread = nullptr;
+    //视频编码线程
     thread          *m_pVideoThread = nullptr;
     thread          *m_pMediaThread = nullptr;
-
 };
 
 
