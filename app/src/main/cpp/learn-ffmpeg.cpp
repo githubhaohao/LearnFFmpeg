@@ -382,3 +382,37 @@ Java_com_byteflow_learnffmpeg_media_MediaRecorderContext_native_1OnDrawFrame(JNI
     MediaRecorderContext *pContext = MediaRecorderContext::GetContext(env, thiz);
     if(pContext) pContext->OnDrawFrame();
 }
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_byteflow_learnffmpeg_media_MediaRecorderContext_native_1SetFilterData(JNIEnv *env,
+                                                                               jobject thiz,
+                                                                               jint index,
+                                                                               jint format,
+                                                                               jint width,
+                                                                               jint height,
+                                                                               jbyteArray bytes) {
+    int len = env->GetArrayLength (bytes);
+    uint8_t* buf = new uint8_t[len];
+    env->GetByteArrayRegion(bytes, 0, len, reinterpret_cast<jbyte*>(buf));
+    MediaRecorderContext *pContext = MediaRecorderContext::GetContext(env, thiz);
+    if(pContext) pContext->SetLUTImage(index, format, width, height, buf);
+    delete[] buf;
+    env->DeleteLocalRef(bytes);
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_byteflow_learnffmpeg_media_MediaRecorderContext_native_1SetFragShader(JNIEnv *env,
+                                                                               jobject thiz,
+                                                                               jint index,
+                                                                               jstring str) {
+    int length = env->GetStringUTFLength(str);
+    const char* cStr = env->GetStringUTFChars(str, JNI_FALSE);
+    char *buf = static_cast<char *>(malloc(length + 1));
+    memcpy(buf, cStr, length + 1);
+    MediaRecorderContext *pContext = MediaRecorderContext::GetContext(env, thiz);
+    if(pContext) pContext->SetFragShader(index, buf, length + 1);
+    free(buf);
+    env->ReleaseStringUTFChars(str, cStr);
+}

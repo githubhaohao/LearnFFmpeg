@@ -1,7 +1,10 @@
-//
-// Created by 字节流动 on 2020/6/11.
-// https://github.com/githubhaohao/LearnFFmpeg
-//
+/**
+ *
+ * Created by 公众号：字节流动 on 2021/3/12.
+ * https://github.com/githubhaohao/LearnFFmpeg
+ * 最新文章首发于公众号：字节流动，有疑问或者技术交流可以添加微信 Byte-Flow ,领取视频教程, 拉你进技术交流群
+ *
+ * */
 
 #include "GLCameraRender.h"
 #include <GLUtils.h>
@@ -80,230 +83,6 @@ static char fShaderStr[] =
         "    }\n"
         "}";
 
-static char fMeshShaderStr[] =
-        "//dynimic mesh 动态网格\n"
-        "#version 300 es\n"
-        "precision highp float;\n"
-        "in vec2 v_texCoord;\n"
-        "layout(location = 0) out vec4 outColor;\n"
-        "uniform sampler2D s_texture0;\n"
-        "uniform sampler2D s_texture1;\n"
-        "uniform sampler2D s_texture2;\n"
-        "uniform int u_nImgType;// 1:RGBA, 2:NV21, 3:NV12, 4:I420\n"
-        "uniform float u_Offset;\n"
-        "uniform vec2 u_TexSize;\n"
-        "\n"
-        "vec4 sampleImage(vec2 texCoord) {\n"
-        "    vec4 outColor;\n"
-        "    if(u_nImgType == 1) //RGBA\n"
-        "    {\n"
-        "        outColor = texture(s_texture0, texCoord);\n"
-        "    }\n"
-        "    else if(u_nImgType == 2) //NV21\n"
-        "    {\n"
-        "        vec3 yuv;\n"
-        "        yuv.x = texture(s_texture0, texCoord).r;\n"
-        "        yuv.y = texture(s_texture1, texCoord).a - 0.5;\n"
-        "        yuv.z = texture(s_texture1, texCoord).r - 0.5;\n"
-        "        highp vec3 rgb = mat3(1.0,       1.0,     1.0,\n"
-        "        0.0,  -0.344,  1.770,\n"
-        "        1.403,  -0.714,     0.0) * yuv;\n"
-        "        outColor = vec4(rgb, 1.0);\n"
-        "\n"
-        "    }\n"
-        "    else if(u_nImgType == 3) //NV12\n"
-        "    {\n"
-        "        vec3 yuv;\n"
-        "        yuv.x = texture(s_texture0, texCoord).r;\n"
-        "        yuv.y = texture(s_texture1, texCoord).r - 0.5;\n"
-        "        yuv.z = texture(s_texture1, texCoord).a - 0.5;\n"
-        "        highp vec3 rgb = mat3(1.0,       1.0,     1.0,\n"
-        "        0.0,  -0.344,  1.770,\n"
-        "        1.403,  -0.714,     0.0) * yuv;\n"
-        "        outColor = vec4(rgb, 1.0);\n"
-        "    }\n"
-        "    else if(u_nImgType == 4) //I420\n"
-        "    {\n"
-        "        vec3 yuv;\n"
-        "        yuv.x = texture(s_texture0, texCoord).r;\n"
-        "        yuv.y = texture(s_texture1, texCoord).r - 0.5;\n"
-        "        yuv.z = texture(s_texture2, texCoord).r - 0.5;\n"
-        "        highp vec3 rgb = mat3(1.0,       1.0,     1.0,\n"
-        "        0.0,  -0.344,  1.770,\n"
-        "        1.403,  -0.714,     0.0) * yuv;\n"
-        "        outColor = vec4(rgb, 1.0);\n"
-        "    }\n"
-        "    else\n"
-        "    {\n"
-        "        outColor = vec4(1.0);\n"
-        "    }\n"
-        "    return outColor;\n"
-        "}\n"
-        "void main()\n"
-        "{\n"
-        "    vec2 imgTexCoord = v_texCoord * u_TexSize;\n"
-        "    float sideLength = u_TexSize.y / 6.0;\n"
-        "    float maxOffset = 0.08 * sideLength;\n"
-        "    float x = mod(imgTexCoord.x, floor(sideLength));\n"
-        "    float y = mod(imgTexCoord.y, floor(sideLength));\n"
-        "\n"
-        "    float offset = u_Offset * maxOffset;\n"
-        "\n"
-        "    if(offset <= x\n"
-        "    && x <= sideLength - offset\n"
-        "    && offset <= y\n"
-        "    && y <= sideLength - offset)\n"
-        "    {\n"
-        "        outColor = sampleImage(v_texCoord);\n"
-        "    }\n"
-        "    else\n"
-        "    {\n"
-        "        outColor = vec4(1.0, 1.0, 1.0, 1.0);\n"
-        "    }\n"
-        "}";
-
-static char fDouyinShaderStr[] =
-        "//抖音特效\n"
-        "#version 300 es\n"
-        "precision highp float;\n"
-        "in vec2 v_texCoord;\n"
-        "layout(location = 0) out vec4 outColor;\n"
-        "uniform sampler2D s_texture0;\n"
-        "uniform sampler2D s_texture1;\n"
-        "uniform sampler2D s_texture2;\n"
-        "uniform int u_nImgType;// 1:RGBA, 2:NV21, 3:NV12, 4:I420\n"
-        "uniform float u_Offset;\n"
-        "uniform vec2 u_TexSize;\n"
-        "\n"
-        "vec4 sampleImage(vec2 texCoord) {\n"
-        "    vec4 outColor;\n"
-        "    if(u_nImgType == 1) //RGBA\n"
-        "    {\n"
-        "        outColor = texture(s_texture0, texCoord);\n"
-        "    }\n"
-        "    else if(u_nImgType == 2) //NV21\n"
-        "    {\n"
-        "        vec3 yuv;\n"
-        "        yuv.x = texture(s_texture0, texCoord).r;\n"
-        "        yuv.y = texture(s_texture1, texCoord).a - 0.5;\n"
-        "        yuv.z = texture(s_texture1, texCoord).r - 0.5;\n"
-        "        highp vec3 rgb = mat3(1.0,       1.0,     1.0,\n"
-        "        0.0,  -0.344,  1.770,\n"
-        "        1.403,  -0.714,     0.0) * yuv;\n"
-        "        outColor = vec4(rgb, 1.0);\n"
-        "\n"
-        "    }\n"
-        "    else if(u_nImgType == 3) //NV12\n"
-        "    {\n"
-        "        vec3 yuv;\n"
-        "        yuv.x = texture(s_texture0, texCoord).r;\n"
-        "        yuv.y = texture(s_texture1, texCoord).r - 0.5;\n"
-        "        yuv.z = texture(s_texture1, texCoord).a - 0.5;\n"
-        "        highp vec3 rgb = mat3(1.0,       1.0,     1.0,\n"
-        "        0.0,  -0.344,  1.770,\n"
-        "        1.403,  -0.714,     0.0) * yuv;\n"
-        "        outColor = vec4(rgb, 1.0);\n"
-        "    }\n"
-        "    else if(u_nImgType == 4) //I420\n"
-        "    {\n"
-        "        vec3 yuv;\n"
-        "        yuv.x = texture(s_texture0, texCoord).r;\n"
-        "        yuv.y = texture(s_texture1, texCoord).r - 0.5;\n"
-        "        yuv.z = texture(s_texture2, texCoord).r - 0.5;\n"
-        "        highp vec3 rgb = mat3(1.0,       1.0,     1.0,\n"
-        "        0.0,  -0.344,  1.770,\n"
-        "        1.403,  -0.714,     0.0) * yuv;\n"
-        "        outColor = vec4(rgb, 1.0);\n"
-        "    }\n"
-        "    else\n"
-        "    {\n"
-        "        outColor = vec4(1.0);\n"
-        "    }\n"
-        "    return outColor;\n"
-        "}\n"
-        "\n"
-        "void main()\n"
-        "{\n"
-        "    float offset = u_Offset * 0.05;\n"
-        "    vec4 originColor = sampleImage(v_texCoord);\n"
-        "    vec4 offsetColor0 = sampleImage(vec2(v_texCoord.x + offset, v_texCoord.y + offset));\n"
-        "    vec4 offsetColor1 = sampleImage(vec2(v_texCoord.x - offset, v_texCoord.y - offset));\n"
-        "    outColor = vec4(originColor.r, offsetColor1.g, offsetColor0.b, originColor.a);\n"
-        "}";
-
-static char fCircleShaderStr[] =
-        "#version 300 es\n"
-        "precision highp float;\n"
-        "in vec2 v_texCoord;\n"
-        "layout(location = 0) out vec4 outColor;\n"
-        "uniform sampler2D s_texture0;\n"
-        "uniform sampler2D s_texture1;\n"
-        "uniform sampler2D s_texture2;\n"
-        "uniform int u_nImgType;// 1:RGBA, 2:NV21, 3:NV12, 4:I420\n"
-        "uniform float u_Offset;\n"
-        "uniform vec2 u_TexSize;\n"
-        "\n"
-        "vec4 sampleImage(vec2 texCoord) {\n"
-        "    vec4 outColor;\n"
-        "    if(u_nImgType == 1) //RGBA\n"
-        "    {\n"
-        "        outColor = texture(s_texture0, texCoord);\n"
-        "    }\n"
-        "    else if(u_nImgType == 2) //NV21\n"
-        "    {\n"
-        "        vec3 yuv;\n"
-        "        yuv.x = texture(s_texture0, texCoord).r;\n"
-        "        yuv.y = texture(s_texture1, texCoord).a - 0.5;\n"
-        "        yuv.z = texture(s_texture1, texCoord).r - 0.5;\n"
-        "        highp vec3 rgb = mat3(1.0,       1.0,     1.0,\n"
-        "        0.0,  -0.344,  1.770,\n"
-        "        1.403,  -0.714,     0.0) * yuv;\n"
-        "        outColor = vec4(rgb, 1.0);\n"
-        "\n"
-        "    }\n"
-        "    else if(u_nImgType == 3) //NV12\n"
-        "    {\n"
-        "        vec3 yuv;\n"
-        "        yuv.x = texture(s_texture0, texCoord).r;\n"
-        "        yuv.y = texture(s_texture1, texCoord).r - 0.5;\n"
-        "        yuv.z = texture(s_texture1, texCoord).a - 0.5;\n"
-        "        highp vec3 rgb = mat3(1.0,       1.0,     1.0,\n"
-        "        0.0,  -0.344,  1.770,\n"
-        "        1.403,  -0.714,     0.0) * yuv;\n"
-        "        outColor = vec4(rgb, 1.0);\n"
-        "    }\n"
-        "    else if(u_nImgType == 4) //I420\n"
-        "    {\n"
-        "        vec3 yuv;\n"
-        "        yuv.x = texture(s_texture0, texCoord).r;\n"
-        "        yuv.y = texture(s_texture1, texCoord).r - 0.5;\n"
-        "        yuv.z = texture(s_texture2, texCoord).r - 0.5;\n"
-        "        highp vec3 rgb = mat3(1.0,       1.0,     1.0,\n"
-        "        0.0,  -0.344,  1.770,\n"
-        "        1.403,  -0.714,     0.0) * yuv;\n"
-        "        outColor = vec4(rgb, 1.0);\n"
-        "    }\n"
-        "    else\n"
-        "    {\n"
-        "        outColor = vec4(1.0);\n"
-        "    }\n"
-        "    return outColor;\n"
-        "}\n"
-        "\n"
-        "void main()\n"
-        "{\n"
-        "    vec2 imgTex = v_texCoord * u_TexSize;\n"
-        "    float r = (u_Offset + 0.208 ) * u_TexSize.y;\n"
-        "    if(distance(imgTex, vec2(u_TexSize.x / 2.0, u_TexSize.y / 2.0)) < r)\n"
-        "    {\n"
-        "        outColor = sampleImage(v_texCoord);\n"
-        "    }\n"
-        "    else\n"
-        "    {\n"
-        "        outColor = vec4(1.0, 1.0, 1.0, 1.0);\n"
-        "    }\n"
-        "}";
-
 static GLfloat verticesCoords[] = {
         -1.0f,  1.0f, 0.0f,  // Position 0
         -1.0f, -1.0f, 0.0f,  // Position 1
@@ -366,6 +145,12 @@ void GLCameraRender::RenderVideoFrame(NativeImage *pImage) {
 }
 
 void GLCameraRender::UnInit() {
+    NativeImageUtil::FreeNativeImage(&m_ExtImage);
+
+    if(m_pFragShaderBuffer != nullptr) {
+        free(m_pFragShaderBuffer);
+        m_pFragShaderBuffer = nullptr;
+    }
 
 }
 
@@ -464,7 +249,7 @@ void GLCameraRender::OnSurfaceCreated() {
     LOGCATE("GLCameraRender::OnSurfaceCreated");
 
     m_ProgramObj = GLUtils::CreateProgram(vShaderStr, fShaderStr);
-    m_FboProgramObj = GLUtils::CreateProgram(vShaderStr, fCircleShaderStr);
+    m_FboProgramObj = GLUtils::CreateProgram(vShaderStr, fShaderStr);
     if (!m_ProgramObj || !m_FboProgramObj)
     {
         LOGCATE("GLCameraRender::OnSurfaceCreated create program fail");
@@ -523,6 +308,13 @@ void GLCameraRender::OnSurfaceChanged(int w, int h) {
 }
 
 void GLCameraRender::OnDrawFrame() {
+    if(m_IsShaderChanged) {
+        unique_lock<mutex> lock(m_ShaderMutex);
+        GLUtils::DeleteProgram(m_FboProgramObj);
+        m_FboProgramObj = GLUtils::CreateProgram(vShaderStr, m_pFragShaderBuffer);
+        m_IsShaderChanged = false;
+    }
+
     glClear(GL_COLOR_BUFFER_BIT);
     if(m_ProgramObj == GL_NONE || m_RenderImage.ppPlane[0] == nullptr) return;
     if(m_SrcFboId == GL_NONE && CreateFrameBufferObj()) {
@@ -531,6 +323,8 @@ void GLCameraRender::OnDrawFrame() {
     }
     LOGCATE("GLCameraRender::OnDrawFrame [w, h]=[%d, %d], format=%d", m_RenderImage.width, m_RenderImage.height, m_RenderImage.format);
     m_FrameIndex++;
+
+    UpdateExtTexture();
 
     std::unique_lock<std::mutex> lock(m_Mutex);
     // 渲染到 FBO
@@ -602,7 +396,6 @@ void GLCameraRender::OnDrawFrame() {
     }
 
     glBindVertexArray(m_VaoId);
-    //m_transformMatrix.angleY = 180;
     UpdateMVPMatrix(&m_transformMatrix);
     GLUtils::setMat4(m_FboProgramObj, "u_MVPMatrix", m_MVPMatrix);
     for (int i = 0; i < TEXTURE_NUM; ++i) {
@@ -612,12 +405,43 @@ void GLCameraRender::OnDrawFrame() {
         sprintf(samplerName, "s_texture%d", i);
         GLUtils::setInt(m_FboProgramObj, samplerName, i);
     }
-    float offset = (sin(m_FrameIndex * MATH_PI / 33) + 1.0f) / 2.0f;
+    float offset = (sin(m_FrameIndex * MATH_PI / 40) + 1.0f) / 2.0f;
     GLUtils::setFloat(m_FboProgramObj, "u_Offset", offset);
     GLUtils::setVec2(m_FboProgramObj, "u_TexSize", vec2(m_RenderImage.width, m_RenderImage.height));
     GLUtils::setInt(m_FboProgramObj, "u_nImgType", m_RenderImage.format);
+
+    switch (m_ShaderIndex) {
+        case SHADER_INDEX_ORIGIN:
+            break;
+        case SHADER_INDEX_DMESH:
+            break;
+        case SHADER_INDEX_GHOST:
+            offset = m_FrameIndex % 60 / 60.0f - 0.2f;
+            if(offset < 0) offset = 0;
+            GLUtils::setFloat(m_FboProgramObj, "u_Offset", offset);
+            break;
+        case SHADER_INDEX_CIRCLE:
+            break;
+        case SHADER_INDEX_ASCII:
+            glActiveTexture(GL_TEXTURE0 + TEXTURE_NUM);
+            glBindTexture(GL_TEXTURE_2D, m_ExtTextureId);
+            GLUtils::setInt(m_FboProgramObj, "s_textureMapping", TEXTURE_NUM);
+            GLUtils::setVec2(m_FboProgramObj, "asciiTexSize", vec2(m_ExtImage.width, m_ExtImage.height));
+            break;
+        case SHADER_INDEX_LUT_A:
+        case SHADER_INDEX_LUT_B:
+        case SHADER_INDEX_LUT_C:
+            glActiveTexture(GL_TEXTURE0 + TEXTURE_NUM);
+            glBindTexture(GL_TEXTURE_2D, m_ExtTextureId);
+            GLUtils::setInt(m_FboProgramObj, "s_LutTexture", TEXTURE_NUM);
+            break;
+        default:
+            break;
+    }
+
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, (const void *)0);
 
+    //再绘制一次，把方向倒过来
     glBindFramebuffer(GL_FRAMEBUFFER, m_DstFboId);
     glViewport(0, 0, m_RenderImage.height, m_RenderImage.width); //相机的宽和高反了,
     glClear(GL_COLOR_BUFFER_BIT);
@@ -765,6 +589,55 @@ void GLCameraRender::GetRenderFrameFromFBO() {
         glReadPixels(0, 0, nativeImage.width, nativeImage.height, GL_RGBA, GL_UNSIGNED_BYTE, pBuffer);
         m_RenderFrameCallback(m_CallbackContext, &nativeImage);
         delete []pBuffer;
+    }
+}
+
+void GLCameraRender::SetFragShaderStr(int index, char *pShaderStr, int strSize) {
+    LOGCATE("GLByteFlowRender::LoadFragShaderScript pShaderStr = %p, shaderIndex=%d", pShaderStr,
+            index);
+    if(m_ShaderIndex != index) {
+        unique_lock<mutex> lock(m_ShaderMutex);
+        if(m_pFragShaderBuffer != nullptr) {
+            free(m_pFragShaderBuffer);
+            m_pFragShaderBuffer = nullptr;
+        }
+        m_ShaderIndex = index;
+        m_pFragShaderBuffer = static_cast<char *>(malloc(strSize));
+        memcpy(m_pFragShaderBuffer, pShaderStr, strSize);
+        m_IsShaderChanged = true;
+    }
+
+}
+
+void GLCameraRender::SetLUTImage(int index, NativeImage *pLUTImg) {
+    LOGCATE("GLCameraRender::SetLUTImage pImage = %p, index=%d", pLUTImg->ppPlane[0],
+            index);
+    unique_lock<mutex> lock(m_Mutex);
+    NativeImageUtil::FreeNativeImage(&m_ExtImage);
+    m_ExtImage.width = pLUTImg->width;
+    m_ExtImage.height = pLUTImg->height;
+    m_ExtImage.format = pLUTImg->format;
+    NativeImageUtil::AllocNativeImage(&m_ExtImage);
+    NativeImageUtil::CopyNativeImage(pLUTImg, &m_ExtImage);
+    m_ExtImageChanged = true;
+}
+
+void GLCameraRender::UpdateExtTexture() {
+    LOGCATE("GLCameraRender::UpdateExtTexture");
+    if(m_ExtImageChanged && m_ExtImage.ppPlane[0] != nullptr) {
+        if(m_ExtTextureId != GL_NONE) {
+            glDeleteTextures(1, &m_ExtTextureId);
+        }
+        glGenTextures(1, &m_ExtTextureId);
+        glBindTexture(GL_TEXTURE_2D, m_ExtTextureId);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_ExtImage.width, m_ExtImage.height, 0,
+                     GL_RGBA,
+                     GL_UNSIGNED_BYTE, m_ExtImage.ppPlane[0]);
+        m_ExtImageChanged = false;
     }
 }
 
