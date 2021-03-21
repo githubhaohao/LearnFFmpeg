@@ -7,6 +7,8 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.hardware.camera2.CameraCharacteristics;
 import android.net.Uri;
@@ -20,6 +22,7 @@ import android.util.Size;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
@@ -48,9 +51,13 @@ import com.byteflow.learnffmpeg.media.AudioRecorder;
 import com.byteflow.learnffmpeg.media.FFMediaRecorder;
 import com.byteflow.learnffmpeg.view.CaptureLayout;
 import com.byteflow.learnffmpeg.view.CaptureListener;
+import com.byteflow.learnffmpeg.view.MyGestureListener;
 import com.byteflow.learnffmpeg.view.TypeListener;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.ByteBuffer;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
@@ -58,12 +65,13 @@ import java.util.List;
 import java.util.Locale;
 
 import static com.byteflow.learnffmpeg.media.MediaRecorderContext.IMAGE_FORMAT_I420;
+import static com.byteflow.learnffmpeg.media.MediaRecorderContext.IMAGE_FORMAT_RGBA;
 import static com.byteflow.learnffmpeg.media.MediaRecorderContext.RECORDER_TYPE_AV;
 import static com.byteflow.learnffmpeg.media.MediaRecorderContext.RECORDER_TYPE_SINGLE_VIDEO;
 import static com.byteflow.learnffmpeg.view.RecordedButton.BUTTON_STATE_ONLY_RECORDER;
 
 
-public class AVRecorderActivity extends AppCompatActivity implements Camera2FrameCallback, View.OnClickListener, AudioRecorder.AudioRecorderCallback {
+public class AVRecorderActivity extends AppCompatActivity implements Camera2FrameCallback, View.OnClickListener, AudioRecorder.AudioRecorderCallback, MyGestureListener.SimpleGestureListener {
     private static final String TAG = "AVRecorderActivity";
     private static final SimpleDateFormat DateTime_FORMAT = new SimpleDateFormat("yyyyMMddHHmmss", Locale.US);
     private static final String RESULT_IMG_DIR = "byteflow/learnffmpeg";
@@ -72,6 +80,17 @@ public class AVRecorderActivity extends AppCompatActivity implements Camera2Fram
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
     };
     private static final int CAMERA_PERMISSION_REQUEST_CODE = 1;
+    public static final int SHADER_NUM = 10;
+    public static final int SHADER_INDEX_ORIGIN = 0;
+    public static final int SHADER_INDEX_DMESH  = 1;
+    public static final int SHADER_INDEX_GHOST  = 2;
+    public static final int SHADER_INDEX_CIRCLE = 3;
+    public static final int SHADER_INDEX_ASCII  = 4;
+    public static final int SHADER_INDEX_SPLIT  = 5;
+    public static final int SHADER_INDEX_MATTE  = 6;
+    public static final int SHADER_INDEX_LUT_A  = 7;
+    public static final int SHADER_INDEX_LUT_B  = 8;
+    public static final int SHADER_INDEX_LUT_C  = 9;
     private RelativeLayout mSurfaceViewRoot;
     protected FFMediaRecorder mMediaRecorder;
     private Camera2Wrapper mCamera2Wrapper;
@@ -80,6 +99,8 @@ public class AVRecorderActivity extends AppCompatActivity implements Camera2Fram
     protected Size mRootViewSize, mScreenSize;
     private CaptureLayout mRecordedButton;
     private AudioRecorder mAudioRecorder;
+    protected MyGestureListener mGestureDetector;
+    private int mShaderIndex = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -109,6 +130,7 @@ public class AVRecorderActivity extends AppCompatActivity implements Camera2Fram
     @Override
     protected void onResume() {
         super.onResume();
+        Toast.makeText(this, "左滑或右滑选择滤镜", Toast.LENGTH_LONG).show();
         if (hasPermissionsGranted(REQUEST_PERMISSIONS)) {
             mCamera2Wrapper.startCamera();
         } else {
@@ -226,7 +248,7 @@ public class AVRecorderActivity extends AppCompatActivity implements Camera2Fram
 
         mRecordedButton = findViewById(R.id.record_view);
         mRecordedButton.setButtonFeatures(BUTTON_STATE_ONLY_RECORDER);
-        mRecordedButton.setDuration(20 * 1000);
+        mRecordedButton.setDuration(15 * 1000);
         mRecordedButton.setIconSrc(0, 0);
         mRecordedButton.setCaptureLisenter(new CaptureListener() {
             @Override
@@ -255,6 +277,7 @@ public class AVRecorderActivity extends AppCompatActivity implements Camera2Fram
             @Override
             public void recordEnd(long time) {
                 final ProgressDialog progressDialog = ProgressDialog.show(AVRecorderActivity.this, null, "[软编]等待队列中的数据编码完成", false, false);
+                mAudioRecorder.interrupt();
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
@@ -263,7 +286,6 @@ public class AVRecorderActivity extends AppCompatActivity implements Camera2Fram
                             @Override
                             public void run() {
                                 progressDialog.dismiss();
-                                mAudioRecorder.interrupt();
                                 try {
                                     mAudioRecorder.join();
                                 } catch (InterruptedException e) {
@@ -314,6 +336,8 @@ public class AVRecorderActivity extends AppCompatActivity implements Camera2Fram
                 startActivity(intent);
             }
         });
+
+        mGestureDetector = new MyGestureListener(this, this);
     }
 
     private void showChangeSizeDialog() {
@@ -525,6 +549,83 @@ public class AVRecorderActivity extends AppCompatActivity implements Camera2Fram
                 Toast.makeText(AVRecorderActivity.this, msg, Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        mGestureDetector.onTouchEvent(event);
+        return super.onTouchEvent(event);
+    }
+
+    @Override
+    public void onSwipe(MyGestureListener.SwipeDirection direction) {
+        switch (direction) {
+            case SWIPE_RIGHT:
+                mShaderIndex++;
+                mShaderIndex = mShaderIndex % SHADER_NUM;
+                loadRenderResource();
+                break;
+            case SWIPE_LEFT:
+                mShaderIndex--;
+                if (mShaderIndex < 0) {
+                    mShaderIndex += SHADER_NUM;
+                }
+                loadRenderResource();
+                break;
+            default:
+                break;
+        }
+    }
+
+    public void loadRGBAImage(int resId, int index) {
+        InputStream is = this.getResources().openRawResource(resId);
+        Bitmap bitmap;
+        try {
+            bitmap = BitmapFactory.decodeStream(is);
+            if (bitmap != null) {
+                int bytes = bitmap.getByteCount();
+                ByteBuffer buf = ByteBuffer.allocate(bytes);
+                bitmap.copyPixelsToBuffer(buf);
+                byte[] byteArray = buf.array();
+                mMediaRecorder.setFilterData(index, IMAGE_FORMAT_RGBA, bitmap.getWidth(), bitmap.getHeight(), byteArray);
+            }
+        } finally {
+            try {
+                is.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void loadRenderResource() {
+        switch (mShaderIndex) {
+            case SHADER_INDEX_DMESH:
+                break;
+            case SHADER_INDEX_GHOST:
+                break;
+            case SHADER_INDEX_CIRCLE:
+                break;
+            case SHADER_INDEX_ASCII:
+                loadRGBAImage(R.drawable.ascii_mapping, 0);
+                break;
+            case SHADER_INDEX_LUT_A:
+                loadRGBAImage(R.drawable.lut_a, 0);
+                break;
+            case SHADER_INDEX_LUT_B:
+                loadRGBAImage(R.drawable.lut_b, 0);
+                break;
+            case SHADER_INDEX_LUT_C:
+                loadRGBAImage(R.drawable.lut_c, 0);
+                break;
+            default:
+        }
+
+        if(mShaderIndex >= SHADER_INDEX_LUT_A && mShaderIndex <= SHADER_INDEX_LUT_C) {
+            mMediaRecorder.loadShaderFromAssetsFile(SHADER_INDEX_LUT_A, getResources());
+        } else {
+            mMediaRecorder.loadShaderFromAssetsFile(mShaderIndex, getResources());
+        }
     }
 
     public static class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAdapter.MyViewHolder> implements View.OnClickListener {

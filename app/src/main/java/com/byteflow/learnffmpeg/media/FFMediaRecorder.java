@@ -1,11 +1,16 @@
 package com.byteflow.learnffmpeg.media;
 
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.opengl.GLSurfaceView;
 import android.util.Log;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
+
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
@@ -81,7 +86,7 @@ public class FFMediaRecorder extends MediaRecorderContext implements GLSurfaceVi
         }
 
         if (result != null) {
-            //native_LoadShaderScript(shaderIndex, result);
+            setFragShader(shaderIndex, result);
         }
     }
 
@@ -103,6 +108,14 @@ public class FFMediaRecorder extends MediaRecorderContext implements GLSurfaceVi
     public void onDrawFrame(GL10 gl) {
         Log.d(TAG, "onDrawFrame() called with: gl = [" + gl + "]");
         native_OnDrawFrame();
+    }
+
+    public void setFilterData(int index, int format, int width, int height, byte[] bytes) {
+        native_SetFilterData(index, format, width, height, bytes);
+    }
+
+    public void setFragShader(int index, String str) {
+        native_SetFragShader(index, str);
     }
 
     public void unInit() {

@@ -35,4 +35,8 @@ public abstract class MediaRecorderContext {
     protected native void native_OnSurfaceChanged(int width, int height);
 
     protected native void native_OnDrawFrame();
+
+    protected native void native_SetFilterData(int index, int format, int width, int height, byte[] bytes);
+
+    protected native void native_SetFragShader(int index, String str);
 }
