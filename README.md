@@ -15,6 +15,7 @@ An Android FFmpeg audio and video development tutorial.
 ![recorder](https://github.com/githubhaohao/LearnFFmpeg/blob/master/doc/recorder.gif?raw=true)
 
 # Android FFmpeg 音视频开发系列连载
+
 - [FFmpeg 开发(01)：FFmpeg 编译和集成](https://blog.csdn.net/Kennethdroid/article/details/106956601)
 
 - [FFmpeg 开发(02)：FFmpeg + ANativeWindow 实现视频解码播放](https://blog.csdn.net/Kennethdroid/article/details/107103315)
@@ -36,6 +37,8 @@ An Android FFmpeg audio and video development tutorial.
 - [FFmpeg 开发(10)：FFmpeg 视频录制 - 视频添加滤镜和编码](https://blog.csdn.net/Kennethdroid/article/details/114584127)
 
 - [FFmpeg 开发(11)：FFmpeg + Android AudioRecorder 音频录制编码](https://blog.csdn.net/Kennethdroid/article/details/114818376)
+
+- [FFmpeg 开发(12)：Android FFmpeg 实现带滤镜的微信小视频录制功能](https://blog.csdn.net/Kennethdroid/article/details/115056800)
 
 # 技术交流
 
