@@ -6,7 +6,7 @@
 
 An Android FFmpeg audio and video development tutorial.
 
-Note:Android Studio 4.1+ , NDK r21
+Note: Android Studio 4.1+ , NDK r21
 
 # 展示图1
 ![gl_player](https://github.com/githubhaohao/LearnFFmpeg/blob/master/doc/filter.gif?raw=true)
