@@ -143,7 +143,7 @@ int SingleAudioRecorder::StopRecord() {
         m_pCodecCtx = nullptr;
     }
     if (m_pFrame != nullptr) {
-        av_free(m_pFrame);
+        av_frame_free(&m_pFrame);
         m_pFrame = nullptr;
     }
     if (m_pFrameBuffer != nullptr) {
@@ -152,7 +152,7 @@ int SingleAudioRecorder::StopRecord() {
     }
     if (m_pFormatCtx != nullptr) {
         avio_close(m_pFormatCtx->pb);
-        avformat_free_context(m_pFormatCtx);
+        //avformat_free_context(m_pFormatCtx);
         m_pFormatCtx = nullptr;
     }
     return 0;
