@@ -44,7 +44,7 @@ An Android FFmpeg audio and video development tutorial.
 
 ## 相关推荐
 
-- [Android OpenGLES 3.0 开发系统性学习教程](https://github.com/githubhaohao/NDK_OpenGLES_3_0)
+- [Android OpenGL ES 3.0 开发从入门到精通系统性学习教程](https://github.com/githubhaohao/NDK_OpenGLES_3_0)
 - [Android OpenGL Camera 2.0 实现 30 种滤镜和抖音特效](https://github.com/githubhaohao/OpenGLCamera2)
 
 ## 联系交流
