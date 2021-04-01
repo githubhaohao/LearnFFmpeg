@@ -1,11 +1,3 @@
-/**
- *
- * Created by 公众号：字节流动 on 2021/3/16.
- * https://github.com/githubhaohao/LearnFFmpeg
- * 最新文章首发于公众号：字节流动，有疑问或者技术交流可以添加微信 Byte-Flow ,领取视频教程, 拉你进技术交流群
- *
- * 缩放的圆
- * */
 #version 300 es
 precision highp float;
 in vec2 v_texCoord;
@@ -16,6 +8,15 @@ uniform sampler2D s_texture2;
 uniform int u_nImgType;// 1:RGBA, 2:NV21, 3:NV12, 4:I420
 uniform float u_Offset;
 uniform vec2 u_TexSize;
+
+/**
+ *
+ * Created by 公众号：字节流动 on 2021/3/16.
+ * https://github.com/githubhaohao/LearnFFmpeg
+ * 最新文章首发于公众号：字节流动，有疑问或者技术交流可以添加微信 Byte-Flow ,领取视频教程, 拉你进技术交流群
+ *
+ * 缩放的圆
+ * */
 
 vec4 sampleImage(vec2 texCoord) {
     vec4 outColor;
