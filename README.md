@@ -42,6 +42,11 @@ An Android FFmpeg audio and video development tutorial.
 
 - [FFmpeg 开发(12)：Android FFmpeg 实现带滤镜的微信小视频录制功能](https://blog.csdn.net/Kennethdroid/article/details/115056800)
 
+## 相关推荐
+
+- [Android OpenGLES 3.0 开发系统性学习教程](https://github.com/githubhaohao/NDK_OpenGLES_3_0)
+- [Android OpenGL Camera 2.0 实现 30 种滤镜和抖音特效](https://github.com/githubhaohao/OpenGLCamera2)
+
 ## 联系交流
 有疑问或技术交流可以扫码添加**我的微信：Byte-Flow ，领取视频教程，拉你入相关技术交流群**，里面很多牛人帮你解答。
 
