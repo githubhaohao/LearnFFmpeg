@@ -132,7 +132,7 @@ int SingleVideoRecorder::StopRecord() {
         m_pCodecCtx = nullptr;
     }
     if (m_pFrame != nullptr) {
-        av_free(m_pFrame);
+        av_frame_free(&m_pFrame);
         m_pFrame = nullptr;
     }
     if (m_pFrameBuffer != nullptr) {

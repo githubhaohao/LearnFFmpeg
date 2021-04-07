@@ -26,7 +26,6 @@ static char vShaderStr[] =
         "}";
 
 static char fShaderStr[] =
-        "//原图\n"
         "#version 300 es\n"
         "precision highp float;\n"
         "in vec2 v_texCoord;\n"

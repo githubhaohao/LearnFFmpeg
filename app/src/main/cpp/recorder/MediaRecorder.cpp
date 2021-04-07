@@ -79,12 +79,12 @@ int MediaRecorder::StartRecord() {
     } while (false);
 
     if (result >= 0) {
-        if(m_EnableAudio)
-            m_pAudioThread = new thread(StartAudioEncodeThread, this);
-        if(m_EnableVideo)
-            m_pVideoThread = new thread(StartVideoEncodeThread, this);
-//          if(m_pMediaThread == nullptr)
-//              m_pMediaThread = new thread(StartMediaEncodeThread, this);
+//        if(m_EnableAudio)
+//            m_pAudioThread = new thread(StartAudioEncodeThread, this);
+//        if(m_EnableVideo)
+//            m_pVideoThread = new thread(StartVideoEncodeThread, this);
+          if(m_pMediaThread == nullptr)
+              m_pMediaThread = new thread(StartMediaEncodeThread, this);
     }
 
     return result;
@@ -683,7 +683,6 @@ void MediaRecorder::StartMediaEncodeThread(MediaRecorder *recorder) {
     LOGCATE("MediaRecorder::StartMediaEncodeThread start");
     AVOutputStream *vOs = &recorder->m_VideoStream;
     AVOutputStream *aOs = &recorder->m_AudioStream;
-    AVFormatContext  *fmtCtx = recorder->m_FormatCtx;
     while (!vOs->m_EncodeEnd || !aOs->m_EncodeEnd) {
         double videoTimestamp = vOs->m_NextPts * av_q2d(vOs->m_pCodecCtx->time_base);
         double audioTimestamp = aOs->m_NextPts * av_q2d(aOs->m_pCodecCtx->time_base);

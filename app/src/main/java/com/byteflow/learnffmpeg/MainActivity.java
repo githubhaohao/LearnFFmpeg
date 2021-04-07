@@ -1,3 +1,11 @@
+/**
+ *
+ * Created by 公众号：字节流动 on 2021/3/16.
+ * https://github.com/githubhaohao/LearnFFmpeg
+ * 最新文章首发于公众号：字节流动，有疑问或者技术交流可以添加微信 Byte-Flow ,领取视频教程, 拉你进技术交流群
+ *
+ * */
+
 package com.byteflow.learnffmpeg;
 
 import androidx.annotation.NonNull;
@@ -35,9 +43,9 @@ public class MainActivity extends AppCompatActivity {
     private static final int PERMISSION_REQUEST_CODE = 1;
     private static  final String [] EXAMPLE_LIST = {
             "FFmpeg + ANativeWindow player",
-            "FFmpeg + OpenGLES player",
-            "FFmpeg + OpenSLES visual audio player",
-            "FFmpeg + OpenGLES VR player",
+            "FFmpeg + OpenGL ES player",
+            "FFmpeg + OpenSL ES visual audio player",
+            "FFmpeg + OpenGL ES VR player",
             "FFmpeg + single video recorder",
             "FFmpeg + single audio recorder",
             "FFmpeg + AV recorder"
