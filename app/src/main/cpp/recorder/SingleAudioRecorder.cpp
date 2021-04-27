@@ -62,15 +62,17 @@ int SingleAudioRecorder::StartRecord() {
         m_pCodecCtx->channel_layout = DEFAULT_CHANNEL_LAYOUT;
         m_pCodecCtx->channels = av_get_channel_layout_nb_channels(m_pCodecCtx->channel_layout);
         m_pCodecCtx->bit_rate = 96000;
-        if (avOutputFormat->flags & AVFMT_GLOBALHEADER) {
-            m_pCodecCtx->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
-        }
+//        if (avOutputFormat->flags & AVFMT_GLOBALHEADER) {
+//            m_pCodecCtx->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
+//        }
 
         result = avcodec_open2(m_pCodecCtx, m_pCodec, nullptr);
         if(result < 0) {
             LOGCATE("SingleAudioRecorder::StartRecord avcodec_open2 ret=%d", result);
             break;
         }
+
+        av_dump_format(m_pFormatCtx, 0, m_outUrl, 1);
 
         m_pFrame = av_frame_alloc();
         m_pFrame->nb_samples = m_pCodecCtx->frame_size;
@@ -150,6 +152,7 @@ int SingleAudioRecorder::StopRecord() {
         av_free(m_pFrameBuffer);
         m_pFrameBuffer = nullptr;
     }
+    LOGCATE("SingleAudioRecorder m_pFormatCtx=%p", m_pFormatCtx);
     if (m_pFormatCtx != nullptr) {
         avio_close(m_pFormatCtx->pb);
         //avformat_free_context(m_pFormatCtx);

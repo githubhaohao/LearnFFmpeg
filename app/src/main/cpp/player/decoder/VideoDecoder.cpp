@@ -22,6 +22,12 @@ void VideoDecoder::OnDecoderReady() {
         m_VideoRender->Init(m_VideoWidth, m_VideoHeight, dstSize);
         m_RenderWidth = dstSize[0];
         m_RenderHeight = dstSize[1];
+
+//        int fps = 25;
+//        long videoBitRate = m_RenderWidth * m_RenderHeight * fps * 0.2;
+//        m_pVideoRecorder = new SingleVideoRecorder("/sdcard/output1.mp4", m_RenderWidth, m_RenderHeight, videoBitRate, fps);
+//        m_pVideoRecorder->StartRecord();
+
         m_RGBAFrame = av_frame_alloc();
         int bufferSize = av_image_get_buffer_size(DST_PIXEL_FORMAT, m_RenderWidth, m_RenderHeight, 1);
         m_FrameBuffer = (uint8_t *) av_malloc(bufferSize * sizeof(uint8_t));
@@ -60,6 +66,12 @@ void VideoDecoder::OnDecoderDone() {
         m_SwsContext = nullptr;
     }
 
+//    if(m_pVideoRecorder != nullptr) {
+//        m_pVideoRecorder->StopRecord();
+//        delete m_pVideoRecorder;
+//        m_pVideoRecorder = nullptr;
+//    }
+
 }
 
 void VideoDecoder::OnFrameAvailable(AVFrame *frame) {
@@ -76,6 +88,7 @@ void VideoDecoder::OnFrameAvailable(AVFrame *frame) {
             image.width = m_RenderWidth;
             image.height = m_RenderHeight;
             image.ppPlane[0] = m_RGBAFrame->data[0];
+            image.pLineSize[0] = image.width * 4;
         } else if(GetCodecContext()->pix_fmt == AV_PIX_FMT_YUV420P || GetCodecContext()->pix_fmt == AV_PIX_FMT_YUVJ420P) {
             image.format = IMAGE_FORMAT_I420;
             image.width = frame->width;
@@ -119,9 +132,11 @@ void VideoDecoder::OnFrameAvailable(AVFrame *frame) {
             image.width = m_RenderWidth;
             image.height = m_RenderHeight;
             image.ppPlane[0] = m_RGBAFrame->data[0];
+            image.pLineSize[0] = image.width * 4;
         }
 
         m_VideoRender->RenderVideoFrame(&image);
+        //m_pVideoRecorder->OnFrame2Encode(&image);
     }
 
     if(m_MsgContext && m_MsgCallback)

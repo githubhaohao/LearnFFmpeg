@@ -22,6 +22,7 @@ extern "C" {
 };
 
 #include <render/video/VideoRender.h>
+#include <SingleVideoRecorder.h>
 #include "DecoderBase.h"
 
 class VideoDecoder : public DecoderBase {
@@ -69,6 +70,7 @@ private:
 
     VideoRender *m_VideoRender = nullptr;
     SwsContext *m_SwsContext = nullptr;
+    //SingleVideoRecorder *m_pVideoRecorder = nullptr;
 };
 
 

@@ -68,6 +68,8 @@ void DecoderBase::UnInit() {
 int DecoderBase::InitFFDecoder() {
     int result = -1;
     do {
+        avformat_network_init();
+
         //1.创建封装格式上下文
         m_AVFormatContext = avformat_alloc_context();
 
@@ -113,8 +115,14 @@ int DecoderBase::InitFFDecoder() {
             break;
         }
 
+        AVDictionary *pAVDictionary = nullptr;
+        av_dict_set(&pAVDictionary, "buffer_size", "1024000", 0);
+        av_dict_set(&pAVDictionary, "stimeout", "20000000", 0);
+        av_dict_set(&pAVDictionary, "max_delay", "30000000", 0);
+        av_dict_set(&pAVDictionary, "rtsp_transport", "tcp", 0);
+
         //8.打开解码器
-        result = avcodec_open2(m_AVCodecContext, m_AVCodec, NULL);
+        result = avcodec_open2(m_AVCodecContext, m_AVCodec, &pAVDictionary);
         if(result < 0) {
             LOGCATE("DecoderBase::InitFFDecoder avcodec_open2 fail. result=%d", result);
             break;
@@ -158,6 +166,8 @@ void DecoderBase::UnInitDecoder() {
         avformat_free_context(m_AVFormatContext);
         m_AVFormatContext = nullptr;
     }
+
+    avformat_network_deinit();
 
 }
 
