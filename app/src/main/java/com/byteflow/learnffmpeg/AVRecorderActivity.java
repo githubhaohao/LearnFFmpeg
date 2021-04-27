@@ -338,6 +338,7 @@ public class AVRecorderActivity extends AppCompatActivity implements Camera2Fram
                 }else {
                     uri = Uri.fromFile(file);
                 }
+                //Toast.makeText(AVRecorderActivity.this, uri.toString(),Toast.LENGTH_LONG).show();
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 intent.setDataAndType(uri, "video/*");
@@ -608,6 +609,8 @@ public class AVRecorderActivity extends AppCompatActivity implements Camera2Fram
 
     public void loadRenderResource() {
         switch (mShaderIndex) {
+            case SHADER_INDEX_ORIGIN:
+
             case SHADER_INDEX_DMESH:
                 break;
             case SHADER_INDEX_GHOST:

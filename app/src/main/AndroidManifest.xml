@@ -6,7 +6,6 @@
     <uses-permission android:name="android.permission.RECORD_AUDIO"/>
     <uses-feature android:glEsVersion="0x00020000" android:required="true" />
     <uses-permission android:name="android.permission.CAMERA"/>
-    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
     <uses-permission android:name="android.permission.INTERNET" />
 
 
