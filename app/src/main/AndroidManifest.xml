@@ -41,6 +41,8 @@
         <activity android:name=".AVRecorderActivity"
             android:theme="@style/AppNoActionBarTheme"
             android:screenOrientation="portrait"/>
+        <activity android:name=".StreamMediaPlayerActivity"
+            android:screenOrientation="portrait"/>
 
         <provider
             android:name=".MyFileProvider"

@@ -48,7 +48,8 @@ public class MainActivity extends AppCompatActivity {
             "FFmpeg + OpenGL ES VR player",
             "FFmpeg + single video recorder",
             "FFmpeg + single audio recorder",
-            "FFmpeg + AV recorder"
+            "FFmpeg + AV recorder",
+            "FFmpeg + stream media player"
     };
 
     private static final int FF_ANATIVE_WINDOWS_EXAMPLE = 0;
@@ -58,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int FF_X264_VIDEO_RECORDER = 4;
     private static final int FF_FDK_AAC_AUDIO_RECORDER = 5;
     private static final int FF_AV_RECORDER = 6;
+    private static final int FF_STREAM_MEDIA_PLAYER = 7;
 
     private int mSampleSelectedIndex = -1;
 
@@ -156,6 +158,9 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     case FF_AV_RECORDER:
                         startActivity(new Intent(MainActivity.this, AVRecorderActivity.class));
+                        break;
+                    case FF_STREAM_MEDIA_PLAYER:
+                        startActivity(new Intent(MainActivity.this, StreamMediaPlayerActivity.class));
                         break;
                         default:
                             break;
