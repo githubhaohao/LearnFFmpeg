@@ -23,10 +23,12 @@ void VideoDecoder::OnDecoderReady() {
         m_RenderWidth = dstSize[0];
         m_RenderHeight = dstSize[1];
 
-//        int fps = 25;
-//        long videoBitRate = m_RenderWidth * m_RenderHeight * fps * 0.2;
-//        m_pVideoRecorder = new SingleVideoRecorder("/sdcard/output1.mp4", m_RenderWidth, m_RenderHeight, videoBitRate, fps);
-//        m_pVideoRecorder->StartRecord();
+        if(m_VideoRender->GetRenderType() == VIDEO_RENDER_ANWINDOW) {
+            int fps = 25;
+            long videoBitRate = m_RenderWidth * m_RenderHeight * fps * 0.2;
+            m_pVideoRecorder = new SingleVideoRecorder("/sdcard/learnffmpeg_output.mp4", m_RenderWidth, m_RenderHeight, videoBitRate, fps);
+            m_pVideoRecorder->StartRecord();
+        }
 
         m_RGBAFrame = av_frame_alloc();
         int bufferSize = av_image_get_buffer_size(DST_PIXEL_FORMAT, m_RenderWidth, m_RenderHeight, 1);
@@ -66,11 +68,11 @@ void VideoDecoder::OnDecoderDone() {
         m_SwsContext = nullptr;
     }
 
-//    if(m_pVideoRecorder != nullptr) {
-//        m_pVideoRecorder->StopRecord();
-//        delete m_pVideoRecorder;
-//        m_pVideoRecorder = nullptr;
-//    }
+    if(m_pVideoRecorder != nullptr) {
+        m_pVideoRecorder->StopRecord();
+        delete m_pVideoRecorder;
+        m_pVideoRecorder = nullptr;
+    }
 
 }
 
@@ -136,18 +138,12 @@ void VideoDecoder::OnFrameAvailable(AVFrame *frame) {
         }
 
         m_VideoRender->RenderVideoFrame(&image);
-        //m_pVideoRecorder->OnFrame2Encode(&image);
+
+        if(m_pVideoRecorder != nullptr) {
+            m_pVideoRecorder->OnFrame2Encode(&image);
+        }
     }
 
     if(m_MsgContext && m_MsgCallback)
         m_MsgCallback(m_MsgContext, MSG_REQUEST_RENDER, 0);
-}
-
-long VideoDecoder::GetVideoDecoderTimestampForAVSync(void *context) {
-    if(context != nullptr)
-    {
-        VideoDecoder* videoDecoder = static_cast<VideoDecoder *>(context);
-        return videoDecoder->GetCurrentPosition();
-    }
-    return 0;
 }

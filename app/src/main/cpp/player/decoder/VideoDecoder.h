@@ -50,8 +50,6 @@ public:
         m_VideoRender = videoRender;
     }
 
-    static long GetVideoDecoderTimestampForAVSync(void* context);
-
 private:
     virtual void OnDecoderReady();
     virtual void OnDecoderDone();
@@ -70,7 +68,7 @@ private:
 
     VideoRender *m_VideoRender = nullptr;
     SwsContext *m_SwsContext = nullptr;
-    //SingleVideoRecorder *m_pVideoRecorder = nullptr;
+    SingleVideoRecorder *m_pVideoRecorder = nullptr;
 };
 
 

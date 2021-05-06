@@ -227,6 +227,7 @@ int SingleVideoRecorder::OnFrame2Encode(NativeImage *inputFrame) {
     pImage->format = inputFrame->format;
     NativeImageUtil::AllocNativeImage(pImage);
     NativeImageUtil::CopyNativeImage(inputFrame, pImage);
+    //NativeImageUtil::DumpNativeImage(pImage, "/sdcard", "camera");
     m_frameQueue.Push(pImage);
     return 0;
 }

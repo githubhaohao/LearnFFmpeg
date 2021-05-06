@@ -68,8 +68,6 @@ void DecoderBase::UnInit() {
 int DecoderBase::InitFFDecoder() {
     int result = -1;
     do {
-        //avformat_network_init();
-
         //1.创建封装格式上下文
         m_AVFormatContext = avformat_alloc_context();
 
@@ -166,8 +164,6 @@ void DecoderBase::UnInitDecoder() {
         avformat_free_context(m_AVFormatContext);
         m_AVFormatContext = nullptr;
     }
-
-    //avformat_network_deinit();
 
 }
 
