@@ -88,7 +88,7 @@ public class AVRecorderActivity extends AppCompatActivity implements Camera2Fram
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
     };
     private static final int CAMERA_PERMISSION_REQUEST_CODE = 1;
-    public static final int SHADER_NUM = 10;
+    public static final int SHADER_NUM = 11;
     public static final int SHADER_INDEX_ORIGIN = 0;
     public static final int SHADER_INDEX_DMESH  = 1;
     public static final int SHADER_INDEX_GHOST  = 2;
@@ -99,6 +99,7 @@ public class AVRecorderActivity extends AppCompatActivity implements Camera2Fram
     public static final int SHADER_INDEX_LUT_A  = 7;
     public static final int SHADER_INDEX_LUT_B  = 8;
     public static final int SHADER_INDEX_LUT_C  = 9;
+    public static final int SHADER_INDEX_NE     = 10; //Negative effect
     private RelativeLayout mSurfaceViewRoot;
     protected FFMediaRecorder mMediaRecorder;
     private Camera2Wrapper mCamera2Wrapper;

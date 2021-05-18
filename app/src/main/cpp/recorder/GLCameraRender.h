@@ -33,6 +33,7 @@ using namespace std;
 #define SHADER_INDEX_LUT_A   7
 #define SHADER_INDEX_LUT_B   8
 #define SHADER_INDEX_LUT_C   9
+#define SHADER_INDEX_NE      10  //Negative effect
 
 typedef void (*OnRenderFrameCallback)(void*, NativeImage*);
 

@@ -434,6 +434,8 @@ void GLCameraRender::OnDrawFrame() {
             glBindTexture(GL_TEXTURE_2D, m_ExtTextureId);
             GLUtils::setInt(m_FboProgramObj, "s_LutTexture", TEXTURE_NUM);
             break;
+        case SHADER_INDEX_NE:
+            break;
         default:
             break;
     }

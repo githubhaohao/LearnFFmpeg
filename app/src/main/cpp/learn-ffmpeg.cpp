@@ -15,6 +15,7 @@
 #include <MediaRecorderContext.h>
 #include "util/LogUtil.h"
 #include "jni.h"
+#include "ASanTestCase.h"
 
 extern "C" {
 #include <libavcodec/version.h>
@@ -55,6 +56,9 @@ JNIEXPORT jstring JNICALL Java_com_byteflow_learnffmpeg_media_FFMediaPlayer_nati
     strcat(strBuffer, "\navcodec_license : ");
     strcat(strBuffer, avcodec_license());
     LOGCATE("GetFFmpegVersion\n%s", strBuffer);
+
+    //ASanTestCase::MainTest();
+
     return env->NewStringUTF(strBuffer);
 }
 
