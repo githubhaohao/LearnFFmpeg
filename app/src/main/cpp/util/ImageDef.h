@@ -106,7 +106,7 @@ public:
 		free(pImage->ppPlane[0]);
 		pImage->ppPlane[0] = nullptr;
 		pImage->ppPlane[1] = nullptr;
-		pImage->ppPlane[1] = nullptr;
+		pImage->ppPlane[2] = nullptr;
 	}
 
 	static void CopyNativeImage(NativeImage *pSrcImg, NativeImage *pDstImg)

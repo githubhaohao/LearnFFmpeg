@@ -68,6 +68,15 @@ vec4 sampleImage(vec2 texCoord) {
 void main()
 {
     vec4 tmpOutColor = sampleImage(v_texCoord);
-    outColor = vec4(1.0 - tmpOutColor.r, 1.0 - tmpOutColor.g, 1.0 - tmpOutColor.b, tmpOutColor.a);
+    if(v_texCoord.y < u_Offset) {
+        outColor = vec4(1.0 - tmpOutColor.r, 1.0 - tmpOutColor.g, 1.0 - tmpOutColor.b, tmpOutColor.a);
+    }
+    else if(v_texCoord.y < u_Offset + 0.004) {
+        outColor = vec4(1.0);
+    }
+    else
+    {
+        outColor = tmpOutColor;
+    }
 }
 
