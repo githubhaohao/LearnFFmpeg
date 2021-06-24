@@ -186,7 +186,7 @@ public:
 				}
 				else
 				{
-					memcpy(pDstImg->ppPlane[1], pSrcImg->ppPlane[1], pDstImg->pLineSize[1] * pSrcImg->height);
+					memcpy(pDstImg->ppPlane[1], pSrcImg->ppPlane[1], pDstImg->pLineSize[1] * pSrcImg->height / 2);
 				}
 			}
 				break;
