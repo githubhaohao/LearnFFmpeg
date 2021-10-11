@@ -87,6 +87,10 @@ add_library( # Sets the name of the library.
 #        PROPERTIES IMPORTED_LOCATION
 #        ${jnilibs}/${ANDROID_ABI}/libavformat.so)
 
+#ASAN 需要 NDK20 编译，Android P 以上运行
+#target_compile_options(${libname} PUBLIC -fsanitize=address -fno-omit-frame-pointer)
+#set_target_properties(${libname} PROPERTIES LINK_FLAGS -fsanitize=address)
+
 set(third-party-libs
         avformat
         avcodec
