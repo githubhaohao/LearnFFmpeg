@@ -87,8 +87,6 @@ public class NativeMediaPlayerActivity extends AppCompatActivity implements Surf
         if (!hasPermissionsGranted(REQUEST_PERMISSIONS)) {
             ActivityCompat.requestPermissions(this, REQUEST_PERMISSIONS, PERMISSION_REQUEST_CODE);
         }
-        if(mMediaPlayer != null)
-            mMediaPlayer.play();
     }
 
     @Override
@@ -105,8 +103,6 @@ public class NativeMediaPlayerActivity extends AppCompatActivity implements Surf
     @Override
     protected void onPause() {
         super.onPause();
-        if(mMediaPlayer != null)
-            mMediaPlayer.pause();
     }
 
     @Override
@@ -131,6 +127,7 @@ public class NativeMediaPlayerActivity extends AppCompatActivity implements Surf
     @Override
     public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
         Log.d(TAG, "surfaceDestroyed() called with: surfaceHolder = [" + surfaceHolder + "]");
+        mMediaPlayer.stop();
         mMediaPlayer.unInit();
     }
 
