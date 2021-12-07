@@ -47,7 +47,7 @@ public class StreamMediaPlayerActivity extends AppCompatActivity implements Surf
     private FFMediaPlayer mMediaPlayer = null;
     private SeekBar mSeekBar = null;
     private boolean mIsTouch = false;
-    private final String mVideoPath = "rtsp://wowzaec2demo.streamlock.net/vod/mp4:BigBuckBunny_115k.mov";
+    private final String mVideoPath = "http://9890.vod.myqcloud.com/9890_4e292f9a3dd011e6b4078980237cc3d3.f20.mp4";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
