@@ -44,12 +44,13 @@ public class MainActivity extends AppCompatActivity {
     private static  final String [] EXAMPLE_LIST = {
             "FFmpeg + ANativeWindow player",
             "FFmpeg + OpenGL ES player",
-            "FFmpeg + OpenSL ES visual audio player",
+            "FFmpeg + OpenSL ES visual audio",
             "FFmpeg + OpenGL ES VR player",
             "FFmpeg + single video recorder",
             "FFmpeg + single audio recorder",
             "FFmpeg + AV recorder",
-            "FFmpeg + stream media player"
+            "FFmpeg + stream media player",
+            "FFmpeg + MediaCodec player"
     };
 
     private static final int FF_ANATIVE_WINDOWS_EXAMPLE = 0;
@@ -60,6 +61,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int FF_FDK_AAC_AUDIO_RECORDER = 5;
     private static final int FF_AV_RECORDER = 6;
     private static final int FF_STREAM_MEDIA_PLAYER = 7;
+    private static final int FF_MEDIACODEC_PLAYER = 8;
 
     private int mSampleSelectedIndex = -1;
 
@@ -161,6 +163,9 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     case FF_STREAM_MEDIA_PLAYER:
                         startActivity(new Intent(MainActivity.this, StreamMediaPlayerActivity.class));
+                        break;
+                    case FF_MEDIACODEC_PLAYER:
+                        startActivity(new Intent(MainActivity.this, FFMediaCodecPlayerActivity.class));
                         break;
                         default:
                             break;
