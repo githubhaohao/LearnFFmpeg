@@ -245,22 +245,6 @@ long DecoderBase::AVSync() {
     }
     delay = elapsedTime - m_CurTimeStamp;
 
-
-//    if(m_AVSyncCallback != nullptr && m_SeekPosition == 0) {
-//        //视频向音频同步,或者音频向视频同步,视传进来的 m_AVSyncCallback 而定
-//        long elapsedTime = m_AVSyncCallback(m_AVDecoderContext);
-//        LOGCATE("DecoderBase::AVSync m_CurTimeStamp=%ld, elapsedTime=%ld", m_CurTimeStamp, elapsedTime);
-//
-//        if(m_CurTimeStamp > elapsedTime) {
-//            //休眠时间
-//            auto sleepTime = static_cast<unsigned int>(m_CurTimeStamp - elapsedTime);//ms
-//            //限制休眠时间不能过长
-//            sleepTime = sleepTime > DELAY_THRESHOLD ? DELAY_THRESHOLD :  sleepTime;
-//            av_usleep(sleepTime * 1000);
-//        }
-//        delay = elapsedTime - m_CurTimeStamp;
-//    }
-
     return delay;
 }
 
@@ -344,19 +328,4 @@ void DecoderBase::DoAVDecoding(DecoderBase *decoder) {
 
 }
 
-//void DecoderBase::UpdateTimeStamp(AVPacket *avPacket) {
-//    std::unique_lock<std::mutex> lock(m_Mutex);
-//    if (avPacket->pts > 0 && avPacket->pts != AV_NOPTS_VALUE) {
-//        m_CurTimeStamp = avPacket->pts;
-//    }
-//
-//    m_CurTimeStamp = (int64_t)((m_CurTimeStamp * av_q2d(m_AVFormatContext->streams[m_StreamIndex]->time_base)) * 1000);
-//
-//    if(m_SeekPosition > 0 && m_SeekSuccess)
-//    {
-//        m_StartTimeStamp = GetSysCurrentTime() - m_CurTimeStamp;
-//        m_SeekPosition = 0;
-//        m_SeekSuccess = false;
-//    }
-//}
 

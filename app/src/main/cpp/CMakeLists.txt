@@ -24,6 +24,7 @@ link_directories(
 file(GLOB src-files
         ${CMAKE_SOURCE_DIR}/*.cpp
         ${CMAKE_SOURCE_DIR}/util/*.cpp
+        ${CMAKE_SOURCE_DIR}/common/*.cpp
         ${CMAKE_SOURCE_DIR}/player/*.cpp
         ${CMAKE_SOURCE_DIR}/player/decoder/*.cpp
         ${CMAKE_SOURCE_DIR}/player/render/video/*.cpp
@@ -104,6 +105,7 @@ set(third-party-libs
 
 set(native-libs
         android
+        mediandk
         EGL
         GLESv3
         OpenSLES

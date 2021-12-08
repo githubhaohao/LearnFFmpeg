@@ -54,8 +54,6 @@ public:
         m_AudioRender = audioRender;
     }
 
-    static long GetAudioDecoderTimestampForAVSync(void* context);
-
 private:
     virtual void OnDecoderReady();
     virtual void OnDecoderDone();

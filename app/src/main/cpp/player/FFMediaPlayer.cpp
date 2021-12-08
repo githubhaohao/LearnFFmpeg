@@ -34,9 +34,6 @@ void FFMediaPlayer::Init(JNIEnv *jniEnv, jobject obj, char *url, int videoRender
 
     m_VideoDecoder->SetMessageCallback(this, PostMessage);
     m_AudioDecoder->SetMessageCallback(this, PostMessage);
-
-    //AVSync
-    //m_VideoDecoder->SetAVSyncCallback(m_AudioDecoder, AudioDecoder::GetAudioDecoderTimestampForAVSync);
 }
 
 void FFMediaPlayer::UnInit() {
