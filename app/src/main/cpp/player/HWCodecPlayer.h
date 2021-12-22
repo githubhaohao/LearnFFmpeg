@@ -18,9 +18,16 @@
 #include <media/NdkMediaExtractor.h>
 #include <android/asset_manager.h>
 #include <android/asset_manager_jni.h>
+#include <SyncClock.h>
 
-#define BUFF_MAX_VIDEO_DURATION 0.5
-#define MAX_SYNC_SLEEP_TIME     200
+#define BUFF_MAX_VIDEO_DURATION   0.5
+#define MAX_SYNC_SLEEP_TIME       200
+#define VIDEO_FRAME_DEFAULT_DELAY 25
+#define VIDEO_FRAME_MAX_DELAY     250
+
+#define AV_SYNC_THRESHOLD_MIN   40
+#define AV_SYNC_THRESHOLD_MAX   100
+#define AV_SYNC_FRAMEDUP_THRESHOLD AV_SYNC_THRESHOLD_MAX
 
 enum PlayerState {
     PLAYER_STATE_UNKNOWN,
@@ -48,6 +55,7 @@ private:
     virtual JNIEnv *GetJNIEnv(bool *isAttach);
     virtual jobject GetJavaObj();
     virtual JavaVM *GetJavaVM();
+    void AVSync();
 
 
     int InitDecoder();
@@ -95,6 +103,9 @@ private:
     mutex               m_VideoBufMutex;
     mutex               m_AudioBufMutex;
     condition_variable  m_Cond;
+    SyncClock           m_VideoClock;
+    SyncClock           m_AudioClock;
+    AVRational          m_FrameRate;
 };
 
 

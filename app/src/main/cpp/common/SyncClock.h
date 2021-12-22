@@ -14,24 +14,31 @@
 class SyncClock {
 public:
     SyncClock(){
-        pts = 0;
+        curPts = 0;
         lastUpdate = 0;
+        lastPts = 0;
+        frameTimer = 0;
     }
 
     ~SyncClock() {
     }
 
     void SetClock(double pts, double time) {
-        this->pts = pts;
+        this->curPts = pts;
         this->lastUpdate = time;
     }
 
     double GetClock() {
         double time = GetSysCurrentTime();
-        return pts + time - lastUpdate;
+        return curPts + time - lastUpdate;
     }
+
+public:
+    double lastPts;
+    double frameTimer;
+    double curPts;
+
 private:
-    double pts;
     double lastUpdate;
 };
 

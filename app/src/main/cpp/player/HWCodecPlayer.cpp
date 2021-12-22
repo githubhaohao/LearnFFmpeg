@@ -315,22 +315,25 @@ void HWCodecPlayer::AudioDecodeThreadProc(HWCodecPlayer *player) {
                 break;
             }
 
+            SyncClock* audioClock = &player->m_AudioClock;
             double presentationNano = audioFrame->pts * av_q2d(player->m_AudioTimeBase) * 1000;
-            if(player->m_AudioStartBase <= 0)
-                player->m_AudioStartBase = GetSysCurrentTime() - presentationNano;
-
-            if(player->m_AudioStartBase > player->m_VideoStartBase)
-                player->m_CommonStartBase = player->m_AudioStartBase;
-
-            int delay = player->m_CommonStartBase + presentationNano - GetSysCurrentTime();
-            if(delay > 0) {
-                int sleepMs = delay > MAX_SYNC_SLEEP_TIME ? MAX_SYNC_SLEEP_TIME : delay;
-                usleep(sleepMs * 1000);
-            }
+            audioClock->SetClock(presentationNano, GetSysCurrentTime());
+//            player->AVSync();
+//            if(player->m_AudioStartBase <= 0)
+//                player->m_AudioStartBase = GetSysCurrentTime() - presentationNano;
+//
+//            if(player->m_AudioStartBase > player->m_VideoStartBase)
+//                player->m_CommonStartBase = player->m_AudioStartBase;
+//
+//            int delay = player->m_CommonStartBase + presentationNano - GetSysCurrentTime();
+//            if(delay > 0) {
+//                int sleepMs = delay > MAX_SYNC_SLEEP_TIME ? MAX_SYNC_SLEEP_TIME : delay;
+//                usleep(sleepMs * 1000);
+//            }
 
             if(player->m_SeekPosition < 0)
                 PostMessage(player, MSG_DECODING_TIME, presentationNano * 1.0f / 1000);
-            LOGCATE("HWCodecPlayer::AudioDecodeThreadProc sync audio pts = %lf", presentationNano);
+            LOGCATE("HWCodecPlayer::AudioDecodeThreadProc sync audio curPts = %lf", presentationNano);
 
             swr_convert(player->m_SwrCtx, &audioOutBuffer, AUDIO_DST_SAMPLE_RATE * 2, (const uint8_t **)audioFrame->data, audioFrame->nb_samples);
             int buffer_size = av_samples_get_buffer_size(NULL, outChannelNb, audioFrame->nb_samples, AV_SAMPLE_FMT_S16, 1);
@@ -407,21 +410,24 @@ void HWCodecPlayer::VideoDecodeThreadProc(HWCodecPlayer *player) {
         LOGCATI("HWCodecPlayer::VideoDecodeThreadProc status: %d\n", status);
         uint8_t* buffer;
         if (status >= 0) {
+            SyncClock* videoClock = &player->m_VideoClock;
             double presentationNano = info.presentationTimeUs * av_q2d(player->m_VideoTimeBase) * 1000;
-            if(player->m_VideoStartBase <= 0)
-                player->m_VideoStartBase = GetSysCurrentTime() - presentationNano;
-
-            if(player->m_VideoStartBase > player->m_AudioStartBase)
-                player->m_CommonStartBase = player->m_VideoStartBase;
-
-            int delay = player->m_CommonStartBase + presentationNano - GetSysCurrentTime();
-            if(delay > 0) {
-                int sleepMs = delay > MAX_SYNC_SLEEP_TIME ? MAX_SYNC_SLEEP_TIME : delay;
-                usleep(sleepMs * 1000);
-            }
+            videoClock->SetClock(presentationNano, GetSysCurrentTime());
+            player->AVSync();
+//            if(player->m_VideoStartBase <= 0)
+//                player->m_VideoStartBase = GetSysCurrentTime() - presentationNano;
+//
+//            if(player->m_VideoStartBase > player->m_AudioStartBase)
+//                player->m_CommonStartBase = player->m_VideoStartBase;
+//
+//            int delay = player->m_CommonStartBase + presentationNano - GetSysCurrentTime();
+//            if(delay > 0) {
+//                int sleepMs = delay > MAX_SYNC_SLEEP_TIME ? MAX_SYNC_SLEEP_TIME : delay;
+//                usleep(sleepMs * 1000);
+//            }
 
             size_t size;
-            LOGCATI("HWCodecPlayer::VideoDecodeThreadProc sync video pts = %lf", presentationNano);
+            LOGCATI("HWCodecPlayer::VideoDecodeThreadProc sync video curPts = %lf", presentationNano);
             buffer = AMediaCodec_getOutputBuffer(videoCodec, status, &size);
             LOGCATI("HWCodecPlayer::VideoDecodeThreadProc buffer: %p, buffer size: %d", buffer, size);
             AMediaCodec_releaseOutputBuffer(videoCodec, status, info.size != 0);
@@ -503,6 +509,7 @@ int HWCodecPlayer::InitDecoder() {
         m_VideoCodecCtx = avcodec_alloc_context3(videoCodec);
         if(m_VideoCodecCtx) {
             avcodec_parameters_to_context(m_VideoCodecCtx, m_AVFormatContext->streams[m_VideoStreamIdx]->codecpar);
+            m_FrameRate = m_AVFormatContext->streams[m_VideoStreamIdx]->r_frame_rate;
         }
 
         AVDictionary *pAVDictionary = nullptr;
@@ -674,6 +681,43 @@ int HWCodecPlayer::UnInitDecoder() {
     }
 
     return 0;
+}
+
+void HWCodecPlayer::AVSync() {
+    LOGCATE("HWCodecPlayer::AVSync");
+    double delay = m_VideoClock.curPts - m_VideoClock.lastPts;
+    int tickFrame = 1000 * m_FrameRate.den / m_FrameRate.num;
+    LOGCATE("HWCodecPlayer::AVSync tickFrame=%dms", tickFrame);
+    if(delay <= 0 || delay > VIDEO_FRAME_MAX_DELAY) {
+        delay = tickFrame;
+    }
+    double refClock = m_AudioClock.GetClock();// 视频向音频同步
+    double avDiff = m_VideoClock.lastPts - refClock;
+    m_VideoClock.lastPts = m_VideoClock.curPts;
+    double syncThreshold = FFMAX(AV_SYNC_THRESHOLD_MIN, FFMIN(AV_SYNC_THRESHOLD_MAX, delay));
+    LOGCATE("HWCodecPlayer::AVSync refClock=%lf, delay=%lf, avDiff=%lf, syncThreshold=%lf", refClock, delay, avDiff, syncThreshold);
+    if(avDiff <= -syncThreshold) { //视频比音频慢
+        delay = FFMAX(0,  delay + avDiff);
+    }
+    else if(avDiff >= syncThreshold && delay > AV_SYNC_FRAMEDUP_THRESHOLD) { //视频比音频快太多
+        delay = delay + avDiff;
+    }
+    else if(avDiff >= syncThreshold)
+        delay = 2 * delay;
+
+    LOGCATE("HWCodecPlayer::AVSync avDiff=%lf, delay=%lf", avDiff, delay);
+
+    double tickCur = GetSysCurrentTime();
+    double tickDiff =  tickCur - m_VideoClock.frameTimer;//两帧实际的时间间隔
+    m_VideoClock.frameTimer = tickCur;
+
+    if(tickDiff - tickFrame >  5) delay-=5;
+    if(tickDiff - tickFrame < -5) delay+=5;
+
+    LOGCATE("HWCodecPlayer::AVSync delay=%lf, tickDiff=%lf", delay, tickDiff);
+    if(delay > 0) {
+        usleep(1000 * delay);
+    }
 }
 
 
