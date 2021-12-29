@@ -44,6 +44,8 @@ An Android FFmpeg audio and video development tutorial.
 
 - [FFmpeg 开发(13)：Android FFmpeg 流媒体边播放边录制功能](https://www.jianshu.com/p/0174789ba7fe)
 
+- [FFmpeg 开发(14)：Android FFmpeg + MediaCodec 实现视频硬解码](https://juejin.cn/post/7046979325215637512)
+
 ## 相关推荐
 
 - [Android OpenGL ES 3.0 开发从入门到精通系统性学习教程](https://github.com/githubhaohao/NDK_OpenGLES_3_0)
