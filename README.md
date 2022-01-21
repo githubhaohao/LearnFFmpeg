@@ -46,6 +46,8 @@ An Android FFmpeg audio and video development tutorial.
 
 - [FFmpeg 开发(14)：Android FFmpeg + MediaCodec 实现视频硬解码](https://juejin.cn/post/7046979325215637512)
 
+- [FFmpeg 开发(15)：学习使用 FFmpeg 打造一个自己的通用播放器](https://juejin.cn/post/7055516420536270884)
+
 ## 相关推荐
 
 - [Android OpenGL ES 3.0 开发从入门到精通系统性学习教程](https://github.com/githubhaohao/NDK_OpenGLES_3_0)
