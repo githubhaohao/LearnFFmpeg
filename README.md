@@ -48,6 +48,10 @@ An Android FFmpeg audio and video development tutorial.
 
 - [FFmpeg 开发(15)：学习使用 FFmpeg 打造一个自己的通用播放器](https://juejin.cn/post/7055516420536270884)
 
+## 作者声明
+
+有读者反馈，最近有培训机构将本教程进行打包售卖。再次声明：**任何组织或个人未经作者本人许可，不得将本教程及其项目配套代码用于 "打包贩卖、出书和卖课" 等商业用途。**
+
 ## 相关推荐
 
 - [Android OpenGL ES 3.0 开发从入门到精通系统性学习教程](https://github.com/githubhaohao/NDK_OpenGLES_3_0)
