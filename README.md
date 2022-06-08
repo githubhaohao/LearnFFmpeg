@@ -8,6 +8,10 @@ An Android FFmpeg audio and video development tutorial.
 
 编译环境: Android Studio 4.1+ ，NDK r21
 
+## 作者声明
+
+有读者反馈，最近有培训机构将本教程进行打包售卖，严重违背了本项目免费开源的初衷。再次声明：**任何商业机构或个人未经作者【微信号：Byte-Flow 】许可，不得将本教程及其项目配套代码用于 "打包贩卖、出书和卖课" 等商业用途，一经发现，全网声讨。再次感谢各位读者的监督和反馈。**
+
 # 展示图1
 ![gl_player](https://github.com/githubhaohao/LearnFFmpeg/blob/master/doc/filter.gif?raw=true)
 ![vr_player](https://github.com/githubhaohao/LearnFFmpeg/blob/master/doc/vr.gif?raw=true)
@@ -47,10 +51,6 @@ An Android FFmpeg audio and video development tutorial.
 - [FFmpeg 开发(14)：Android FFmpeg + MediaCodec 实现视频硬解码](https://juejin.cn/post/7046979325215637512)
 
 - [FFmpeg 开发(15)：学习使用 FFmpeg 打造一个自己的通用播放器](https://juejin.cn/post/7055516420536270884)
-
-## 作者声明
-
-有读者反馈，最近有培训机构将本教程进行打包售卖。再次声明：**任何组织或个人未经作者本人许可，不得将本教程及其项目配套代码用于 "打包贩卖、出书和卖课" 等商业用途。**
 
 ## 相关推荐
 
