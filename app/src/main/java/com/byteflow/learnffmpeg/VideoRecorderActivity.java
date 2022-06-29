@@ -129,7 +129,7 @@ public class VideoRecorderActivity extends AppCompatActivity implements Camera2F
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == CAMERA_PERMISSION_REQUEST_CODE) {
             if (hasPermissionsGranted(REQUEST_PERMISSIONS)) {
-                mCamera2Wrapper.startCamera();
+                //mCamera2Wrapper.startCamera();
             } else {
                 Toast.makeText(this, "We need the camera permission.", Toast.LENGTH_SHORT).show();
             }
